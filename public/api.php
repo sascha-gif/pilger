@@ -213,6 +213,28 @@ try {
             $tagebuch = new Tagebuch($db, $repo);
             json_out(['ok' => true, 'pruefe' => $tagebuch->pruefeAlles()]);
 
+        case 'gesundheit.zugang':
+            $gesundheit = new Gesundheit($db);
+            $gesundheit->zugangSetzen(
+                array_key_exists('client_id', $body) ? (string) $body['client_id'] : null,
+                array_key_exists('client_secret', $body) ? (string) $body['client_secret'] : null
+            );
+            json_out(['ok' => true, 'stand' => $gesundheit->stand(), 'url' => $gesundheit->anmeldeUrl()]);
+
+        case 'gesundheit.holen':
+            $gesundheit = new Gesundheit($db);
+            // Standard: die letzten 30 Tage. Der Camino selbst wird mit
+            // ausdruecklichem Zeitraum nachgeholt.
+            $von = isset($body['von']) ? substr((string) $body['von'], 0, 10) : date('Y-m-d', strtotime('-30 days'));
+            $bis = isset($body['bis']) ? substr((string) $body['bis'], 0, 10) : date('Y-m-d');
+            $e = $gesundheit->holen($von, $bis);
+            json_out($e + ['stand' => $gesundheit->stand()], $e['ok'] ? 200 : 422);
+
+        case 'gesundheit.trennen':
+            $gesundheit = new Gesundheit($db);
+            $gesundheit->trennen();
+            json_out(['ok' => true, 'stand' => $gesundheit->stand()]);
+
         case 'wetter':
             // Kann ein paar Sekunden dauern — deshalb ruft die Seite das erst
             // nach dem Rendern auf und nicht beim Aufbau.

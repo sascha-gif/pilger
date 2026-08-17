@@ -441,6 +441,81 @@
     }, 700);
   });
 
+  /* ================= Google Health ====================================== */
+  var gsdHinweis = document.getElementById('gsdHinweis');
+
+  function gsdSag(text, fehler) {
+    if (!gsdHinweis) return;
+    gsdHinweis.textContent = text;
+    gsdHinweis.classList.toggle('fehler', !!fehler);
+  }
+
+  var gsdSpeichern = document.getElementById('gsdSpeichern');
+  if (gsdSpeichern) {
+    gsdSpeichern.addEventListener('click', function () {
+      var nutzlast = { action: 'gesundheit.zugang' };
+      var id = document.getElementById('gsdId').value.trim();
+      var secret = document.getElementById('gsdSecret').value.trim();
+      if (id) nutzlast.client_id = id;
+      if (secret) nutzlast.client_secret = secret;
+
+      gsdSpeichern.disabled = true;
+      gsdSag('wird gespeichert …');
+      sendeJson(nutzlast).then(function (d) {
+        gsdSpeichern.disabled = false;
+        document.getElementById('gsdSecret').value = '';
+        if (d.stand.zugang && d.url) {
+          gsdSag('Gespeichert. Jetzt „Mit Google verbinden".');
+          location.reload();
+        } else {
+          gsdSag('Es fehlt noch Client-ID oder Secret.', true);
+        }
+      }).catch(function (err) {
+        gsdSpeichern.disabled = false;
+        gsdSag(err.message, true);
+      });
+    });
+  }
+
+  /* Die Anmelde-Adresse wird erst beim Klick geholt: sie enthält einen
+     Einmalwert gegen untergeschobene Rückmeldungen, und der soll frisch sein. */
+  var gsdVerbinden = document.getElementById('gsdVerbinden');
+  if (gsdVerbinden) {
+    gsdVerbinden.addEventListener('click', function (e) {
+      e.preventDefault();
+      gsdSag('Adresse wird vorbereitet …');
+      sendeJson({ action: 'gesundheit.zugang' }).then(function (d) {
+        if (d.url) { location.href = d.url; } else { gsdSag('Kein Zugang hinterlegt.', true); }
+      }).catch(function (err) { gsdSag(err.message, true); });
+    });
+  }
+
+  var gsdHolen = document.getElementById('gsdHolen');
+  if (gsdHolen) {
+    gsdHolen.addEventListener('click', function () {
+      gsdHolen.disabled = true;
+      gsdSag('wird geholt — das dauert ein paar Sekunden …');
+      sendeJson({ action: 'gesundheit.holen' }).then(function (d) {
+        gsdHolen.disabled = false;
+        gsdSag(d.meldung);
+        if (d.tage) setTimeout(function () { location.reload(); }, 900);
+      }).catch(function (err) {
+        gsdHolen.disabled = false;
+        gsdSag(err.message, true);
+      });
+    });
+  }
+
+  var gsdTrennen = document.getElementById('gsdTrennen');
+  if (gsdTrennen) {
+    gsdTrennen.addEventListener('click', function () {
+      if (!confirm('Verbindung zu Google trennen? Die schon geholten Tage bleiben erhalten.')) return;
+      sendeJson({ action: 'gesundheit.trennen' })
+        .then(function () { location.reload(); })
+        .catch(function (err) { gsdSag(err.message, true); });
+    });
+  }
+
   /* ================= Schlüssel ========================================== */
 
   /* Ein Schlüssel, der erst auf dem Camino zum ersten Mal benutzt wird und dann

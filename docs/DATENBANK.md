@@ -96,6 +96,20 @@ derselbe Eintrag ist.
 `status` eines Eintrags: `neu` (Aufnahme liegt, noch kein Text),
 `transkribiert` (Rohtext da), `fertig`, `fehler`.
 
+### Gesundheitsdaten
+
+`health_days` — ein Datensatz je Tag: `steps`, `kcal`, `hr_avg`, `hr_min`,
+`hr_max`, `hr_ruhe`, `aktiv_min`, `distanz_m`. Fehlende Tage sind fehlende
+Synchronisierungen, keine Nullen.
+
+`weight_weeks` hat zusätzlich `von_iso` und `bis_iso`. Bisher stand dort nur
+„11.–17.08." als Text; um Schritte einer Woche zuzuordnen, braucht es Daten,
+mit denen man rechnen kann. Gemittelt wird über die Tage **mit** Daten.
+
+Die Google-Token stehen in `settings` (`google_client_id`,
+`google_client_secret`, `google_refresh_token`, …) — im Klartext, wie die
+übrigen Schlüssel auch.
+
 ## Beide Datenbanken
 
 `src/Schema.php` erzeugt dasselbe Schema in zwei Dialekten:
@@ -142,3 +156,4 @@ Bisher gefahren:
 | `005_erledigt` | Häkchen für Etappen und Ausrüstung, `km_walk`, Stempel |
 | `006_aussen` | `ext_cache` für Wetter und Höhen |
 | `007_tagebuch` | `diary_entries`, `photos` |
+| `008_gesundheit` | `health_days`, Datumsgrenzen der Trainingswochen |

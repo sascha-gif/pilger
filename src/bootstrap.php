@@ -16,6 +16,7 @@ require APP_ROOT . '/src/Repo.php';
 require APP_ROOT . '/src/Auth.php';
 require APP_ROOT . '/src/Aussen.php';
 require APP_ROOT . '/src/Tagebuch.php';
+require APP_ROOT . '/src/Gesundheit.php';
 
 /** @return array<string,mixed> */
 function app_config(): array

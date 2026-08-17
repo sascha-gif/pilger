@@ -66,6 +66,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/007_tagebuch.php';
             migration_007($db);
         });
+
+        // Schritte, Kalorien und Puls aus dem Google-Health-Konto.
+        $apply('008_gesundheit', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/008_gesundheit.php';
+            migration_008($db);
+        });
     }
 
     /** @return array<int,string> */

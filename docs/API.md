@@ -89,6 +89,40 @@ sondern wird gekappt.
 { "ok": true, "checked": true, "done": 4, "total": 13 }
 ```
 
+### Google Health — Schritte, Kalorien, Puls
+
+| Aktion | Felder | Zweck |
+|---|---|---|
+| `gesundheit.zugang` | `client_id`, `client_secret` | OAuth-Zugang hinterlegen; gibt die Anmelde-URL zurück |
+| `gesundheit.holen` | `von`, `bis` (optional) | Tage holen und ablegen, Standard letzte 30 Tage |
+| `gesundheit.trennen` | — | Token widerrufen und löschen; geholte Tage bleiben |
+
+Die Rückkehr von Google landet auf `public/gesundheit.php` — diese Adresse muss
+in der Cloud Console als autorisierte Weiterleitungs-URI stehen.
+
+Warum überhaupt Google Health und nicht Google Fit: die Fit-REST-Schnittstelle
+nimmt **seit dem 1. Mai 2024 keine neuen Entwickler mehr an** und wird Ende 2026
+abgeschaltet. Health Connect, der offizielle Nachfolger, läuft ausschließlich
+auf dem Gerät — ein Server kommt da nie heran. Bleibt die Google Health API
+(`health.googleapis.com/v4`), die das Fitbit-Konto liest.
+
+Aufruf je Datentyp, Aufbau aus Googles Discovery-Dokument:
+
+```
+POST https://health.googleapis.com/v4/users/me/dataTypes/steps/dataPoints:dailyRollUp
+{ "range": { "start": {"date": {"year":2026,"month":9,"day":19}},
+             "end":   {"date": {"year":2026,"month":9,"day":20}} },
+  "windowSizeDays": 1, "pageSize": 1000 }
+```
+
+Das Ende ist **ausschließend** — wer den letzten Tag mit haben will, fragt einen
+Tag weiter. Höchstens 14 Tage je Anfrage bei `heart-rate`, `active-minutes` und
+`total-calories`, sonst 90; der Code schneidet den Zeitraum selbst passend.
+
+Fehlt ein Tag in der Antwort, hat die Uhr nicht synchronisiert. Das ist
+**nicht** dasselbe wie null Schritte und wird deshalb auch nicht als Null
+gespeichert, sondern gar nicht.
+
 ### `wetter` / `hoehen` — was von außen kommt
 
 Beides ohne weitere Felder. Der Server holt bei Bedarf bei Open-Meteo nach und
