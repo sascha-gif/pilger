@@ -502,8 +502,16 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
               — ohne das bricht Google mit <i>redirect_uri_mismatch</i> ab.</li>
             <li>Beim Zustimmungsbildschirm die Rechte <i>activity_and_fitness.readonly</i> und
               <i>health_metrics_and_measurements.readonly</i> auswählen.</li>
+            <li><b>Zielgruppe auf „Extern"</b> stellen, wenn die Health-Daten nicht unter einem
+              Konto der eigenen Organisation liegen. Sonst lehnt Google mit
+              <i>Fehler 403: org_internal</i> ab — dann darf nur die eigene Firma die App benutzen.</li>
             <li><b>Wichtig:</b> Veröffentlichungsstatus auf <b>„In production"</b> stellen. Bleibt die App
-              auf „Testing", läuft die Verbindung nach <b>sieben Tagen</b> ab — und zwar mitten auf dem Camino.</li>
+              auf „Testing", läuft die Verbindung nach <b>sieben Tagen</b> ab — und zwar mitten auf dem Camino.
+              Veröffentlicht ist das Dauer-Token unbegrenzt gültig.</li>
+            <li>Eine <b>Freigabe durch Google ist nicht nötig.</b> Die Prüfung entfernt nur den
+              Warnbildschirm. Beim ersten Verbinden kommt <i>„Google hat diese App nicht überprüft"</i> —
+              das ist der erwartete Weg: <b>Erweitert → Weiter zu pilger.milsh.com</b>. Die Daten gehen
+              an den eigenen Server und an niemanden sonst.</li>
           </ol>
           <label>Client-ID
             <input type="text" id="gsdId" value="<?= h((string) ($gStand['client_id'] ?? '')) ?>"

@@ -198,6 +198,28 @@ Zwei Volumes, beide müssen ins Backup:
 7. Offen geblieben: Etappen direkt auf der Seite bearbeitbar machen
    (`stage.update` liegt in der API bereit, die Oberfläche dazu fehlt).
 
+## Google Health — die drei Stolpersteine
+
+Alle drei sind Einstellungen in der Google Cloud Console, keine Codefragen.
+Sie stehen auch in der Anleitung auf der Seite selbst.
+
+1. **`redirect_uri_mismatch`** — unter *Autorisierte Weiterleitungs-URIs* muss
+   genau `https://pilger.milsh.com/gesundheit.php` stehen. Fehlt der Eintrag,
+   bricht Google schon vor dem Zustimmungsbildschirm ab.
+2. **`Fehler 403: org_internal`** — der Zustimmungsbildschirm steht auf
+   Zielgruppe *Intern*, damit dürfen nur Konten der eigenen
+   Workspace-Organisation die App benutzen. Auf *Extern* umstellen, oder sich
+   mit einem Konto der Organisation anmelden.
+3. **Sieben Tage** — bleibt der Veröffentlichungsstatus auf *Testing*, macht
+   Google das Dauer-Token nach einer Woche ungültig. Auf *In production*
+   stellen; dann gilt es unbegrenzt.
+
+Eine Freigabe durch Google braucht es **nicht**. Die Prüfung entfernt nur den
+Warnbildschirm „Google hat diese App nicht überprüft" und ist bei *sensitive*
+Rechten keine Voraussetzung — sie wäre es nur bei *restricted* Rechten wie
+Gmail. Ungeprüft veröffentlicht gilt eine Grenze von 100 Nutzern; gebraucht
+wird einer.
+
 ## Was bewusst nicht gebaut wurde
 
 - **Kein Speichern des Originalfotos.** Bilder werden auf 1600 px verkleinert.
