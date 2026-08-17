@@ -16,7 +16,11 @@ services:
     environment:
       TZ: Europe/Berlin
       PILGER_DB_DRIVER: mysql
-      PILGER_DB_HOST: db
+      # Bewusst der volle, eindeutige Name: die App hängt auch im gemeinsamen
+      # Netz des Reverse-Proxy, in dem rund 25 Projekte liegen. Ein Dienst
+      # namens `db` wäre dort mehrdeutig und könnte auf eine fremde Datenbank
+      # auflösen.
+      PILGER_DB_HOST: pilger-db
       PILGER_DB_PORT: "3306"
       PILGER_DB_NAME: ${DB_NAME:-pilger}
       PILGER_DB_USER: ${DB_USER:-pilger}
@@ -24,13 +28,13 @@ services:
       PILGER_WRITE_PASSWORD: ${WRITE_PASSWORD:-}
       PILGER_DEBUG: "false"
     depends_on:
-      db:
+      pilger-db:
         condition: service_healthy
     networks:
       - intern
       - caddy
 
-  db:
+  pilger-db:
     image: mariadb:11
     container_name: pilger-db
     restart: unless-stopped

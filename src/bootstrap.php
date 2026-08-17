@@ -77,10 +77,14 @@ if (!empty($config['debug'])) {
 mb_internal_encoding('UTF-8');
 date_default_timezone_set('Europe/Berlin');
 
-$db = new Database($config);
+try {
+    $db = new Database($config);
 
-if (!empty($config['auto_migrate'])) {
-    Schema::migrate($db);
+    if (!empty($config['auto_migrate'])) {
+        Schema::migrate($db);
+    }
+} catch (Throwable $e) {
+    app_fail('Die Datenbank ist gerade nicht erreichbar.', $e, !empty($config['debug']));
 }
 
 $repo = new Repo($db);

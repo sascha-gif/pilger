@@ -90,7 +90,7 @@ jobs:
           echo "Seite vollständig: 52 Packlisten-Einträge, Kostentabelle vorhanden."
 
           # Gegen MariaDB, nicht gegen SQLite — der Rückfall darf hier nicht greifen.
-          docker compose exec -T db \
+          docker compose exec -T pilger-db \
             mariadb -upilger -ppruefpasswort123 pilger \
             -e "select count(*) as etappen from stages; select count(*) as packliste from pack_items;"
 
@@ -102,7 +102,7 @@ jobs:
             -d '{"action":"cost.set","id":2,"amount":249.90}' | tee antwort.json
           grep -q '"ok":true' antwort.json
 
-          gespeichert=$(docker compose exec -T db \
+          gespeichert=$(docker compose exec -T pilger-db \
             mariadb -upilger -ppruefpasswort123 pilger -N -B \
             -e "select amount from cost_items where id = 2;")
           echo "In der Datenbank steht: $gespeichert"
