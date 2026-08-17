@@ -95,6 +95,7 @@ Port geöffnet werden. Details in `docs/DEPLOYMENT.md`.
 | Karte (Leaflet, 13 Stopps + Senda Litoral) | **fertig**, Daten aus der DB |
 | Container-Stack (Dockerfile, compose) | **fertig**, wird bei jedem Push geprüft |
 | Selbstaktualisierung (systemd-Zeitgeber) | **fertig**, läuft |
+| Google Health: Schritte, Kalorien, Puls | **fertig**, wartet auf die Freigabe in der Cloud Console |
 | Live auf pilger.milsh.com | **fertig** |
 
 Getestet gegen SQLite wurde vollständig: Rendern, Speichern, Neuladen, Anmelden,
@@ -140,6 +141,7 @@ public/            Document-Root
   api.php          JSON-Schnittstelle für alle Änderungen
   upload.php       Annahme von Fotos und Sprachaufnahmen (multipart)
   media.php        Auslieferung derselben — nur nach Anmeldung
+  gesundheit.php   Rückkehr von Google nach der OAuth-Anmeldung
   sw.js            Service Worker, hält die Seite ohne Netz lesbar
   assets/          app.css, app.js, tagebuch.js
 src/               Anwendungscode
@@ -151,9 +153,11 @@ src/               Anwendungscode
   Repo.php         alle Datenbankzugriffe der Seite
   Aussen.php       Wetter und Höhen von Open-Meteo, mit Zwischenspeicher
   Tagebuch.php     Aufnahmen, Bilder, Transkription, Glättung
+  Gesundheit.php   Schritte, Kalorien und Puls aus dem Google-Health-Konto
 db/seed.php        kompletter Masterplan-Inhalt als Startdaten
 db/migrations/     002 Küstenroute · 003 Ankunft · 004 Zutritt ·
-                   005 Erledigt/km/Stempel · 006 Wetter+Höhen · 007 Tagebuch
+                   005 Erledigt/km/Stempel · 006 Wetter+Höhen · 007 Tagebuch ·
+                   008 Gesundheitsdaten
 config/            config.example.php — im Container über Umgebungsvariablen ersetzt
 ops/               setup-server.sh, pilger-update.sh, systemd-Einheiten
 docs/              DEPLOYMENT.md · DATENBANK.md · API.md
