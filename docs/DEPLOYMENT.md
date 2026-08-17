@@ -41,18 +41,21 @@ Schlägt Schritt 9 fehl, ist der Deploy rot und in den Actions-Logs steht, woran
 
 - `SSH_HOST` — `46.224.19.41`
 - `SSH_USER` — SSH-Benutzer
-- `SSH_KEY` — privater Schlüssel, kompletter Text mit `-----BEGIN …-----` und `-----END …-----`
 - `DEPLOY_PATH` — Zielverzeichnis, z. B. `/var/www/pilger.milsh.com`
+- **entweder** `SSH_KEY` — privater Schlüssel, kompletter Text mit `-----BEGIN …-----` und `-----END …-----`
+  **oder** `SSH_PASSWORD` — das SSH-Passwort des Benutzers
+
+Der Workflow erkennt selbst, welcher der beiden Wege hinterlegt ist: mit `SSH_KEY`
+läuft er über den Schlüssel, sonst über `sshpass`. Ist beides gesetzt, gewinnt der
+Schlüssel. Ein eigener Deploy-Key ist einem persönlichen Schlüssel vorzuziehen.
 
 **Optional**
 
 - `SSH_PORT` — falls nicht 22
 - `DB_NAME`, `DB_USER`, `DB_PASS`, `DB_HOST`, `DB_PORT` — für MariaDB statt SQLite
-- `DB_ADMIN_USER`, `DB_ADMIN_PASS` — dann legt der Workflow Datenbank und Benutzer selbst an
+- `DB_ADMIN_USER`, `DB_ADMIN_PASS` — MySQL-Admin zum Anlegen der Datenbank
 - `WRITE_PASSWORD` — schaltet den Schreibschutz scharf
 - `SITE_URL` — abweichende Prüf-URL
-
-Der SSH-Key sollte ein eigener Deploy-Key sein, kein persönlicher Schlüssel.
 
 ## Webserver
 
@@ -84,8 +87,17 @@ Zeigt das Root stattdessen auf das Projektverzeichnis, greift die mitgelieferte
 Die App bringt ihr Schema selbst mit (`src/Schema.php` + `db/seed.php`) und legt
 es beim ersten Aufruf an. Nötig ist nur eine **leere Datenbank plus Benutzer**.
 
-Mit `DB_ADMIN_USER`/`DB_ADMIN_PASS` erledigt das der Workflow. Ohne diese Secrets
-einmalig im Hetzner-Panel anlegen:
+Sobald `DB_NAME` gesetzt ist, legt der Workflow Datenbank und Benutzer selbst an.
+Er versucht dafür zwei Wege, in dieser Reihenfolge:
+
+1. mit `DB_ADMIN_USER` / `DB_ADMIN_PASS`, falls hinterlegt
+2. sonst `sudo mysql` auf dem Server — funktioniert auf den meisten
+   Debian/Ubuntu-Installationen ohne zusätzliches Passwort
+
+Der angelegte Benutzer bekommt genau das Passwort aus `DB_PASS`; das ist also
+frei wählbar und muss nirgendwo vorher existieren. Klappt keiner der beiden Wege,
+bricht der Deploy mit einer Meldung ab und die Datenbank wird einmalig von Hand
+angelegt:
 
 ```sql
 CREATE DATABASE pilger CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

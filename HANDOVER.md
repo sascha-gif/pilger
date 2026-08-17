@@ -70,22 +70,26 @@ Einzutragen unter
 |---|---|---|
 | `SSH_HOST` | ja | `46.224.19.41` |
 | `SSH_USER` | ja | SSH-Benutzer auf dem Server |
-| `SSH_KEY` | ja | privater SSH-Schlüssel (kompletter Text inkl. BEGIN/END-Zeilen) |
+| `SSH_PASSWORD` | ja¹ | SSH-Passwort — **oder** stattdessen `SSH_KEY` |
+| `SSH_KEY` | ja¹ | privater SSH-Schlüssel (kompletter Text inkl. BEGIN/END-Zeilen) |
 | `DEPLOY_PATH` | ja | Zielverzeichnis, z. B. `/var/www/pilger.milsh.com` |
 | `SSH_PORT` | nein | nur falls nicht 22 |
-| `DB_NAME` | nein¹ | Name der Datenbank, z. B. `pilger` |
-| `DB_USER` / `DB_PASS` | nein¹ | DB-Benutzer |
+| `DB_NAME` | nein² | Name der Datenbank, z. B. `pilger` |
+| `DB_USER` / `DB_PASS` | nein² | DB-Benutzer; das Passwort ist frei wählbar und wird so angelegt |
 | `DB_HOST` / `DB_PORT` | nein | Standard `localhost` / `3306` |
-| `DB_ADMIN_USER` / `DB_ADMIN_PASS` | nein² | MySQL-Admin, damit der Workflow die DB selbst anlegt |
+| `DB_ADMIN_USER` / `DB_ADMIN_PASS` | nein³ | MySQL-Admin zum Anlegen der Datenbank |
 | `WRITE_PASSWORD` | nein | Passwort für den Bearbeiten-Modus |
 | `SITE_URL` | nein | Standard `https://pilger.milsh.com/` |
 
-¹ Ohne `DB_NAME` läuft die App mit SQLite unter `var/pilger.sqlite` — funktioniert
+¹ Eines von beiden genügt. Der Workflow erkennt selbst, welcher Weg hinterlegt ist;
+sind beide gesetzt, gewinnt der Schlüssel.
+
+² Ohne `DB_NAME` läuft die App mit SQLite unter `var/pilger.sqlite` — funktioniert
 vollständig, braucht keinen DB-Server. Sobald `DB_NAME` gesetzt ist, wird MariaDB benutzt.
 
-² Mit Admin-Zugang legt der Workflow Datenbank und Benutzer selbst an. Ohne ihn
-müssen Datenbank und Benutzer einmal im Hetzner-Panel angelegt werden — das
-Schema und alle Startdaten spielt die App danach von allein ein.
+³ Der Workflow legt Datenbank und Benutzer selbst an: zuerst über
+`DB_ADMIN_USER`/`DB_ADMIN_PASS`, sonst über `sudo mysql` auf dem Server. Klappt
+keines von beidem, bricht er mit einer klaren Meldung ab.
 
 Sobald die Secrets stehen: `main` anstoßen (Actions → *Deploy pilger.milsh.com*
 → *Run workflow*) oder einfach den nächsten Merge abwarten.
