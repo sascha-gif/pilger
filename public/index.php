@@ -550,9 +550,7 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
           <?php if ($fotos): ?>
             <div class="tbfotos">
               <?php foreach ($fotos as $f): ?>
-                <a href="media.php?art=foto&amp;id=<?= (int) $f['id'] ?>" target="_blank" rel="noopener">
-                  <img src="media.php?art=klein&amp;id=<?= (int) $f['id'] ?>" alt="<?= h((string) $f['caption']) ?>" loading="lazy">
-                </a>
+                <?= bild_kachel($f, false) ?>
               <?php endforeach; ?>
             </div>
           <?php endif; ?>
@@ -562,6 +560,9 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
           <footer>
             <?php if ($e['audio_file'] && $e['status'] !== 'fertig'): ?>
               <button type="button" class="tb-mini veredeln">Text daraus machen</button>
+            <?php elseif ($text !== '' && !$e['text_clean']): ?>
+              <?php /* Diktiert oder getippt — hier fehlt nur noch die Glättung. */ ?>
+              <button type="button" class="tb-mini veredeln">Text glätten</button>
             <?php endif; ?>
             <button type="button" class="tb-mini bearbeiten">Bearbeiten</button>
             <button type="button" class="tb-mini loeschen">Löschen</button>
@@ -596,10 +597,7 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
             </div>
             <div class="zl-bilder">
               <?php foreach ($bilder as $f): ?>
-                <a href="media.php?art=foto&amp;id=<?= (int) $f['id'] ?>" target="_blank" rel="noopener"
-                   title="<?= h((string) $f['caption']) ?>">
-                  <img src="media.php?art=klein&amp;id=<?= (int) $f['id'] ?>" alt="<?= h((string) $f['caption']) ?>" loading="lazy">
-                </a>
+                <?= bild_kachel($f, true) ?>
               <?php endforeach; ?>
             </div>
           </div>
@@ -610,12 +608,29 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
     <details class="tb-einstellungen">
       <summary>Sprachnotizen in Text verwandeln — Schlüssel hinterlegen</summary>
       <div class="tb-eform">
+        <p class="kannstand">
+          <span class="<?= $kann['glaettung'] ? 'ja' : 'nein' ?>">
+            <?= $kann['glaettung'] ? '✓' : '○' ?> Glättung (Claude)
+          </span>
+          <span class="<?= $kann['transkription'] ? 'ja' : 'nein' ?>">
+            <?= $kann['transkription'] ? '✓' : '○' ?> Transkription (Whisper)
+          </span>
+        </p>
         <p>
-          Aufnehmen und speichern geht ohne alles. Damit aus einer Sprachnotiz von selbst
-          ein sauberer Text wird, braucht der Server zwei Zugänge:
-          <b>Whisper</b> hört die Aufnahme ab (rund 0,6 Cent je Minute), <b>Claude</b> macht
-          daraus lesbares Deutsch (rund 1–2 Cent je Eintrag). Für zwei Wochen Camino sind das
-          zusammen deutlich unter einem Euro.
+          Aufnehmen, tippen und speichern geht ohne alles. Die beiden Zugänge machen
+          zweierlei, und sie hängen nicht aneinander:
+        </p>
+        <p>
+          <b>Claude</b> macht aus rohem Text lesbares Deutsch — Absätze statt „ähm", nichts
+          dazuerfunden. Das reicht schon allein: Diktier oben ins Tippfeld über den
+          Mikrofon-Knopf deiner Handytastatur, speichere, und am Eintrag steht dann
+          <i>„Text glätten"</i>. Rund 2 Cent je Eintrag.
+        </p>
+        <p>
+          <b>Whisper</b> braucht es nur für <i>aufgenommene</i> Sprachnotizen — Claude nimmt
+          keine Audiodateien entgegen, es kann lesen und schreiben, aber nicht zuhören. Rund
+          0,6 Cent je Minute. Ohne Whisper bleibt eine Aufnahme eine Aufnahme: gespeichert
+          und abspielbar, aber ohne Text.
         </p>
         <p class="warn">
           Die Schlüssel liegen danach im Klartext in deiner Datenbank — auf deinem Server,
@@ -631,8 +646,11 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
         <label>Modell
           <input type="text" id="keyModell" value="<?= h($kann['modell']) ?>" autocomplete="off">
         </label>
-        <button type="button" id="keySpeichern" class="tb-knopf haupt">Schlüssel speichern</button>
-        <span class="tb-hinweis" id="keyHinweis"></span>
+        <div class="tb-aktion">
+          <button type="button" id="keySpeichern" class="tb-knopf haupt">Speichern und ausprobieren</button>
+          <button type="button" id="keyPruefen" class="tb-knopf">Nur ausprobieren</button>
+        </div>
+        <p class="tb-hinweis" id="keyHinweis"></p>
       </div>
     </details>
   </div>

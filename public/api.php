@@ -203,7 +203,15 @@ try {
                     $tagebuch->setzeEinstellung($feld, $wert === '' ? null : $wert);
                 }
             }
-            json_out(['ok' => true, 'kann' => $tagebuch->faehigkeiten()]);
+            json_out([
+                'ok'     => true,
+                'kann'   => $tagebuch->faehigkeiten(),
+                'pruefe' => $tagebuch->pruefeClaude(),
+            ]);
+
+        case 'schluessel.pruefen':
+            $tagebuch = new Tagebuch($db, $repo);
+            json_out(['ok' => true, 'pruefe' => $tagebuch->pruefeClaude()]);
 
         case 'wetter':
             // Kann ein paar Sekunden dauern — deshalb ruft die Seite das erst

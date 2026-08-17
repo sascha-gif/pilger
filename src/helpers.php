@@ -74,6 +74,29 @@ function app_fail(string $message, ?Throwable $e = null, bool $debug = false): n
     exit;
 }
 
+/**
+ * Ein Foto mit allem, was man damit tun können muss: ansehen, beschriften,
+ * löschen. Ein Bild ohne Bedienelemente ist eine Sackgasse — es liegt dann für
+ * immer da, auch wenn es aus Versehen hochgeladen wurde.
+ *
+ * @param array<string,mixed> $f Zeile aus `photos`
+ * @param bool $gross Zeitleiste (größer) oder Eintragskarte (kleiner)
+ */
+function bild_kachel(array $f, bool $gross): string
+{
+    $id   = (int) $f['id'];
+    $text = (string) ($f['caption'] ?? '');
+
+    return '<figure class="bk' . ($gross ? ' gross' : '') . '" data-foto="' . $id . '">'
+        . '<a href="media.php?art=foto&amp;id=' . $id . '" target="_blank" rel="noopener">'
+        . '<img src="media.php?art=klein&amp;id=' . $id . '" alt="' . h($text) . '" loading="lazy">'
+        . '</a>'
+        . '<button type="button" class="bk-weg" title="Bild löschen" aria-label="Bild löschen">×</button>'
+        . '<figcaption><input type="text" class="bk-text" value="' . h($text) . '"'
+        . ' placeholder="Bildunterschrift" maxlength="500"></figcaption>'
+        . '</figure>';
+}
+
 /** JSON-Antwort senden und beenden. */
 function json_out(array $payload, int $status = 200): void
 {

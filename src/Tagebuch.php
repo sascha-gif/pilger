@@ -55,6 +55,63 @@ final class Tagebuch
         ];
     }
 
+    /**
+     * Einen hinterlegten Schlüssel wirklich ausprobieren.
+     *
+     * Ein Schlüssel, der erst auf dem Camino zum ersten Mal benutzt wird und
+     * dann nicht geht, ist schlimmer als keiner. Deshalb macht der Server hier
+     * einen echten, winzigen Aufruf und sagt, was zurückkam.
+     */
+    public function pruefeClaude(): array
+    {
+        $key = $this->einstellung('anthropic_key');
+        if ($key === null) {
+            return ['ok' => false, 'meldung' => 'Kein Claude-Schlüssel hinterlegt.'];
+        }
+        if (!function_exists('curl_init')) {
+            return ['ok' => false, 'meldung' => 'Der Server kann keine Anfragen nach außen stellen (curl fehlt).'];
+        }
+
+        $modell = $this->einstellung('claude_model') ?? 'claude-opus-5';
+
+        $ch = curl_init(self::CLAUDE);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST           => true,
+            CURLOPT_TIMEOUT        => 30,
+            CURLOPT_HTTPHEADER     => [
+                'Content-Type: application/json',
+                'x-api-key: ' . $key,
+                'anthropic-version: 2023-06-01',
+            ],
+            CURLOPT_POSTFIELDS => json_encode([
+                'model'      => $modell,
+                'max_tokens' => 8,
+                'messages'   => [['role' => 'user', 'content' => 'Antworte nur mit: bereit']],
+            ]),
+        ]);
+        $body = curl_exec($ch);
+        $code = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+        $netz = curl_error($ch);
+        curl_close($ch);
+
+        if ($code === 200) {
+            return ['ok' => true, 'meldung' => 'Claude antwortet. Modell: ' . $modell];
+        }
+
+        $daten = json_decode((string) $body, true);
+        $grund = $daten['error']['message'] ?? ($netz ?: 'keine Antwort');
+
+        return ['ok' => false, 'meldung' => match ($code) {
+            0        => 'Der Server kommt nicht ins Internet: ' . $grund,
+            401, 403 => 'Der Schlüssel wird nicht angenommen. Stimmt er noch?',
+            400      => 'Anfrage abgelehnt — meist ein falsch geschriebener Modellname. Antwort: ' . $grund,
+            404      => 'Modell „' . $modell . '" gibt es unter diesem Namen nicht.',
+            429      => 'Zu viele Anfragen oder kein Guthaben auf dem Konto.',
+            default  => 'HTTP ' . $code . ' — ' . $grund,
+        }];
+    }
+
     /* ================= Einträge ========================================== */
 
     public function eintraege(): array

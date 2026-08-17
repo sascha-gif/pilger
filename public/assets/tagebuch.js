@@ -359,13 +359,14 @@
     var id = Number(karte.dataset.id);
 
     if (e.target.classList.contains('veredeln')) {
+      var beschriftung = e.target.textContent;
       e.target.disabled = true;
       e.target.textContent = 'läuft …';
       sendeJson({ action: 'tagebuch.veredeln', id: id })
         .then(function () { location.reload(); })
         .catch(function (err) {
           e.target.disabled = false;
-          e.target.textContent = 'Text daraus machen';
+          e.target.textContent = beschriftung;
           sag(err.message, true);
         });
       return;
@@ -402,7 +403,56 @@
     }
   });
 
+  /* ================= Bilder beschriften und löschen ===================== */
+  /* Die Kacheln stehen an zwei Stellen — an den Einträgen und in der
+     Zeitleiste. Ein Zuhörer am Dokument erwischt beide, auch die, die nach
+     einem Upload dazukommen. */
+  document.addEventListener('click', function (e) {
+    var weg = e.target.closest('.bk-weg');
+    if (!weg) return;
+    var kachel = weg.closest('.bk');
+    var id = Number(kachel.dataset.foto);
+    if (!confirm('Dieses Bild löschen?')) return;
+    weg.disabled = true;
+    sendeJson({ action: 'foto.loeschen', id: id })
+      .then(function () {
+        // Auch die zweite Kachel desselben Bildes verschwindet.
+        document.querySelectorAll('.bk[data-foto="' + id + '"]').forEach(function (k) { k.remove(); });
+        sag('Bild gelöscht.');
+      })
+      .catch(function (err) { weg.disabled = false; sag(err.message, true); });
+  });
+
+  var textUhren = {};
+  document.addEventListener('input', function (e) {
+    var feld = e.target.closest('.bk-text');
+    if (!feld) return;
+    var id = Number(feld.closest('.bk').dataset.foto);
+    clearTimeout(textUhren[id]);
+    textUhren[id] = setTimeout(function () {
+      sendeJson({ action: 'foto.bildtext', id: id, text: feld.value })
+        .then(function () {
+          document.querySelectorAll('.bk[data-foto="' + id + '"] .bk-text').forEach(function (anderes) {
+            if (anderes !== feld) anderes.value = feld.value;
+          });
+          sag('Bildunterschrift gespeichert.');
+        })
+        .catch(function (err) { sag(err.message, true); });
+    }, 700);
+  });
+
   /* ================= Schlüssel ========================================== */
+
+  /* Ein Schlüssel, der erst auf dem Camino zum ersten Mal benutzt wird und dann
+     nicht geht, ist schlimmer als keiner. Deshalb wird gleich beim Speichern
+     ein echter, winziger Aufruf gemacht. */
+  var hinweis = document.getElementById('keyHinweis');
+
+  function zeigePruefung(p) {
+    if (!hinweis || !p) return;
+    hinweis.textContent = (p.ok ? '✓ ' : '✗ ') + p.meldung;
+    hinweis.classList.toggle('fehler', !p.ok);
+  }
 
   var keySpeichern = document.getElementById('keySpeichern');
   if (keySpeichern) {
@@ -415,13 +465,34 @@
       if (a) nutzlast.anthropic_key = a;
       if (m) nutzlast.claude_model = m;
 
-      var hinweis = document.getElementById('keyHinweis');
+      keySpeichern.disabled = true;
+      hinweis.textContent = 'wird gespeichert und ausprobiert …';
+      hinweis.classList.remove('fehler');
+
       sendeJson(nutzlast).then(function (d) {
+        keySpeichern.disabled = false;
         document.getElementById('keyOpenAi').value = '';
         document.getElementById('keyAnthropic').value = '';
-        hinweis.textContent = 'Gespeichert. Transkription: ' + (d.kann.transkription ? 'ja' : 'nein') +
-                              ' · Glättung: ' + (d.kann.glaettung ? 'ja' : 'nein');
+        zeigePruefung(d.pruefe);
       }).catch(function (err) {
+        keySpeichern.disabled = false;
+        hinweis.textContent = err.message;
+        hinweis.classList.add('fehler');
+      });
+    });
+  }
+
+  var keyPruefen = document.getElementById('keyPruefen');
+  if (keyPruefen) {
+    keyPruefen.addEventListener('click', function () {
+      keyPruefen.disabled = true;
+      hinweis.textContent = 'wird ausprobiert …';
+      hinweis.classList.remove('fehler');
+      sendeJson({ action: 'schluessel.pruefen' }).then(function (d) {
+        keyPruefen.disabled = false;
+        zeigePruefung(d.pruefe);
+      }).catch(function (err) {
+        keyPruefen.disabled = false;
         hinweis.textContent = err.message;
         hinweis.classList.add('fehler');
       });

@@ -334,8 +334,25 @@ footer a{color:var(--flecha)}
 .tbnotiz{font-size:12.5px;color:#a4341f;margin-top:8px}
 .tb-bearbeitung{width:100%;font-family:inherit;font-size:15px;line-height:1.6;padding:10px;
                 border:1px solid var(--flecha);background:#fff}
-.tbfotos{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-.tbfotos img{width:96px;height:96px;object-fit:cover;border:1px solid var(--line);display:block}
+.tbfotos{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+
+/* Bildkachel: ansehen, beschriften, löschen. */
+.bk{position:relative;width:104px;flex:0 0 auto}
+.bk.gross{width:132px}
+.bk img{width:104px;height:104px;object-fit:cover;border:1px solid var(--line);display:block;background:#efe9d8}
+.bk.gross img{width:132px;height:132px}
+.bk-weg{position:absolute;top:3px;right:3px;width:24px;height:24px;line-height:1;font-size:16px;
+        border:none;border-radius:50%;background:rgba(29,35,38,.72);color:#fff;cursor:pointer;
+        opacity:0;transition:opacity .15s ease}
+.bk:hover .bk-weg,.bk:focus-within .bk-weg{opacity:1}
+.bk-weg:hover{background:#a4341f}
+.bk-weg:disabled{opacity:.4;cursor:wait}
+.bk figcaption{margin-top:4px}
+.bk-text{width:100%;font-family:inherit;font-size:11.5px;padding:4px 6px;
+         border:1px solid transparent;border-bottom-color:var(--line);background:transparent;color:var(--ink)}
+.bk-text:hover{border-bottom-color:var(--stone)}
+.bk-text:focus{outline:none;border-color:var(--flecha);background:#fff}
+@media (hover:none){.bk-weg{opacity:1}}
 /* Die Seite hat unten einen dunklen Fuß — der darf nicht auf jede Karte
    durchschlagen, nur weil da auch <footer> steht. */
 .tbe > footer{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;padding:10px 0 0;
@@ -354,8 +371,7 @@ footer a{color:var(--flecha)}
 .zl-code{font-family:"Spline Sans Mono",monospace;font-size:11px;font-weight:600;color:var(--flecha)}
 .zl-titel{font-family:"Fraunces",serif;font-size:17px;font-weight:600}
 .zl-zahl{font-family:"Spline Sans Mono",monospace;font-size:11px;color:var(--stone)}
-.zl-bilder{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}
-.zl-bilder img{width:120px;height:120px;object-fit:cover;border:1px solid var(--line);display:block;flex:0 0 auto}
+.zl-bilder{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px}
 
 .tb-einstellungen{margin-top:26px;border-top:1px solid var(--line);padding-top:16px}
 .tb-einstellungen summary{font-family:"Spline Sans Mono",monospace;font-size:12px;color:var(--stone);cursor:pointer}
@@ -368,6 +384,13 @@ footer a{color:var(--flecha)}
 .tb-eform input{width:100%;font-family:inherit;font-size:14px;padding:9px 11px;margin-top:5px;
                 border:1px solid var(--line);background:#fff;color:var(--ink)}
 .tb-eform button{margin-top:14px}
+.tb-eform p.kannstand{display:flex;gap:16px;flex-wrap:wrap;font-family:"Spline Sans Mono",monospace;
+                      font-size:11.5px;letter-spacing:.06em;margin-bottom:14px}
+.tb-eform p.kannstand .ja{color:var(--ok);font-weight:600}
+.tb-eform p.kannstand .nein{color:var(--stone)}
+.tb-eform p.tb-hinweis{margin-top:10px;font-size:13px}
+.tb-eform i{font-style:normal;font-family:"Spline Sans Mono",monospace;font-size:12.5px;
+            background:#efe9d8;padding:1px 5px}
 
 .lockbar{background:#2b3338;color:#e4ddca;border-bottom:1px solid var(--line-dark);padding:10px 0;font-family:"Spline Sans Mono",monospace;font-size:12px}
 .lockbar .wrap{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
