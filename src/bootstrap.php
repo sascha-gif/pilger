@@ -15,6 +15,7 @@ require APP_ROOT . '/src/Schema.php';
 require APP_ROOT . '/src/Repo.php';
 require APP_ROOT . '/src/Auth.php';
 require APP_ROOT . '/src/Aussen.php';
+require APP_ROOT . '/src/Tagebuch.php';
 
 /** @return array<string,mixed> */
 function app_config(): array
@@ -136,10 +137,26 @@ function may_write(): bool
     return $auth->isConfigured() && $auth->isLoggedIn();
 }
 
-/** Verzeichnis für Fotos und Aufnahmen, bei Bedarf angelegt. */
+/**
+ * Verzeichnis für Fotos und Aufnahmen, bei Bedarf angelegt.
+ *
+ * Ein relativer Pfad wird gegen das Projektverzeichnis aufgelöst, nicht gegen
+ * das gerade gültige Arbeitsverzeichnis. Sonst landeten die Bilder je nach
+ * Server irgendwo — im schlimmsten Fall unterhalb von public/, und damit für
+ * jeden abrufbar, der die Adresse errät. Genau davor schützt der zweite Riegel.
+ */
 function data_path(string $sub = ''): string
 {
     $base = rtrim((string) app_config()['data_dir'], '/');
+    if ($base === '' || $base[0] !== '/') {
+        $base = APP_ROOT . '/' . ltrim($base, '/');
+    }
+
+    $public = APP_ROOT . '/public';
+    if (str_starts_with($base . '/', $public . '/')) {
+        app_fail('Der Ablageordner für Fotos darf nicht im ausgelieferten Verzeichnis liegen.');
+    }
+
     $path = $sub === '' ? $base : $base . '/' . ltrim($sub, '/');
     if (!is_dir($path)) {
         @mkdir($path, 0775, true);

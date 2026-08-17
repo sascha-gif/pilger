@@ -286,6 +286,89 @@ footer a{color:var(--flecha)}
 .eqcard li[data-done="1"] span{text-decoration:line-through;color:var(--stone)}
 .eqcard .leer{padding:6px 0;border:none;font-size:12px}
 
+/* ---- Tagebuch ----------------------------------------------------------- */
+.tb-neu{background:var(--paper-2);border:1px solid var(--line);border-top:3px solid var(--flecha);
+        padding:20px;margin-bottom:22px}
+.tb-kopf{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.tb-kopf label{font-family:"Spline Sans Mono",monospace;font-size:11px;letter-spacing:.1em;
+               text-transform:uppercase;color:var(--stone)}
+.tb-kopf select{font-family:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--line);
+                background:#fff;color:var(--ink);max-width:100%}
+.tb-werkzeug{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.tb-knopf{font-family:"Spline Sans Mono",monospace;font-size:12.5px;font-weight:600;letter-spacing:.04em;
+          padding:11px 16px;border:1px solid var(--granite);background:#fff;color:var(--granite);
+          cursor:pointer;display:inline-flex;align-items:center;gap:9px}
+.tb-knopf:hover{background:var(--granite);color:var(--paper)}
+.tb-knopf.haupt{background:var(--granite);color:var(--paper)}
+.tb-knopf.haupt:hover{background:#000}
+.tb-knopf.rec .punkt{width:11px;height:11px;border-radius:50%;background:#a4341f;flex:0 0 auto}
+.tb-knopf.rec.an{background:#a4341f;color:#fff;border-color:#a4341f}
+.tb-knopf.rec.an .punkt{background:#fff;animation:puls 1.1s infinite}
+.tb-knopf.rec.fertig{border-color:var(--ok);color:var(--ok)}
+.tb-knopf.rec.fertig .punkt{background:var(--ok)}
+.tb-knopf .uhr{font-variant-numeric:tabular-nums}
+@keyframes puls{0%,100%{opacity:1}50%{opacity:.25}}
+.tb-neu textarea{width:100%;font-family:inherit;font-size:15px;line-height:1.5;padding:12px;
+                 border:1px solid var(--line);background:#fff;color:var(--ink);resize:vertical}
+.tb-aktion{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px}
+.tb-hinweis{font-family:"Spline Sans Mono",monospace;font-size:12px;color:var(--stone)}
+.tb-hinweis.fehler{color:#a4341f;font-weight:600}
+.tb-queue{margin-top:14px;background:#fdf4e3;border-left:3px solid var(--warn);padding:12px 14px;font-size:13.5px}
+.tb-queue ul{margin:6px 0 0 18px}
+.tb-queue li{font-family:"Spline Sans Mono",monospace;font-size:12px;color:var(--stone)}
+
+.tbe{background:var(--paper-2);border:1px solid var(--line);padding:18px;margin-bottom:12px}
+.tbe > header{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.tbtag{font-family:"Spline Sans Mono",monospace;font-size:11px;font-weight:600;color:var(--flecha);
+       letter-spacing:.06em;text-transform:uppercase}
+.tbart{font-family:"Spline Sans Mono",monospace;font-size:11px;color:var(--stone)}
+.tbstatus{font-family:"Spline Sans Mono",monospace;font-size:10px;letter-spacing:.08em;
+          text-transform:uppercase;color:var(--stone);margin-left:auto}
+.tbstatus.st-neu{color:var(--warn);font-weight:600}
+.tbstatus.st-fehler{color:#a4341f;font-weight:600}
+.tbe audio{width:100%;margin-bottom:10px}
+.tbtext{font-size:15px;line-height:1.6;white-space:pre-wrap}
+.tbroh{margin-top:8px}
+.tbroh summary{font-family:"Spline Sans Mono",monospace;font-size:11px;color:var(--stone);cursor:pointer}
+.tbroh p{font-size:13.5px;color:var(--stone);margin-top:6px;font-style:italic}
+.tbnotiz{font-size:12.5px;color:#a4341f;margin-top:8px}
+.tb-bearbeitung{width:100%;font-family:inherit;font-size:15px;line-height:1.6;padding:10px;
+                border:1px solid var(--flecha);background:#fff}
+.tbfotos{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.tbfotos img{width:96px;height:96px;object-fit:cover;border:1px solid var(--line);display:block}
+/* Die Seite hat unten einen dunklen Fuß — der darf nicht auf jede Karte
+   durchschlagen, nur weil da auch <footer> steht. */
+.tbe > footer{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;padding:10px 0 0;
+              border-top:1px solid var(--line);background:none;color:inherit}
+.tb-mini{font-family:"Spline Sans Mono",monospace;font-size:11px;padding:6px 11px;border:1px solid var(--line);
+         background:#fff;color:var(--stone);cursor:pointer}
+.tb-mini:hover{border-color:var(--atlantic);color:var(--atlantic)}
+.tb-mini.veredeln{border-color:var(--flecha);color:var(--granite);font-weight:600}
+
+/* Zeitleiste */
+.zeitleiste{border-left:2px solid var(--line);padding-left:20px;margin-left:6px}
+.zl-tag{position:relative;padding-bottom:22px}
+.zl-tag::before{content:"";position:absolute;left:-27px;top:5px;width:11px;height:11px;
+                border-radius:50%;background:var(--flecha);border:2px solid var(--paper)}
+.zl-kopf{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin-bottom:8px}
+.zl-code{font-family:"Spline Sans Mono",monospace;font-size:11px;font-weight:600;color:var(--flecha)}
+.zl-titel{font-family:"Fraunces",serif;font-size:17px;font-weight:600}
+.zl-zahl{font-family:"Spline Sans Mono",monospace;font-size:11px;color:var(--stone)}
+.zl-bilder{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}
+.zl-bilder img{width:120px;height:120px;object-fit:cover;border:1px solid var(--line);display:block;flex:0 0 auto}
+
+.tb-einstellungen{margin-top:26px;border-top:1px solid var(--line);padding-top:16px}
+.tb-einstellungen summary{font-family:"Spline Sans Mono",monospace;font-size:12px;color:var(--stone);cursor:pointer}
+.tb-einstellungen summary:hover{color:var(--atlantic)}
+.tb-eform{max-width:34rem;margin-top:14px}
+.tb-eform p{font-size:14px;margin-bottom:10px}
+.tb-eform p.warn{font-size:13px;color:var(--stone);border-left:3px solid var(--warn);padding-left:12px}
+.tb-eform label{display:block;font-family:"Spline Sans Mono",monospace;font-size:11px;letter-spacing:.08em;
+                text-transform:uppercase;color:var(--stone);margin-top:12px}
+.tb-eform input{width:100%;font-family:inherit;font-size:14px;padding:9px 11px;margin-top:5px;
+                border:1px solid var(--line);background:#fff;color:var(--ink)}
+.tb-eform button{margin-top:14px}
+
 .lockbar{background:#2b3338;color:#e4ddca;border-bottom:1px solid var(--line-dark);padding:10px 0;font-family:"Spline Sans Mono",monospace;font-size:12px}
 .lockbar .wrap{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
 .lockbar form{display:flex;gap:8px;align-items:center}

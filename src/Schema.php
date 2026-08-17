@@ -60,6 +60,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/006_aussen.php';
             migration_006($db);
         });
+
+        // Tagebuch und Fotos.
+        $apply('007_tagebuch', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/007_tagebuch.php';
+            migration_007($db);
+        });
     }
 
     /** @return array<int,string> */

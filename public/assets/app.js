@@ -39,6 +39,17 @@
     });
   }
 
+  /* ---------- Offline-Betrieb -------------------------------------------- */
+  /* Ohne Service Worker ist die Seite unterwegs schlicht leer. Mit ihm liegt
+     die zuletzt geladene Fassung auf dem Gerät. */
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js').catch(function () {
+        /* Kein HTTPS oder abgelehnt — dann eben ohne Offline-Fassung. */
+      });
+    });
+  }
+
   /* ---------- Einblenden beim Scrollen ---------------------------------- */
   if ('IntersectionObserver' in window) {
     var io = new IntersectionObserver(function (entries) {

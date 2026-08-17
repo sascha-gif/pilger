@@ -131,6 +131,80 @@ try {
             }
             json_out(['ok' => true]);
 
+        case 'tagebuch.text':
+            $text = trim((string) ($body['text'] ?? ''));
+            if ($text === '') {
+                json_out(['ok' => false, 'error' => 'Der Eintrag ist leer.'], 422);
+            }
+            $tagebuch = new Tagebuch($db, $repo);
+            $eintrag  = $tagebuch->schreibeText(
+                isset($body['stage']) && $body['stage'] !== '' ? (int) $body['stage'] : null,
+                isset($body['tag']) && $body['tag'] !== '' ? substr((string) $body['tag'], 0, 10) : null,
+                mb_substr($text, 0, 20000),
+                isset($body['client_id']) ? substr((string) $body['client_id'], 0, 64) : null
+            );
+            json_out(['ok' => true, 'eintrag' => $eintrag]);
+
+        case 'tagebuch.aendern':
+            if ($id <= 0) {
+                json_out(['ok' => false, 'error' => 'Ungültige ID.'], 400);
+            }
+            $tagebuch = new Tagebuch($db, $repo);
+            if (!$tagebuch->aendereText($id, mb_substr(trim((string) ($body['text'] ?? '')), 0, 20000))) {
+                json_out(['ok' => false, 'error' => 'Eintrag nicht gefunden.'], 404);
+            }
+            json_out(['ok' => true, 'eintrag' => $tagebuch->eintrag($id)]);
+
+        case 'tagebuch.loeschen':
+            if ($id <= 0) {
+                json_out(['ok' => false, 'error' => 'Ungültige ID.'], 400);
+            }
+            $tagebuch = new Tagebuch($db, $repo);
+            if (!$tagebuch->loescheEintrag($id)) {
+                json_out(['ok' => false, 'error' => 'Eintrag nicht gefunden.'], 404);
+            }
+            json_out(['ok' => true]);
+
+        case 'tagebuch.veredeln':
+            if ($id <= 0) {
+                json_out(['ok' => false, 'error' => 'Ungültige ID.'], 400);
+            }
+            $tagebuch = new Tagebuch($db, $repo);
+            $ergebnis = $tagebuch->veredele($id);
+            json_out($ergebnis, empty($ergebnis['ok']) ? 422 : 200);
+
+        case 'foto.bildtext':
+            if ($id <= 0) {
+                json_out(['ok' => false, 'error' => 'Ungültige ID.'], 400);
+            }
+            $tagebuch = new Tagebuch($db, $repo);
+            if (!$tagebuch->setzeBildtext($id, mb_substr(trim((string) ($body['text'] ?? '')), 0, 500))) {
+                json_out(['ok' => false, 'error' => 'Foto nicht gefunden.'], 404);
+            }
+            json_out(['ok' => true]);
+
+        case 'foto.loeschen':
+            if ($id <= 0) {
+                json_out(['ok' => false, 'error' => 'Ungültige ID.'], 400);
+            }
+            $tagebuch = new Tagebuch($db, $repo);
+            if (!$tagebuch->loescheFoto($id)) {
+                json_out(['ok' => false, 'error' => 'Foto nicht gefunden.'], 404);
+            }
+            json_out(['ok' => true]);
+
+        case 'schluessel.setzen':
+            // Die Schlüssel für Transkription und Glättung. Zurückgegeben wird
+            // nie der Wert, nur ob einer da ist.
+            $tagebuch = new Tagebuch($db, $repo);
+            foreach (['openai_key', 'anthropic_key', 'claude_model'] as $feld) {
+                if (array_key_exists($feld, $body)) {
+                    $wert = trim((string) $body[$feld]);
+                    $tagebuch->setzeEinstellung($feld, $wert === '' ? null : $wert);
+                }
+            }
+            json_out(['ok' => true, 'kann' => $tagebuch->faehigkeiten()]);
+
         case 'wetter':
             // Kann ein paar Sekunden dauern — deshalb ruft die Seite das erst
             // nach dem Rendern auf und nicht beim Aufbau.

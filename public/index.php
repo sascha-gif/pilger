@@ -26,6 +26,10 @@ $stages    = $repo->stages();
 $equipment = $repo->equipment();
 $packCats  = $repo->packList();
 $progress  = $repo->packProgress();
+$tagebuch  = new Tagebuch($db, $repo);
+$eintraege = $tagebuch->eintraege();
+$alleFotos = $tagebuch->fotos();
+$kann      = $tagebuch->faehigkeiten();
 $weg       = $repo->wegProgress();
 $stempel   = $repo->stempelProgress();
 $eqProg    = $repo->equipmentProgress();
@@ -124,6 +128,7 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
     <a href="#packliste">07 · Packliste</a>
     <a href="#kosten">08 · Kosten</a>
     <a href="#countdown">09 · Countdown</a>
+    <a href="#tagebuch">10 · Tagebuch</a>
   </div>
 </nav>
 
@@ -464,6 +469,175 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
   </div>
 </section>
 
+<section id="tagebuch">
+  <div class="wrap reveal">
+    <div class="sec-head"><div class="sec-num">10</div><h2>Tagebuch &amp; Fotos<small>Sprachnotiz oder getippt · Aufnahmen und Bilder werden gemerkt, bis wieder Netz da ist</small></h2></div>
+
+    <?php
+      // Nachschlagewerk für die Anzeige: Etappen-Id → Beschriftung.
+      $stageLabel = [];
+      foreach ($stages as $st) {
+          $stageLabel[(int) $st['id']] = trim(($st['code'] ?? '') . ' · ' . $st['title']);
+      }
+    ?>
+
+    <div class="tb-neu">
+      <div class="tb-kopf">
+        <label for="tbTag">Zu welchem Tag?</label>
+        <select id="tbTag">
+          <?php foreach ($stages as $st): ?>
+            <option value="<?= (int) $st['id'] ?>" data-tag="<?= h((string) $st['date_iso']) ?>">
+              <?= h($stageLabel[(int) $st['id']]) ?>
+            </option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+
+      <div class="tb-werkzeug">
+        <button type="button" id="tbAufnahme" class="tb-knopf rec">
+          <span class="punkt"></span><span class="beschriftung">Sprachnotiz aufnehmen</span>
+          <span class="uhr" id="tbUhr" hidden>0:00</span>
+        </button>
+        <label class="tb-knopf datei">
+          Fotos hinzufügen
+          <input type="file" id="tbFotos" accept="image/*" multiple hidden>
+        </label>
+      </div>
+
+      <textarea id="tbText" rows="3" placeholder="… oder einfach tippen. Speichern geht auch ohne Netz — der Eintrag geht raus, sobald wieder Empfang ist."></textarea>
+      <div class="tb-aktion">
+        <button type="button" id="tbSpeichern" class="tb-knopf haupt">Eintrag speichern</button>
+        <span class="tb-hinweis" id="tbHinweis"></span>
+      </div>
+
+      <div class="tb-queue" id="tbQueue" hidden></div>
+    </div>
+
+    <div class="tb-liste" id="tbListe">
+      <?php foreach ($eintraege as $e): ?>
+        <?php
+          $etappe = $e['stage_id'] ? ($stageLabel[(int) $e['stage_id']] ?? '') : '';
+          $text   = (string) ($e['text_clean'] ?: $e['text_raw']);
+          $roh    = $e['text_clean'] && $e['text_raw'] ? (string) $e['text_raw'] : null;
+          $fotos  = array_values(array_filter($alleFotos, static fn ($f) => (int) $f['entry_id'] === (int) $e['id']));
+        ?>
+        <article class="tbe" data-id="<?= (int) $e['id'] ?>">
+          <header>
+            <span class="tbtag"><?= h($etappe ?: (string) $e['day_iso']) ?></span>
+            <?php if ($e['kind'] === 'audio'): ?>
+              <span class="tbart">Sprachnotiz<?= $e['audio_seconds'] ? ' · ' . floor((int) $e['audio_seconds'] / 60) . ':' . str_pad((string) ((int) $e['audio_seconds'] % 60), 2, '0', STR_PAD_LEFT) : '' ?></span>
+            <?php endif; ?>
+            <span class="tbstatus st-<?= h($e['status']) ?>">
+              <?= h(match ($e['status']) {
+                  'neu'           => 'noch nicht verschriftlicht',
+                  'transkribiert' => 'Rohtext',
+                  'fehler'        => 'Fehler',
+                  default         => '',
+              }) ?>
+            </span>
+          </header>
+
+          <?php if ($e['audio_file']): ?>
+            <audio controls preload="none" src="media.php?art=audio&amp;id=<?= (int) $e['id'] ?>"></audio>
+          <?php endif; ?>
+
+          <div class="tbtext"<?= $text === '' ? ' hidden' : '' ?>><?= nl2br(h($text)) ?></div>
+
+          <?php if ($roh !== null): ?>
+            <details class="tbroh"><summary>Rohtext ansehen</summary><p><?= nl2br(h($roh)) ?></p></details>
+          <?php endif; ?>
+
+          <?php if ($fotos): ?>
+            <div class="tbfotos">
+              <?php foreach ($fotos as $f): ?>
+                <a href="media.php?art=foto&amp;id=<?= (int) $f['id'] ?>" target="_blank" rel="noopener">
+                  <img src="media.php?art=klein&amp;id=<?= (int) $f['id'] ?>" alt="<?= h((string) $f['caption']) ?>" loading="lazy">
+                </a>
+              <?php endforeach; ?>
+            </div>
+          <?php endif; ?>
+
+          <?php if ($e['status_note']): ?><p class="tbnotiz"><?= h((string) $e['status_note']) ?></p><?php endif; ?>
+
+          <footer>
+            <?php if ($e['audio_file'] && $e['status'] !== 'fertig'): ?>
+              <button type="button" class="tb-mini veredeln">Text daraus machen</button>
+            <?php endif; ?>
+            <button type="button" class="tb-mini bearbeiten">Bearbeiten</button>
+            <button type="button" class="tb-mini loeschen">Löschen</button>
+          </footer>
+        </article>
+      <?php endforeach; ?>
+
+      <?php if (!$eintraege): ?>
+        <p class="leer" style="border:none">Noch kein Eintrag. Der erste kommt am 17. September.</p>
+      <?php endif; ?>
+    </div>
+
+    <?php
+      // Zeitleiste: alle Fotos in der Reihenfolge der Etappen.
+      $nachEtappe = [];
+      foreach ($alleFotos as $f) {
+          $nachEtappe[(int) $f['stage_id']][] = $f;
+      }
+    ?>
+    <?php if ($alleFotos): ?>
+      <h3 class="phase-head">Zeitleiste — <?= count($alleFotos) ?> <?= count($alleFotos) === 1 ? 'Bild' : 'Bilder' ?>
+        an <?= count($nachEtappe) ?> <?= count($nachEtappe) === 1 ? 'Tag' : 'Tagen' ?></h3>
+      <div class="zeitleiste">
+        <?php foreach ($stages as $st): ?>
+          <?php $bilder = $nachEtappe[(int) $st['id']] ?? []; ?>
+          <?php if (!$bilder) { continue; } ?>
+          <div class="zl-tag">
+            <div class="zl-kopf">
+              <span class="zl-code"><?= h($st['code']) ?></span>
+              <span class="zl-titel"><?= h($st['title']) ?></span>
+              <span class="zl-zahl"><?= count($bilder) ?></span>
+            </div>
+            <div class="zl-bilder">
+              <?php foreach ($bilder as $f): ?>
+                <a href="media.php?art=foto&amp;id=<?= (int) $f['id'] ?>" target="_blank" rel="noopener"
+                   title="<?= h((string) $f['caption']) ?>">
+                  <img src="media.php?art=klein&amp;id=<?= (int) $f['id'] ?>" alt="<?= h((string) $f['caption']) ?>" loading="lazy">
+                </a>
+              <?php endforeach; ?>
+            </div>
+          </div>
+        <?php endforeach; ?>
+      </div>
+    <?php endif; ?>
+
+    <details class="tb-einstellungen">
+      <summary>Sprachnotizen in Text verwandeln — Schlüssel hinterlegen</summary>
+      <div class="tb-eform">
+        <p>
+          Aufnehmen und speichern geht ohne alles. Damit aus einer Sprachnotiz von selbst
+          ein sauberer Text wird, braucht der Server zwei Zugänge:
+          <b>Whisper</b> hört die Aufnahme ab (rund 0,6 Cent je Minute), <b>Claude</b> macht
+          daraus lesbares Deutsch (rund 1–2 Cent je Eintrag). Für zwei Wochen Camino sind das
+          zusammen deutlich unter einem Euro.
+        </p>
+        <p class="warn">
+          Die Schlüssel liegen danach im Klartext in deiner Datenbank — auf deinem Server,
+          hinter deinem Passwort. Ein Schlüssel, den der Server benutzen soll, muss für ihn
+          lesbar sein; anders geht es nicht. Ohne Eintrag bleibt einfach alles beim Rohton.
+        </p>
+        <label>OpenAI-Schlüssel (Whisper)
+          <input type="password" id="keyOpenAi" placeholder="<?= $kann['transkription'] ? '— hinterlegt, zum Ändern neu eingeben —' : 'sk-…' ?>" autocomplete="off">
+        </label>
+        <label>Anthropic-Schlüssel (Claude)
+          <input type="password" id="keyAnthropic" placeholder="<?= $kann['glaettung'] ? '— hinterlegt, zum Ändern neu eingeben —' : 'sk-ant-…' ?>" autocomplete="off">
+        </label>
+        <label>Modell
+          <input type="text" id="keyModell" value="<?= h($kann['modell']) ?>" autocomplete="off">
+        </label>
+        <button type="button" id="keySpeichern" class="tb-knopf haupt">Schlüssel speichern</button>
+        <span class="tb-hinweis" id="keyHinweis"></span>
+      </div>
+    </details>
+  </div>
+</section>
+
 <footer>
   <div class="wrap">
     <span><?= h($s['footer_left'] ?? '') ?></span>
@@ -476,5 +650,6 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
 <script type="application/json" id="map-data"><?= json_encode($mapPayload, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="assets/app.js?v=<?= h((string) @filemtime(__DIR__ . '/assets/app.js')) ?>"></script>
+<script src="assets/tagebuch.js?v=<?= h((string) @filemtime(__DIR__ . '/assets/tagebuch.js')) ?>"></script>
 </body>
 </html>
