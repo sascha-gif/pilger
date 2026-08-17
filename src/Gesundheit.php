@@ -36,12 +36,23 @@ final class Gesundheit
      * und Kalorien nur 14 Tage je Anfrage zu, für den Rest 90.
      */
     private const TYPEN = [
-        'steps'                    => 90,
-        'distance'                 => 90,
-        'total-calories'           => 14,
-        'heart-rate'               => 14,
-        'active-minutes'           => 14,
-        'daily-resting-heart-rate' => 90,
+        'steps'          => 90,
+        'distance'       => 90,
+        'total-calories' => 14,
+        'heart-rate'     => 14,
+        'active-minutes' => 14,
+    ];
+
+    /**
+     * Der Ruhepuls kann kein dailyRollUp — Google sagt das wörtlich:
+     * „DailyRollup is not supported for data type daily-resting-heart-rate,
+     * but the following actions are supported: list, reconcile". Er wird
+     * deshalb über `list` mit Datumsfilter geholt. Im Pfad steht der Typ mit
+     * Bindestrichen, im Filter mit Unterstrichen — so steht es in der
+     * Beschreibung des Filters.
+     */
+    private const TAGESWERTE = [
+        'daily-resting-heart-rate' => 'daily_resting_heart_rate',
     ];
 
     public function __construct(private Database $db)
@@ -221,6 +232,19 @@ final class Gesundheit
         $gesammelt = [];
         $bericht   = [];
 
+        // Nach einem Tag zu fragen, der noch läuft, weist Google ab. Der
+        // Hauptabruf geht deshalb nur bis gestern; der heutige Tag wird danach
+        // gesondert versucht, und wenn er nicht geht, fällt er still weg statt
+        // den ganzen Abruf zu verhageln.
+        $gestern = date('Y-m-d', strtotime('-1 day'));
+        $heute   = date('Y-m-d');
+        $bisEcht = $bis > $gestern ? $gestern : $bis;
+
+        if ($von > $bisEcht) {
+            $von = $bisEcht;
+        }
+        $bis = $bisEcht;
+
         foreach (self::TYPEN as $typ => $maxTage) {
             $treffer = 0;
             $fehler  = null;
@@ -250,6 +274,46 @@ final class Gesundheit
             }
 
             $bericht[$typ] = ['tage' => $treffer, 'fehler' => $fehler];
+        }
+
+        // Tageswerte, die kein dailyRollUp können, über die Liste holen.
+        foreach (self::TAGESWERTE as $typ => $filterName) {
+            $treffer = 0;
+            $antwort = $this->listeTageswerte($typ, $filterName, $von, $bis, $token);
+
+            if (isset($antwort['error'])) {
+                $bericht[$typ] = ['tage' => 0, 'fehler' => (string) $antwort['error']];
+                continue;
+            }
+
+            foreach ($antwort['dataPoints'] ?? [] as $p) {
+                $wert = $p['dailyRestingHeartRate'] ?? null;
+                $d    = $wert['date'] ?? null;
+                if (!is_array($d) || !isset($d['year'], $d['month'], $d['day']) || !isset($wert['beatsPerMinute'])) {
+                    continue;
+                }
+                $tag = sprintf('%04d-%02d-%02d', $d['year'], $d['month'], $d['day']);
+                $gesammelt[$tag] = ($gesammelt[$tag] ?? []) + ['hr_ruhe' => (int) round((float) $wert['beatsPerMinute'])];
+                $treffer++;
+            }
+
+            $bericht[$typ] = ['tage' => $treffer, 'fehler' => null];
+        }
+
+        // Der heutige Tag, zweiter Anlauf. Klappt er, ist er dabei; klappt er
+        // nicht, merkt es niemand — er kommt spätestens morgen.
+        if ($heute > $bis) {
+            foreach (array_keys(self::TYPEN) as $typ) {
+                $antwort = $this->rollUp($typ, $heute, $heute, $token);
+                foreach ($antwort['rollupDataPoints'] ?? [] as $p) {
+                    $tag = $this->tagAus($p);
+                    $werte = $tag === null ? [] : $this->werteAus($p);
+                    if ($werte) {
+                        $gesammelt[$tag] = ($gesammelt[$tag] ?? []) + $werte;
+                        $bericht[$typ]['tage'] = ($bericht[$typ]['tage'] ?? 0) + 1;
+                    }
+                }
+            }
         }
 
         foreach ($gesammelt as $tag => $werte) {
@@ -312,6 +376,22 @@ final class Gesundheit
         );
 
         return $antwort;
+    }
+
+    /**
+     * Tageswerte über `list` holen. Das Ende ist auch hier ausschließend.
+     * Die Antwort kommt absteigend nach Zeit; das ist uns egal, wir legen
+     * nach Datum ab.
+     */
+    private function listeTageswerte(string $typ, string $filterName, string $von, string $bis, string $token): array
+    {
+        $ende = (new DateTimeImmutable($bis))->modify('+1 day')->format('Y-m-d');
+        $url  = self::BASIS . $typ . '/dataPoints?' . http_build_query([
+            'filter'   => sprintf('%s.date >= "%s" AND %s.date < "%s"', $filterName, $von, $filterName, $ende),
+            'pageSize' => 1000,
+        ]);
+
+        return $this->get($url, $token);
     }
 
     /** @return array{year:int,month:int,day:int} */
@@ -432,7 +512,17 @@ final class Gesundheit
         ]);
     }
 
+    private function get(string $url, string $token): array
+    {
+        return $this->ruf($url, null, ['Authorization: Bearer ' . $token]);
+    }
+
     private function post(string $url, string $koerper, array $kopf): array
+    {
+        return $this->ruf($url, $koerper, $kopf);
+    }
+
+    private function ruf(string $url, ?string $koerper, array $kopf): array
     {
         if (!function_exists('curl_init')) {
             return ['error' => 'curl fehlt auf dem Server'];
@@ -440,11 +530,13 @@ final class Gesundheit
         $ch = curl_init($url);
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST           => true,
             CURLOPT_TIMEOUT        => 45,
             CURLOPT_HTTPHEADER     => $kopf,
-            CURLOPT_POSTFIELDS     => $koerper,
         ]);
+        if ($koerper !== null) {
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $koerper);
+        }
         $body = curl_exec($ch);
         $code = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
         $netz = curl_error($ch);
@@ -458,9 +550,38 @@ final class Gesundheit
             return ['error' => 'HTTP ' . $code . ': ' . substr($body, 0, 200)];
         }
         if ($code >= 400) {
-            error_log('pilger: Google Health HTTP ' . $code . ' — ' . substr($body, 0, 400));
-            $daten['error'] = $daten['error']['message'] ?? $daten['error'] ?? ('HTTP ' . $code);
+            error_log('pilger: Google Health HTTP ' . $code . ' — ' . substr($body, 0, 800));
+            $daten['error'] = self::fehlertext($daten, $code);
         }
         return $daten;
+    }
+
+    /**
+     * Googles Fehlermeldung lesbar machen.
+     *
+     * „Invalid argument in request." allein hilft niemandem — welches Feld
+     * gemeint ist, steht in `details.fieldViolations`. Genau das wird hier
+     * herausgezogen, sonst sucht man im Dunkeln.
+     */
+    private static function fehlertext(array $daten, int $code): string
+    {
+        $fehler = $daten['error'] ?? null;
+        if (!is_array($fehler)) {
+            return is_string($fehler) ? $fehler : ('HTTP ' . $code);
+        }
+
+        $text  = (string) ($fehler['message'] ?? ('HTTP ' . $code));
+        $teile = [];
+
+        foreach ($fehler['details'] ?? [] as $detail) {
+            foreach ($detail['fieldViolations'] ?? [] as $v) {
+                $teile[] = trim(($v['field'] ?? '') . ': ' . ($v['description'] ?? ''), ': ');
+            }
+            if (isset($detail['reason'])) {
+                $teile[] = (string) $detail['reason'];
+            }
+        }
+
+        return $teile ? $text . ' (' . implode(' · ', array_unique($teile)) . ')' : $text;
     }
 }
