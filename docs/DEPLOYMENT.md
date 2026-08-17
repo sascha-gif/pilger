@@ -122,15 +122,50 @@ Eingetragene Beträge und Häkchen überstehen jedes Rollback.
 
 ## Sicherung
 
+Zwei Dinge, nicht eins:
+
 ```
+# Datenbank
 docker exec pilger-db mariadb-dump -upilger -p"$DB_PASS" pilger > pilger-$(date +%F).sql
+
+# Fotos und Sprachaufnahmen
+docker run --rm -v pilger-milsh_pilger-data:/daten -v "$PWD":/ab alpine \
+  tar czf /ab/pilger-fotos-$(date +%F).tar.gz -C /daten .
 ```
 
 `$DB_PASS` steht in `/opt/pilger-milsh/.env`. Diese Datei gehört mit ins
 Backup — ohne sie ist das Volume nicht mehr zu öffnen.
 
-## Schreibschutz
+Die Datenbank allein reicht nicht: dort stehen nur die Dateinamen. Ohne das
+Volume `pilger-data` kennt sie Bilder, die es nicht mehr gibt.
 
-Die Seite ist öffentlich erreichbar; ohne Passwort darf jeder Besucher Häkchen
-setzen und Beträge ändern. Zum Absichern in `/opt/pilger-milsh/.env`
-`WRITE_PASSWORD=` ausfüllen und `docker compose up -d` aufrufen.
+## Zutritt
+
+Die Seite steht komplett hinter einem Passwort — nicht nur das Speichern. Ohne
+Anmeldung gibt es 401 und sonst nichts.
+
+Gesetzt wird es **in der Oberfläche**: Solange keins hinterlegt ist, zeigt die
+Seite ausschließlich die Einrichtung. Eine frisch angelegte Datenbank steht
+damit zu und nicht offen. Auf dem Server ist dafür keine Zeile Terminal nötig.
+
+Wer es lieber in der `.env` pflegt, füllt `WRITE_PASSWORD=` aus und ruft
+`docker compose up -d` auf. Dieser Wert gewinnt dann, und die Oberfläche kann
+ihn nicht mehr ändern.
+
+Zurücksetzen (Passwort vergessen):
+
+```
+docker compose exec pilger-db mariadb -upilger -p"$DB_PASS" pilger \
+  -e "delete from settings where skey='auth_hash'; delete from auth_tokens;"
+```
+
+## Schlüssel für das Tagebuch
+
+Transkription (Whisper) und Glättung (Claude) sind optional. Ihre Schlüssel
+werden in der Oberfläche hinterlegt und liegen danach in `settings` — im
+Klartext, in der eigenen Datenbank auf dem eigenen Server hinter dem eigenen
+Passwort. Ein Schlüssel, den der Server benutzen soll, muss für ihn lesbar
+sein; anders geht es nicht.
+
+Wer das nicht will, lässt die Felder leer: aufnehmen, speichern und abspielen
+geht ohne alles, es wird dann nur nichts verschriftlicht.

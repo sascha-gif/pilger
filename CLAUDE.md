@@ -14,7 +14,18 @@ Technik: `docs/DEPLOYMENT.md`, `docs/DATENBANK.md`, `docs/API.md`.
 - Wissen gehört in `.md`-Dateien, nicht in den Chatverlauf.
 - Merge nach `main` löst den Deploy aus; Merge und Deploy macht Claude selbst.
 - Etappen, Kosten, Packliste ändern heißt: `db/seed.php` für neue Datenbanken
-  **und** ein `UPDATE` für die laufende — nicht nur das HTML anfassen.
+  **und** eine Migration unter `db/migrations/` für die laufende — nicht nur das
+  HTML anfassen.
+- Was nicht sicher bekannt ist, wird nicht ausgedacht. Lieber „Mittel der
+  Vorjahre" dranschreiben als eine Wettervorhersage erfinden, die es für
+  September noch gar nicht gibt.
+
+## Zutritt
+
+Die Seite steht hinter einem Passwort — die ganze Seite, nicht nur das
+Speichern. Gesetzt wird es in der Oberfläche beim ersten Aufruf. Solange keins
+da ist, zeigt die Seite nichts als die Einrichtung. Zurücksetzen geht nur an der
+Datenbank (`settings.auth_hash` und `auth_tokens` löschen).
 
 ## Eckdaten
 
@@ -113,9 +124,29 @@ Montags nüchtern wiegen, Ist-Wert im HTML eintragen.
 | W5 | 08.–14.09. | 88,0 | 12–15k | 20+ km Generalprobe | alles durchspielen |
 | W6 | 15.–17.09. | ~88 halten | locker | 1× 8 km | Taper, Beine frisch |
 
+## Stempel
+
+In Portugal reicht **ein** Stempel pro Tag, ab der spanischen Grenze (E5,
+Übergang über den Minho) sind es **zwei**. Zusammen 21 für die ganze Strecke.
+Wer da schludert, bekommt in Santiago keine Compostela — deshalb hat jeder Tag
+auf der Seite seine Kästchen, und ein abgehakter Tag mit fehlendem Stempel sagt
+das deutlich.
+
+## Tagebuch
+
+Sprachnotiz oder getippt, dazu Fotos je Etappe. Alles landet zuerst in der
+IndexedDB des Geräts und geht erst dann raus — auf dem Camino ist streckenweise
+kein Netz, und ein Eintrag, der erst beim Hochladen entsteht, wäre dann weg.
+
+Transkription (Whisper) und Glättung (Claude) sind optional; ohne hinterlegte
+Schlüssel bleibt die Aufnahme trotzdem erhalten und abspielbar. Beim Glätten
+darf gekürzt und aufgeräumt, aber nichts dazuerfunden werden.
+
 ## Offene Punkte
 
+- **Passwort auf der Seite setzen** — beim nächsten Aufruf
 - 12 Unterkünfte buchen (Oia und Santiago zuerst)
 - Fährfahrplan Caminha → A Guarda/Spanien prüfen
 - Rückflugzeiten SCQ→FRA aus der Buchung nachtragen (Kostenfeld noch leer)
 - Compostela-Urkunde: Pilgerbüro Rúa de Carretas 33, Pilgermesse 12:00
+- Tagebuch-Schlüssel hinterlegen, falls aus Sprachnotizen Text werden soll

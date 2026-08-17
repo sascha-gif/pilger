@@ -78,38 +78,57 @@ Port geöffnet werden. Details in `docs/DEPLOYMENT.md`.
 
 | Baustein | Status |
 |---|---|
-| App (PHP 8, PDO) | **fertig**, lokal getestet |
+| App (PHP 8, PDO) | **fertig**, live |
 | Datenbankschema + Startdaten | **fertig**, installiert sich beim ersten Seitenaufruf selbst |
+| Zutritt: ein Passwort für die ganze Seite | **fertig**, in der Oberfläche zu setzen |
 | Speichern von Häkchen / Beträgen / Gewicht | **fertig**, End-to-End getestet |
-| Schreibschutz per Passwort | **fertig**, getestet |
+| Etappen abhaken, offen/erledigt als Reiter | **fertig** |
+| Fortschrittsbalken gelaufene km | **fertig**, rechnet aus den abgehakten Tagen |
+| Stempel-Checkliste (ab Spanien zwei/Tag) | **fertig** |
+| Equipment und Packliste als Reiter | **fertig** |
+| Wetter je Etappe (Open-Meteo) | **fertig**, Vorhersage bzw. Vorjahresmittel |
+| Höhenprofil je Etappe | **fertig**, Geländemodell entlang der Küstenlinie |
+| Tagebuch: Sprachnotiz, Text, Fotos | **fertig**, offline-fähig |
+| Foto-Zeitleiste über alle Etappen | **fertig** |
+| Offline-Betrieb (Service Worker) | **fertig** |
+| Transkription (Whisper) + Glättung (Claude) | **fertig**, wartet auf hinterlegte Schlüssel |
 | Karte (Leaflet, 13 Stopps + Senda Litoral) | **fertig**, Daten aus der DB |
-| Container-Stack (Dockerfile, compose) | **fertig**, wird bei jedem Push auf GitHub gebaut und geprüft |
-| Selbstaktualisierung (systemd-Zeitgeber) | **fertig**, wartet auf die Einrichtung |
-| Live auf pilger.milsh.com | **offen** — einmalige Einrichtung auf dem Server steht aus |
+| Container-Stack (Dockerfile, compose) | **fertig**, wird bei jedem Push geprüft |
+| Selbstaktualisierung (systemd-Zeitgeber) | **fertig**, läuft |
+| Live auf pilger.milsh.com | **fertig** |
 
-Getestet gegen SQLite wurde vollständig: Rendern, Speichern, Neuladen, Sperren,
-Entsperren, Wertebereichsprüfungen, Kaltstart aus leerem Zustand. Der
-Container-Stack samt MariaDB wird auf dem GitHub-Runner geprüft — dort wird ein
-Betrag über die API geschrieben und direkt aus der Datenbank zurückgelesen.
+Getestet gegen SQLite wurde vollständig: Rendern, Speichern, Neuladen, Anmelden,
+Abmelden, Wertebereichsprüfungen, Kaltstart aus leerem Zustand, Upload von Bild
+und Aufnahme, Auslieferung über `media.php` samt 403 ohne Anmeldung. Die
+Offline-Warteschlange wurde im echten Browser mit abgeschaltetem Netz geprüft:
+Eintrag liegt lokal, Warteschlange zeigt ihn an, nach Rückkehr des Netzes ist er
+oben und die Schlange leer. Der Container-Stack samt MariaDB wird auf dem
+GitHub-Runner geprüft — dort wird ein Betrag über die API geschrieben und direkt
+aus der Datenbank zurückgelesen, und eine Datei im Foto-Volume muss einen
+kompletten Neubau des Containers überstehen.
 
 ---
 
-## Was noch fehlt
+## Was jetzt als Erstes zu tun ist
 
-Ein einziger Aufruf auf dem Server. Über Tailscale, als `root`:
+**Passwort setzen.** Beim ersten Aufruf zeigt die Seite nichts als die
+Einrichtung: ein Passwort vergeben, fertig. Danach ist die Seite für alle
+anderen zu — samt Tagebuch, Fotos, Kosten und Gewicht. Solange kein Passwort
+gesetzt ist, zeigt die Seite ausschließlich diese Einrichtung; offen steht sie
+nie.
+
+Wer das Passwort lieber auf dem Server pflegt, trägt `WRITE_PASSWORD=` in
+`/opt/pilger-milsh/.env` ein — dieser Wert gewinnt dann, und die Oberfläche
+kann ihn nicht mehr ändern.
+
+Zurücksetzen geht nur an der Datenbank:
 
 ```
-ssh root@100.84.10.64
-curl -fsSL https://raw.githubusercontent.com/sascha-gif/pilger/main/ops/setup-server.sh | bash
+docker compose exec pilger-db mariadb -upilger -p"$DB_PASS" pilger \
+  -e "delete from settings where skey='auth_hash'; delete from auth_tokens;"
 ```
 
-Das Skript richtet alles ein — Klonen, Passwörter, Container, Caddy-Eintrag,
-Zeitgeber — und prüft am Ende selbst, ob die Seite antwortet. Es ist
-wiederholbar; ein zweiter Aufruf bringt nur auf den neuesten Stand und rührt die
-erzeugten Passwörter nicht an.
-
-Danach ist nichts mehr zu tun: jeder Merge auf `main` ist spätestens fünf
-Minuten später live.
+Danach fragt die Seite beim nächsten Aufruf wieder nach einem neuen Passwort.
 
 ---
 
@@ -119,17 +138,37 @@ Minuten später live.
 public/            Document-Root
   index.php        die Seite, rendert alles aus der DB
   api.php          JSON-Schnittstelle für alle Änderungen
-  assets/          app.css, app.js
-src/               Anwendungscode (Database, Schema, Repo, Helfer)
+  upload.php       Annahme von Fotos und Sprachaufnahmen (multipart)
+  media.php        Auslieferung derselben — nur nach Anmeldung
+  sw.js            Service Worker, hält die Seite ohne Netz lesbar
+  assets/          app.css, app.js, tagebuch.js
+src/               Anwendungscode
+  bootstrap.php    Konfiguration, DB, Sitzung, data_path()
+  Auth.php         Zutritt: Passwort, Merken-Cookie, Bremse
+  gate.php         die Tür vor der Seite (Einrichtung / Anmeldung)
+  Database.php     PDO-Hülle, MariaDB und SQLite
+  Schema.php       Migrationen, laufen beim ersten Aufruf selbst
+  Repo.php         alle Datenbankzugriffe der Seite
+  Aussen.php       Wetter und Höhen von Open-Meteo, mit Zwischenspeicher
+  Tagebuch.php     Aufnahmen, Bilder, Transkription, Glättung
 db/seed.php        kompletter Masterplan-Inhalt als Startdaten
+db/migrations/     002 Küstenroute · 003 Ankunft · 004 Zutritt ·
+                   005 Erledigt/km/Stempel · 006 Wetter+Höhen · 007 Tagebuch
 config/            config.example.php — im Container über Umgebungsvariablen ersetzt
 ops/               setup-server.sh, pilger-update.sh, systemd-Einheiten
 docs/              DEPLOYMENT.md · DATENBANK.md · API.md
-Dockerfile         PHP 8.3 + Apache
-docker-compose.yml App + MariaDB
+Dockerfile         PHP 8.3 + Apache, mit gd und exif
+docker-compose.yml App + MariaDB, Volumes pilger-db und pilger-data
 .github/workflows/ ci.yml — prüft, deployt nicht
 camino-masterplan-2026.html   Referenz der statischen Ursprungsfassung
 ```
+
+Zwei Volumes, beide müssen ins Backup:
+
+| Volume | Einhängepunkt | Inhalt |
+|---|---|---|
+| `pilger-db` | `/var/lib/mysql` | die Datenbank |
+| `pilger-data` | `/var/www/data` | Fotos und Sprachaufnahmen |
 
 ---
 
@@ -145,10 +184,31 @@ camino-masterplan-2026.html   Referenz der statischen Ursprungsfassung
 
 ## Nächste sinnvolle Schritte
 
-1. Einrichtung auf dem Server → live prüfen.
+1. **Passwort setzen** — beim nächsten Aufruf der Seite, dauert zehn Sekunden.
 2. Die 12 offenen Unterkünfte buchen; Beträge direkt auf der Seite eintragen
    (Oia und Santiago zuerst — dünnes Angebot bzw. hohe Nachfrage).
 3. Rückflugzeiten SCQ→FRA aus der Buchung nachtragen.
 4. Fährfahrplan Caminha → A Guarda prüfen.
-5. Erst wenn das steht: Etappen direkt auf der Seite bearbeitbar machen
-   (`stage.update` liegt in der API schon bereit, die Oberfläche dazu fehlt).
+5. Vor der Abreise die Tagebuch-Schlüssel hinterlegen, wenn aus den
+   Sprachnotizen von selbst Text werden soll. Ohne sie bleiben die Aufnahmen
+   erhalten und abspielbar — es wird nur nichts verschriftlicht.
+6. Am ersten Abend in Porto einmal ausprobieren: aufnehmen, speichern,
+   Flugmodus an, noch einen Eintrag, Flugmodus aus. Wenn beides oben landet,
+   trägt die Funktion auch die zwölf Tage danach.
+7. Offen geblieben: Etappen direkt auf der Seite bearbeitbar machen
+   (`stage.update` liegt in der API bereit, die Oberfläche dazu fehlt).
+
+## Was bewusst nicht gebaut wurde
+
+- **Kein Speichern des Originalfotos.** Bilder werden auf 1600 px verkleinert.
+  Zwölf Tage Handyfotos in voller Größe sprengen jedes Volume, und für ein
+  Reisetagebuch reicht die Kante.
+- **Keine ausgedachten Wetterwerte.** Weiter als 16 Tage voraus gibt es keine
+  Vorhersage. Statt eine zu erfinden, steht dort das Mittel derselben
+  Kalendertage der Vorjahre — und es steht auch dran.
+- **Keine erfundenen Höhenmeter.** Die Höhen stammen aus dem Geländemodell
+  entlang der hinterlegten Küstenlinie. Das ist keine GPX-Spur, und auf den
+  letzten vier Etappen liegt zwischen zwei Stützpunkten eine Gerade. Der
+  Quellenhinweis unter den Etappen sagt das.
+- **Kein Dazuerfinden beim Glätten.** Das Modell darf kürzen und Versprecher
+  wegräumen, aber keine Orte, Zahlen oder Erlebnisse ergänzen.
