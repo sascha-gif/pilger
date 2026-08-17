@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light only">
+<title>Camino Portugués 2026 — Masterplan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,900&family=Public+Sans:wght@400;500;600;700&family=Spline+Sans+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+  :root{
+    color-scheme:light only;
+    --granite:#232a2e; --atlantic:#1f5d6c; --flecha:#f4b400;
+    --paper:#f6f0e2; --paper-2:#fbf7ec; --ink:#1d2326;
+    --stone:#857c6c; --line:#ddd3bd; --line-dark:#3a444a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth;background:#f6f0e2}
+  body{font-family:"Public Sans",system-ui,sans-serif;background:var(--paper);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased}
+  .mono{font-family:"Spline Sans Mono",monospace}
+  .wrap{max-width:920px;margin:0 auto;padding:0 22px}
+
+  header.hero{background:var(--granite);color:var(--paper);padding:64px 0 56px;position:relative;overflow:hidden}
+  .hero .wrap{position:relative;z-index:2}
+  .shell{width:74px;height:74px;display:block;margin-bottom:26px}
+  .eyebrow{font-family:"Spline Sans Mono",monospace;font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:var(--flecha);margin-bottom:18px}
+  .hero h1{font-family:"Fraunces",serif;font-weight:900;font-size:clamp(38px,7vw,68px);line-height:1.02;letter-spacing:-.01em;margin-bottom:14px}
+  .hero h1 em{font-style:italic;font-weight:400;color:var(--flecha)}
+  .route{font-family:"Fraunces",serif;font-size:clamp(18px,3vw,24px);font-weight:500;color:#cfcabb;margin-bottom:30px}
+  .route .arrow{color:var(--flecha);padding:0 6px}
+  .facts{display:flex;flex-wrap:wrap;gap:0;border-top:1px solid var(--line-dark);border-bottom:1px solid var(--line-dark)}
+  .fact{padding:18px 26px 18px 0;margin-right:26px;border-right:1px solid var(--line-dark)}
+  .fact:last-child{border-right:none;margin-right:0}
+  .fact .n{font-family:"Fraunces",serif;font-size:30px;font-weight:600;line-height:1}
+  .fact .l{font-family:"Spline Sans Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#b3ad9c;margin-top:6px}
+  .bigshell{position:absolute;right:-90px;top:50%;transform:translateY(-50%);width:380px;height:380px;opacity:.06;z-index:1}
+
+  nav.toc{position:sticky;top:0;z-index:20;background:rgba(35,42,46,.96);backdrop-filter:blur(6px);border-bottom:1px solid var(--line-dark)}
+  nav.toc .wrap{display:flex;gap:4px;overflow-x:auto;padding:0 22px}
+  nav.toc a{font-family:"Spline Sans Mono",monospace;font-size:12px;letter-spacing:.08em;color:#bfc4c2;text-decoration:none;white-space:nowrap;padding:14px 14px;border-bottom:2px solid transparent}
+  nav.toc a:hover,nav.toc a:focus{color:var(--flecha);border-bottom-color:var(--flecha)}
+
+  section{padding:56px 0}
+  section + section{border-top:1px solid var(--line)}
+  .sec-head{display:flex;align-items:baseline;gap:16px;margin-bottom:30px}
+  .sec-num{font-family:"Spline Sans Mono",monospace;font-size:13px;color:var(--flecha);font-weight:600;padding-top:6px}
+  .sec-head h2{font-family:"Fraunces",serif;font-weight:600;font-size:clamp(26px,4vw,38px);letter-spacing:-.01em;line-height:1.05}
+  .sec-head h2 small{display:block;font-family:"Public Sans";font-weight:400;font-size:15px;color:var(--stone);letter-spacing:0;margin-top:6px}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
+  .cell{background:var(--paper-2);padding:18px 18px}
+  .cell .k{font-family:"Spline Sans Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--stone)}
+  .cell .v{font-family:"Fraunces",serif;font-size:21px;font-weight:500;margin-top:5px}
+  .cell .v span{font-size:13px;font-family:"Public Sans";color:var(--stone)}
+
+  .day{border-left:2px solid var(--line);margin-left:8px}
+  .slot{position:relative;padding:0 0 22px 30px}
+  .slot::before{content:"";position:absolute;left:-7px;top:4px;width:12px;height:12px;border-radius:50%;background:var(--atlantic);border:2px solid var(--paper)}
+  .slot.acc::before{background:var(--flecha)}
+  .slot time{font-family:"Spline Sans Mono",monospace;font-weight:600;font-size:14px;color:var(--atlantic)}
+  .slot .txt{margin-top:2px;color:var(--ink)}
+  .slot .txt b{font-weight:600}
+  .pill-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:26px}
+  .pill{font-family:"Spline Sans Mono",monospace;font-size:12px;background:var(--granite);color:var(--paper);padding:6px 12px;border-radius:2px}
+  .pill b{color:var(--flecha)}
+
+  .flight{display:grid;grid-template-columns:1fr;gap:1px;background:var(--line);border:1px solid var(--line)}
+  .flight .fcard{background:var(--paper-2);padding:22px}
+  .flight .ftag{font-family:"Spline Sans Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--flecha);font-weight:600}
+  .flight .froute{font-family:"Fraunces",serif;font-size:26px;font-weight:600;margin:8px 0 4px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .flight .froute .ar{color:var(--atlantic)}
+  .flight .fmeta{font-family:"Spline Sans Mono",monospace;font-size:13px;color:var(--stone)}
+  .flight .fmeta b{color:var(--ink)}
+
+  .stage{display:grid;grid-template-columns:88px 1fr;gap:22px;padding:22px;background:var(--paper-2);border:1px solid var(--line);margin-bottom:12px;transition:transform .18s ease,box-shadow .18s ease}
+  .stage:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(35,42,46,.10)}
+  .mojon{text-align:center;border-right:1px solid var(--line);padding-right:18px}
+  .mojon .km{font-family:"Fraunces",serif;font-size:34px;font-weight:900;line-height:.9;color:var(--granite)}
+  .mojon .km span{display:block;font-family:"Spline Sans Mono",monospace;font-size:9px;letter-spacing:.1em;font-weight:500;color:var(--stone);margin-top:6px;text-transform:uppercase}
+  .mojon .et{font-family:"Spline Sans Mono",monospace;font-size:11px;color:var(--flecha);font-weight:600;margin-bottom:8px}
+  .stage h3{font-family:"Fraunces",serif;font-size:21px;font-weight:600;line-height:1.15}
+  .stage .dist{font-family:"Spline Sans Mono",monospace;font-size:12px;color:var(--atlantic);font-weight:600;margin:2px 0 10px}
+  .stage .target{font-size:14.5px}
+  .stage .target b{font-weight:600}
+  .stage .note{font-size:13.5px;color:var(--stone);margin-top:6px}
+  .book{display:inline-flex;align-items:center;gap:7px;margin-top:12px;font-family:"Spline Sans Mono",monospace;font-size:12px;font-weight:600;color:var(--granite);background:var(--flecha);padding:9px 14px;text-decoration:none;border-radius:2px}
+  .book:hover,.book:focus{filter:brightness(1.06)}
+  .book::after{content:"↗"}
+  .stage.special{border-color:var(--flecha)}
+  .stage.special .mojon .km{color:var(--flecha)}
+  .anchor-day{background:var(--granite);color:var(--paper);border-color:var(--granite)}
+  .anchor-day .mojon{border-right-color:var(--line-dark)}
+  .anchor-day .mojon .km{color:var(--flecha)}
+  .anchor-day .note{color:#bfc4c2}
+  .anchor-day h3{color:var(--paper)}
+  .anchor-day .target{color:#e4ddca}
+
+  .eq{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+  .eqcard{background:var(--paper-2);border:1px solid var(--line);padding:20px;border-top:3px solid var(--atlantic)}
+  .eqcard h4{font-family:"Fraunces",serif;font-size:18px;font-weight:600;margin-bottom:8px}
+  .eqcard ul{list-style:none}
+  .eqcard li{font-size:14px;padding:5px 0 5px 18px;position:relative;border-bottom:1px solid var(--line)}
+  .eqcard li:last-child{border-bottom:none}
+  .eqcard li::before{content:"›";position:absolute;left:0;color:var(--flecha);font-weight:700}
+
+  .rec-sec{background:var(--granite);color:var(--paper)}
+  .rec-sec .sec-head h2{color:var(--paper)}
+  .rec-sec .sec-head h2 small{color:#bfc4c2}
+  .rec-sec .sec-num{color:var(--flecha)}
+  .recs{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+  .rec{background:#2b3338;border:1px solid var(--line-dark);padding:20px;border-left:3px solid var(--flecha)}
+  .rec .tag{font-family:"Spline Sans Mono",monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--flecha);font-weight:600}
+  .rec h4{font-family:"Fraunces",serif;font-size:19px;font-weight:600;margin:8px 0 6px;color:var(--paper)}
+  .rec p{font-size:14px;color:#cfcabb}
+  .rec.warn{border-left-color:#e06b4a}
+  .rec.warn .tag{color:#e8917a}
+
+  .alt{display:inline-block;margin-top:8px;font-family:"Spline Sans Mono",monospace;font-size:11px;letter-spacing:.04em;color:#125a54;background:rgba(47,156,149,.16);border:1px solid #2f9c95;padding:4px 9px;border-radius:2px}
+  .alt b{font-weight:600}
+  .anchor-day .alt{color:#9fe8e0;background:rgba(47,156,149,.22);border-color:#59c4bb}
+  .mapwrap{margin-bottom:28px;border:1px solid var(--line);background:var(--paper-2);padding:8px}
+  #map{height:480px;width:100%;border-radius:2px;z-index:1}
+  .leaflet-container{font-family:"Public Sans",sans-serif;background:#dfe6e3}
+  .leaflet-popup-content-wrapper{border-radius:3px}
+  .pop .pe{font-family:"Spline Sans Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#b88600;font-weight:600}
+  .pop .pn{font-family:"Fraunces",serif;font-size:17px;font-weight:600;margin:2px 0 3px}
+  .pop .pm{font-family:"Spline Sans Mono",monospace;font-size:12px;color:#1f5d6c}
+  .maplegend{display:flex;flex-wrap:wrap;gap:16px;margin-top:12px;font-family:"Spline Sans Mono",monospace;font-size:12px;color:var(--stone)}
+  .maplegend span{display:inline-flex;align-items:center;gap:7px}
+  .maplegend i{width:16px;height:4px;border-radius:2px;display:inline-block}
+  .maplegend i.dot{width:12px;height:12px;border-radius:50%}
+  @media (max-width:560px){#map{height:380px}}
+  .pl-note{background:var(--paper-2);border:1px solid var(--line);border-left:3px solid var(--flecha);padding:16px 18px;margin-bottom:22px;font-size:14.5px}
+  .pl-note b{font-weight:600}
+  .pack{display:flex;flex-direction:column;gap:16px}
+  .pcat{background:var(--paper-2);border:1px solid var(--line);border-top:3px solid var(--atlantic);overflow-x:auto}
+  .pcat h4{font-family:"Fraunces",serif;font-size:19px;font-weight:600;padding:14px 18px 10px}
+  .ptbl{width:100%;border-collapse:collapse;font-size:14px}
+  .ptbl th{font-family:"Spline Sans Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--stone);text-align:left;padding:6px 12px;border-bottom:1px solid var(--line)}
+  .ptbl td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  .ptbl tr:last-child td{border-bottom:none}
+  .ptbl .c-chk{width:34px;text-align:center}
+  .ptbl .c-qty{width:54px;text-align:center;font-family:"Spline Sans Mono",monospace;color:var(--atlantic);font-weight:600}
+  .ptbl .c-size{width:150px;font-family:"Spline Sans Mono",monospace;font-size:12px;color:var(--stone)}
+  .ptbl .i-name{font-weight:600}
+  .ptbl .c-use{color:#4a5257}
+  .ptbl input{width:16px;height:16px;accent-color:#1f5d6c;cursor:pointer}
+  .ptbl tr.done .i-name,.ptbl tr.done .c-use,.ptbl tr.done .c-size,.ptbl tr.done .c-qty{text-decoration:line-through;opacity:.45}
+  @media(max-width:560px){.ptbl .c-size{width:auto}.ptbl{font-size:13px}}
+  .ctbl{width:100%;border-collapse:collapse;font-size:14px}
+  .ctbl th{font-family:"Spline Sans Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--stone);text-align:left;padding:6px 12px;border-bottom:1px solid var(--line)}
+  .ctbl th.r,.ctbl td.r{text-align:right}
+  .ctbl td{padding:8px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+  .ctbl .i-name{font-weight:600}
+  .ctbl .det{color:var(--stone);font-size:13px}
+  .ctbl input.cost{width:104px;text-align:right;font-family:"Spline Sans Mono",monospace;font-size:13px;padding:6px 8px;border:1px solid var(--line);border-radius:3px;background:#fff;color:var(--ink)}
+  .ctbl input.cost:focus{outline:2px solid var(--atlantic);border-color:var(--atlantic)}
+  .ctbl .st{font-family:"Spline Sans Mono",monospace;font-size:11px;letter-spacing:.05em}
+  .st.ok{color:#2e7d32}.st.open{color:#b88600}.st.est{color:var(--stone)}
+  .ctot{display:flex;justify-content:space-between;align-items:baseline;padding:16px 12px;border-top:2px solid var(--granite)}
+  .ctot .lbl{font-family:"Fraunces",serif;font-size:19px;font-weight:600}
+  .ctot .val{font-family:"Spline Sans Mono",monospace;font-size:22px;font-weight:600;color:var(--granite)}
+  @media(max-width:560px){.ctbl .det{display:none}.ctbl input.cost{width:84px}}
+  .wt{width:82px;text-align:right;font-family:"Spline Sans Mono",monospace;font-size:13px;padding:6px 8px;border:1px solid var(--line);border-radius:3px;background:#fff;color:var(--ink)}
+  .wt:focus{outline:2px solid var(--atlantic);border-color:var(--atlantic)}
+  footer{background:var(--granite);color:#a49c8b;padding:30px 0;border-top:1px solid var(--line-dark)}
+  footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-family:"Spline Sans Mono",monospace;font-size:12px}
+  footer a{color:var(--flecha)}
+
+  .reveal{opacity:0;transform:translateY(14px);transition:opacity .6s ease,transform .6s ease}
+  .reveal.in{opacity:1;transform:none}
+
+  @media (max-width:560px){
+    .stage{grid-template-columns:70px 1fr;gap:14px;padding:16px}
+    .mojon{padding-right:12px}.mojon .km{font-size:26px}
+    .fact{padding-right:18px;margin-right:18px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .reveal{opacity:1;transform:none;transition:none}.stage{transition:none}html{scroll-behavior:auto}
+  }
+  @media print{
+    nav.toc{display:none}.stage:hover{transform:none;box-shadow:none}.reveal{opacity:1;transform:none}
+    body{background:#fff}.book{border:1px solid var(--granite)}
+    header.hero,.rec-sec,.anchor-day,footer{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <svg class="bigshell" viewBox="0 0 100 100" aria-hidden="true"><path fill="#f4b400" d="M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 3-1 5 0 5 2 1 3-2 6-5 8 11 4 20 14 23 27 1 4-2 8-6 8H16c-4 0-7-4-6-8 3-13 12-23 23-27-3-2-6-5-5-8 0-2 2-3 5-2-2-3-3-6-2-8 1-2 3-2 5 0-1-4-1-7 0-8 2-1 4 0 5 3 1-4 2-6 4-6z"/></svg>
+  <div class="wrap">
+    <svg class="shell" viewBox="0 0 100 100" aria-hidden="true"><path fill="#f4b400" d="M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 3-1 5 0 5 2 1 3-2 6-5 8 11 4 20 14 23 27 1 4-2 8-6 8H16c-4 0-7-4-6-8 3-13 12-23 23-27-3-2-6-5-5-8 0-2 2-3 5-2-2-3-3-6-2-8 1-2 3-2 5 0-1-4-1-7 0-8 2-1 4 0 5 3 1-4 2-6 4-6z"/><g stroke="#232a2e" stroke-width="1.4" fill="none" opacity=".5"><path d="M50 30v50M38 33 30 78M62 33l8 45M28 42 18 76M72 42l10 34"/></g></svg>
+    <div class="eyebrow">Masterplan · 2026</div>
+    <h1>Camino Portugués<br><em>da Costa</em></h1>
+    <div class="route">Porto <span class="arrow">&rarr;</span> Santiago de Compostela</div>
+    <div class="facts">
+      <div class="fact"><div class="n">266</div><div class="l">km gesamt</div></div>
+      <div class="fact"><div class="n">12</div><div class="l">Etappen</div></div>
+      <div class="fact"><div class="n">~25</div><div class="l">km / Tag</div></div>
+      <div class="fact"><div class="n mono">17.09.</div><div class="l">bis 01.10.2026</div></div>
+    </div>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#profil">01 · Profil</a>
+    <a href="#ernaehrung">02 · Ernährung</a>
+    <a href="#anreise">03 · Anreise</a>
+    <a href="#etappen">04 · Etappen</a>
+    <a href="#equipment">05 · Equipment</a>
+    <a href="#packliste">06 · Packliste</a>
+    <a href="#kosten">07 · Kosten</a>
+    <a href="#countdown">08 · Countdown</a>
+  </div>
+</nav>
+
+<section id="profil">
+  <div class="wrap reveal">
+    <div class="sec-head"><div class="sec-num">01</div><h2>Profil &amp; Basis<small>Ausgangslage und Trainingsrahmen</small></h2></div>
+    <div class="grid">
+      <div class="cell"><div class="k">Alter / Größe</div><div class="v">47 J · 183 cm</div></div>
+      <div class="cell"><div class="k">Job</div><div class="v">Büro <span>sitzend</span></div></div>
+      <div class="cell"><div class="k">Gym</div><div class="v">Mo·Mi·Fr <span>45 Min Kraft</span></div></div>
+      <div class="cell"><div class="k">Gewicht aktuell</div><div class="v">93 kg <span>Start 12.01.</span></div></div>
+      <div class="cell"><div class="k">Schritte/Tag</div><div class="v">7–10k <span>Vorbereitung</span></div></div>
+      <div class="cell"><div class="k">Ziel</div><div class="v">Camino-fit</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="ernaehrung">
+  <div class="wrap reveal">
+    <div class="sec-head"><div class="sec-num">02</div><h2>Ernährung &amp; Supplements<small>16:8 Intervallfasten · Tagesprotokoll</small></h2></div>
+    <div class="pill-row">
+      <span class="pill"><b>1.600–1.800</b> kcal</span>
+      <span class="pill"><b>140–150 g</b> Protein</span>
+      <span class="pill"><b>16:8</b> Fenster</span>
+    </div>
+    <div class="day">
+      <div class="slot"><time>12:00</time><div class="txt">Fasten brechen — 1 Portion <b>Iso Clear</b></div></div>
+      <div class="slot acc"><time>12:30</time><div class="txt">Mittagessen + 1 Kapsel <b>Vitamin B</b></div></div>
+      <div class="slot"><time>15:00</time><div class="txt">2. Portion <b>Iso Clear</b> (gegen Zuckerlust)</div></div>
+      <div class="slot acc"><time>19:30</time><div class="txt">Abendessen — Volumen &amp; Protein: <b>Huhn, Fisch, großer Salat</b></div></div>
+      <div class="slot"><time>20:00</time><div class="txt"><b>Zähne putzen</b> — Snack-Bremse</div></div>
+      <div class="slot acc"><time>21:30</time><div class="txt"><b>Magnesium</b> (300–400 mg) + <b>Zink</b> (15–25 mg) — Regeneration</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="anreise">
+  <div class="wrap reveal">
+    <div class="sec-head"><div class="sec-num">03</div><h2>Anreise &amp; Logistik<small>17.09. – 01.10.2026 · ab/an Frankfurt Main (FRA)</small></h2></div>
+    <div class="flight">
+      <div class="fcard">
+        <div class="ftag" style="color:#2e7d32">Hinflug · 17.09.2026 · TAP TP6682 (LH) · gebucht</div>
+        <div class="froute">FRA <span class="ar">&rarr;</span> OPO</div>
+        <div class="fmeta"><b>13:50 → 15:40</b> · Direkt 2 h 50 · Economy · danach Metro <b>E</b> (violett) bis Trindade</div>
+      </div>
+      <div class="fcard">
+        <div class="ftag">Orga-Tag · 18.09.2026</div>
+        <div class="froute" style="font-size:20px">Sé-Kathedrale Porto</div>
+        <div class="fmeta"><b>Credencial</b> (~2 €, Reisepass mit!) · 1. Stempel abholen<br>Adresse: <b>Terreiro da Sé, 4050-573 Porto</b> · ~5 Min von São Bento · offen bis ~18:30</div>
+      </div>
+      <div class="fcard">
+        <div class="ftag">Rückflug · 01.10.2026 · gebucht</div>
+        <div class="froute">SCQ <span class="ar">&rarr;</span> FRA</div>
+        <div class="fmeta">Zeiten lt. Buchung · nachmittags Bus zum Flughafen SCQ</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="etappen">
+  <div class="wrap reveal">
+    <div class="sec-head"><div class="sec-num">04</div><h2>Etappen &amp; Unterkünfte<small>Budget-Ausrichtung · ohne Gepäcktransport · Booking-Links nach Preis sortiert (live prüfen, Sept. schwankt)</small></h2></div>
+
+    <div class="mapwrap reveal">
+      <div id="map"></div>
+      <div class="maplegend">
+        <span><i class="dot" style="background:#f4b400"></i> Start / Ziel</span>
+        <span><i class="dot" style="background:#1f5d6c"></i> Etappenort</span>
+        <span><i style="background:#f4b400"></i> Caminho da Costa</span>
+        <span><i style="background:#2f9c95;height:0;border-top:3px dashed #2f9c95"></i> Senda Litoral (Küste)</span>
+      </div>
+      <p style="font-family:'Spline Sans Mono',monospace;font-size:11px;color:var(--stone);margin-top:8px">Über das Layer-Menü oben rechts lässt sich die Senda Litoral ein-/ausblenden.</p>
+    </div>
+
+    <div class="stage anchor-day">
+      <div class="mojon"><div class="et">START</div><div class="km">266<span>km vor dir</span></div></div>
+      <div>
+        <h3>Porto — Basislager</h3>
+        <div class="dist">17.09. + 18.09. · 2 Nächte</div>
+        <div class="target"><b style="color:#2e7d32">Gebucht:</b> Carpe Diem Porto by Dualgroup · Deluxe Doppelzimmer · <b>186,83 €</b> gesamt (2 Nächte) · zentral bei São Bento</div>
+        <div class="note">Buchungsnr. 5888925188 (PIN in deiner Booking-Mail). Orga-Tag: Credencial &amp; 1. Stempel — Sé nur ~5 Min zu Fuß.</div>
+        <div class="alt"><b>Variante:</b> Ab Foz/Matosinhos auf der Senda Litoral am Atlantik entlang (Holzstege).</div>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="mojon"><div class="et">E1 · 19.09.</div><div class="km">246<span>noch bis SCQ</span></div></div>
+      <div>
+        <h3>Matosinhos → Vila do Conde</h3>
+        <div class="dist">20 km · Start: Metro A bis Matosinhos Sul</div>
+        <div class="target"><b>Budget-Ziel:</b> Pension/3★ am Ortskern · ca. 55–75 €</div>
+        <div class="alt"><b>Senda Litoral:</b> komplett an der Küste, flach &amp; gelenkschonend.</div>
+        <a class="book" href="https://www.booking.com/searchresults.html?ss=Vila%20do%20Conde%2C%20Portugal&checkin=2026-09-19&checkout=2026-09-20&group_adults=1&no_rooms=1&order=price" target="_blank" rel="noopener">Booking Vila do Conde</a>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="mojon"><div class="et">E2 · 20.09.</div><div class="km">222<span>noch bis SCQ</span></div></div>
+      <div>
+        <h3>Vila do Conde → Esposende</h3>
+        <div class="dist">24 km</div>
+        <div class="target"><b>Budget-Ziel:</b> Guesthouse/3★ am Fluss · ca. 55–75 €</div>
+        <div class="alt"><b>Senda Litoral:</b> über Póvoa de Varzim &amp; Apúlia direkt am Strand.</div>
+        <a class="book" href="https://www.booking.com/searchresults.html?ss=Esposende%2C%20Portugal&checkin=2026-09-20&checkout=2026-09-21&group_adults=1&no_rooms=1&order=price" target="_blank" rel="noopener">Booking Esposende</a>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="mojon"><div class="et">E3 · 21.09.</div><div class="km">197<span>noch bis SCQ</span></div></div>
+      <div>
+        <h3>Esposende → Viana do Castelo</h3>
+        <div class="dist">25 km</div>
+        <div class="target"><b>Budget-Ziel:</b> Pension Altstadt nahe Eiffel-Brücke · ca. 60–80 €</div>
+        <div class="alt"><b>Senda Litoral:</b> letzter durchgehender Küstenabschnitt — danach läuft sie mit der Costa zusammen.</div>
+        <a class="book" href="https://www.booking.com/searchresults.html?ss=Viana%20do%20Castelo%2C%20Portugal&checkin=2026-09-21&checkout=2026-09-22&group_adults=1&no_rooms=1&order=price" target="_blank" rel="noopener">Booking Viana do Castelo</a>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="mojon"><div class="et">E4 · 22.09.</div><div class="km">171<span>noch bis SCQ</span></div></div>
+      <div>
+        <h3>Viana do Castelo → Caminha</h3>
+        <div class="dist">26 km</div>
+        <div class="target"><b>Budget-Ziel:</b> Pension am Hauptplatz · ca. 60–85 €</div>
+        <div class="note">Vor der Fähre nach Spanien — Bootsfahrplan vorab checken.</div>
+        <a class="book" href="https://www.booking.com/searchresults.html?ss=Caminha%2C%20Portugal&checkin=2026-09-22&checkout=2026-09-23&group_adults=1&no_rooms=1&order=price" target="_blank" rel="noopener">Booking Caminha</a>
+      </div>
+    </div>
+
+    <div class="stage special">
+      <div class="mojon"><div class="et">E5 · 23.09.</div><div class="km">148<span>Grenze ↦ ESP</span></div></div>
+      <div>
+        <h3>Caminha → Oia <span style="font-size:14px;color:var(--stone)">(Spanien)</span></h3>
+        <div class="dist">23 km · Fähre/Taxiboot über den Minho · ab hier 2 Stempel/Tag</div>
+        <div class="target"><b>Budget-Ziel:</b> Pension/Hostal · ca. 65–90 € <span style="color:var(--stone)">(dünnes Angebot — früh buchen)</span></div>
+        <a class="book" href="https://www.booking.com/searchresults.html?ss=Oia%2C%20Pontevedra%2C%20Spain&checkin=2026-09-23&checkout=2026-09-24&group_adults=1&no_rooms=1&order=price" target="_blank" rel="noopener">Booking Oia</a>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="mojon"><div class="et">E6 · 24.09.</div><div class="km">130<span>noch bis SCQ</span></div></div>
+      <div>
+        <h3>Oia → Baiona</h3>
+        <div class="dist">18 km · kurze Etappe</div>
+        <div class="target"><b>Budget-Ziel:</b> Hostal Altstadt (statt Parador) · ca. 65–95 €</div>
+        <div class="note">Parador wäre das teure Highlight — als bewusste Ausnahme behaltbar.</div>
+        <a class="book" href="https://www.booking.com/searchresults.html?ss=Baiona%2C%20Pontevedra%2C%20Spain&checkin=2026-09-24&checkout=2026-09-25&group_adults=1&no_rooms=1&order=price" target="_blank" rel="noopener">Booking Baiona</a>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="mojon"><div class="et">E7 · 25.09.</div><div class="km">103<span>noch bis SCQ</span></div></div>
+      <div>
+        <h3>Baiona → Vigo</h3>
+        <div class="dist">27 km · längste Etappe</div>
+        <div class="target"><b>Budget-Ziel:</b> Stadthotel/Hostal Zentrum · ca. 55–80 €</div>
+        <a class="book" href="https://www.booking.com/searchresults.html?ss=Vigo%2C%20Spain&checkin=2026-09-25&checkout=2026-09-26&group_adults=1&no_rooms=1&order=price" target="_blank" rel="noopener">Booking Vigo</a>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="mojon"><div class="et">E8 · 26.09.</div><div class="km">81<span>noch bis SCQ</span></div></div>
+      <div>
+        <h3>Vigo → Arcade</h3>
+        <div class="dist">22 km</div>
+        <div class="target"><b>Budget-Ziel:</b> Pension vor der Brücke · ca. 55–75 €</div>
+        <div class="note">Arcade = Austern &amp; Meeresfrüchte — Proteinspeicher füllen.</div>
+        <a class="book" href="https://www.booking.com/searchresults.html?ss=Arcade%2C%20Pontevedra%2C%20Spain&checkin=2026-09-26&checkout=2026-09-27&group_adults=1&no_rooms=1&order=price" target="_blank" rel="noopener">Booking Arcade</a>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="mojon"><div class="et">E9 · 27.09.</div><div class="km">66<span>noch bis SCQ</span></div></div>
+      <div>
+        <h3>Arcade → Pontevedra</h3>
+        <div class="dist">15 km · kürzeste Etappe</div>
+        <div class="target"><b>Budget-Ziel:</b> Hostal Altstadt (casco vello) · ca. 60–85 €</div>
+        <a class="book" href="https://www.booking.com/searchresults.html?ss=Pontevedra%2C%20Spain&checkin=2026-09-27&checkout=2026-09-28&group_adults=1&no_rooms=1&order=price" target="_blank" rel="noopener">Booking Pontevedra</a>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="mojon"><div class="et">E10 · 28.09.</div><div class="km">44<span>noch bis SCQ</span></div></div>
+      <div>
+        <h3>Pontevedra → Caldas de Reis</h3>
+        <div class="dist">22 km</div>
+        <div class="target"><b>Budget-Ziel:</b> Pension/kleines Balneario · ca. 55–80 €</div>
+        <div class="note">Thermalort — heiße Quellen fürs Finale, oft auch günstig nutzbar.</div>
+        <a class="book" href="https://www.booking.com/searchresults.html?ss=Caldas%20de%20Reis%2C%20Spain&checkin=2026-09-28&checkout=2026-09-29&group_adults=1&no_rooms=1&order=price" target="_blank" rel="noopener">Booking Caldas de Reis</a>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="mojon"><div class="et">E11 · 29.09.</div><div class="km">25<span>noch bis SCQ</span></div></div>
+      <div>
+        <h3>Caldas de Reis → Padrón</h3>
+        <div class="dist">19 km</div>
+        <div class="target"><b>Budget-Ziel:</b> Pension am Ort · ca. 50–70 €</div>
+        <a class="book" href="https://www.booking.com/searchresults.html?ss=Padron%2C%20A%20Coruna%2C%20Spain&checkin=2026-09-29&checkout=2026-09-30&group_adults=1&no_rooms=1&order=price" target="_blank" rel="noopener">Booking Padrón</a>
+      </div>
+    </div>
+
+    <div class="stage special">
+      <div class="mojon"><div class="et">E12 · 30.09.</div><div class="km">0<span>ZIEL</span></div></div>
+      <div>
+        <h3>Padrón → Santiago de Compostela</h3>
+        <div class="dist">25 km · Einzug Praza do Obradoiro · 1 Nacht (bis 01.10.)</div>
+        <div class="target"><b>Budget-Ziel:</b> Pension/Hostal nahe Altstadt · ca. 70–110 € <span style="color:var(--stone)">(hohe Nachfrage — früh buchen)</span></div>
+        <div class="note">Compostela-Urkunde: Pilgerbüro Rúa de Carretas 33. Pilgermesse 12:00.</div>
+        <a class="book" href="https://www.booking.com/searchresults.html?ss=Santiago%20de%20Compostela%2C%20Spain&checkin=2026-09-30&checkout=2026-10-01&group_adults=1&no_rooms=1&order=price" target="_blank" rel="noopener">Booking Santiago</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section id="equipment">
+  <div class="wrap reveal">
+    <div class="sec-head"><div class="sec-num">05</div><h2>Equipment &amp; Gelenkschutz<small>Du trägst alles selbst — Packgewicht ist jetzt der kritische Faktor</small></h2></div>
+    <div class="eq">
+      <div class="eqcard">
+        <h4>Rucksack &amp; Gewicht</h4>
+        <ul>
+          <li>Zielgewicht voll gepackt: <b>&lt; 8 kg</b> (max. 10 % Körpergewicht)</li>
+          <li>30–40 L Trekkingrucksack, Hüftgurt entlastet Schultern</li>
+          <li>Brustgurt &amp; gute Lastübertragung — Gelenkschutz</li>
+          <li>Regen-Cover für den Rucksack</li>
+        </ul>
+      </div>
+      <div class="eqcard">
+        <h4>Füße &amp; Haut</h4>
+        <ul>
+          <li>Trailrunner, max. gedämpft (Hoka / Altra)</li>
+          <li>Zweilagige Socken (Wrightsock)</li>
+          <li>Morgens Füße mit Hirschtalg fetten</li>
+        </ul>
+      </div>
+      <div class="eqcard">
+        <h4>Sonne &amp; Regen</h4>
+        <ul>
+          <li>ISDIN Fotoprotector Fusion Gel Sport, LSF 50</li>
+          <li>Zieht ein, fettet nicht, keine Ränder auf Merino</li>
+          <li>Leichter Poncho/Regenjacke (Atlantik-Wetter)</li>
+        </ul>
+      </div>
+      <div class="eqcard">
+        <h4>Elektronik &amp; Tagesbedarf</h4>
+        <ul>
+          <li>Carbon-Powerbank Nitecore NB10000 (150 g)</li>
+          <li>Ohropax</li>
+          <li>Wasser · Iso Clear (Pulver) · Snacks</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section id="packliste">
+  <div class="wrap reveal">
+    <div class="sec-head"><div class="sec-num">06</div><h2>Packliste<small>Häkchen zum Abstreichen anklickbar · Spalten frei ergänzen/streichen</small></h2></div>
+    <div class="pl-note">
+      <b>Zielgewicht: unter 8 kg</b> (max. 10 % Körpergewicht) — du trägst alles selbst über Ø 22 km.
+      <b>Kein Schlafsack nötig</b> (Hotels/Pensionen mit Bettwäsche &amp; Handtüchern). Waschen alle 2–3 Tage → wenig Kleidung.
+      <b>Flug:</b> Messer &amp; Flüssiges &gt;100 ml ins Aufgabegepäck. Powerbank ins Handgepäck. Steckdosen PT/ES = EU Typ F → kein Adapter nötig.
+    </div>
+
+    <div class="pack">
+
+      <div class="pcat">
+        <h4>1 · Rucksack &amp; Tragen</h4>
+        <table class="ptbl">
+          <tr><th class="c-chk"></th><th>Item</th><th>Größe/Detail</th><th>Anz.</th><th>Zweck</th></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Wanderrucksack</td><td class="c-size">30–40 L</td><td class="c-qty">1</td><td class="c-use">Hauptgepäck, gute Lastübertragung (Hüftgurt)</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Rucksack-Regenhülle</td><td class="c-size">passend zur Größe</td><td class="c-qty">1</td><td class="c-use">Nässeschutz</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Packbeutel / Kompressionssäcke</td><td class="c-size">S/M/L</td><td class="c-qty">3–4</td><td class="c-use">Ordnung + zusätzlicher Nässeschutz</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Karabinerhaken</td><td class="c-size">2–3</td><td class="c-qty">2–3</td><td class="c-use">Schuhe/Nasses außen befestigen, Flaschen</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Trinkflaschen / Trinksystem</td><td class="c-size">1,5–2 L gesamt</td><td class="c-qty">1</td><td class="c-use">Wasser unterwegs</td></tr>
+        </table>
+      </div>
+
+      <div class="pcat">
+        <h4>2 · Schuhe &amp; Füße</h4>
+        <table class="ptbl">
+          <tr><th class="c-chk"></th><th>Item</th><th>Größe/Detail</th><th>Anz.</th><th>Zweck</th></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Trailrunner, gedämpft (Hoka/Altra)</td><td class="c-size">½ Nr. größer</td><td class="c-qty">1</td><td class="c-use">Haupt-Wanderschuh, eingelaufen!</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Flip-Flops</td><td class="c-size">leicht</td><td class="c-qty">1</td><td class="c-use">Abends, Dusche, Füße lüften</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Wandersocken 2-lagig (Wrightsock)</td><td class="c-size">—</td><td class="c-qty">3</td><td class="c-use">Blasenprävention</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Hirschtalg-Creme</td><td class="c-size">kleine Dose</td><td class="c-qty">1</td><td class="c-use">Füße morgens fetten</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Blasenpflaster (Compeed)</td><td class="c-size">Sortiment</td><td class="c-qty">1 Pack</td><td class="c-use">Sofortversorgung</td></tr>
+        </table>
+      </div>
+
+      <div class="pcat">
+        <h4>3 · Wanderkleidung</h4>
+        <table class="ptbl">
+          <tr><th class="c-chk"></th><th>Item</th><th>Größe/Detail</th><th>Anz.</th><th>Zweck</th></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Merino-T-Shirt (kurz)</td><td class="c-size">—</td><td class="c-qty">2</td><td class="c-use">Wandern, geruchsarm</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Merino-Longsleeve</td><td class="c-size">—</td><td class="c-qty">1</td><td class="c-use">Kühle Morgen / UV-Schutz</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Wanderhose leicht (Zip-off)</td><td class="c-size">—</td><td class="c-qty">1</td><td class="c-use">Wandern / wird zur Shorts</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Funktions-Unterhosen</td><td class="c-size">schnelltrocknend</td><td class="c-qty">3</td><td class="c-use">Täglich, handwaschbar</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Sonnenhut / Cap</td><td class="c-size">—</td><td class="c-qty">1</td><td class="c-use">Sonnenschutz (Küste schattenlos)</td></tr>
+        </table>
+      </div>
+
+      <div class="pcat">
+        <h4>4 · Abend &amp; Schlafen</h4>
+        <table class="ptbl">
+          <tr><th class="c-chk"></th><th>Item</th><th>Größe/Detail</th><th>Anz.</th><th>Zweck</th></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Leichte lange Hose / Jogger</td><td class="c-size">—</td><td class="c-qty">1</td><td class="c-use">Abends im Ort</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Casual Shirt / Longsleeve</td><td class="c-size">—</td><td class="c-qty">1</td><td class="c-use">Abends, Restaurant</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Schlafshirt + Boxer</td><td class="c-size">—</td><td class="c-qty">1</td><td class="c-use">Schlafen</td></tr>
+        </table>
+      </div>
+
+      <div class="pcat">
+        <h4>5 · Regen &amp; Wärme</h4>
+        <table class="ptbl">
+          <tr><th class="c-chk"></th><th>Item</th><th>Größe/Detail</th><th>Anz.</th><th>Zweck</th></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Regenjacke atmungsaktiv / Poncho</td><td class="c-size">packbar</td><td class="c-qty">1</td><td class="c-use">Atlantik-Regen, windexponiert</td></tr>
+        </table>
+      </div>
+
+      <div class="pcat">
+        <h4>6 · Sonnen- &amp; Hautschutz</h4>
+        <table class="ptbl">
+          <tr><th class="c-chk"></th><th>Item</th><th>Größe/Detail</th><th>Anz.</th><th>Zweck</th></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">ISDIN Fusion Gel Sport LSF 50</td><td class="c-size">≤100 ml Handgep.</td><td class="c-qty">1</td><td class="c-use">Gesicht &amp; Körper</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Sonnenbrille</td><td class="c-size">—</td><td class="c-qty">1</td><td class="c-use">Blendung am Wasser</td></tr>
+        </table>
+      </div>
+
+      <div class="pcat">
+        <h4>7 · Wäsche &amp; Hygiene</h4>
+        <table class="ptbl">
+          <tr><th class="c-chk"></th><th>Item</th><th>Größe/Detail</th><th>Anz.</th><th>Zweck</th></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Mikrofaser-Reisehandtuch</td><td class="c-size">M/L</td><td class="c-qty">1</td><td class="c-use">Ergänzend (Hotels haben Handtücher)</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Zahnbürste + Zahnpasta</td><td class="c-size">Reisegröße</td><td class="c-qty">1</td><td class="c-use">Auch Snack-Bremse (20:00)</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Dr. Bronner's Almond Pure Castile Bar Soap</td><td class="c-size">1 × 140 g, fest</td><td class="c-qty">1</td><td class="c-use">Körper + Haare + Wäsche in einem · flugtauglich, kein Auslaufen</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Deo (Stick/Creme)</td><td class="c-size">—</td><td class="c-qty">1</td><td class="c-use">—</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Nagelschere + Nagelfeile</td><td class="c-size">→ Aufgabegepäck</td><td class="c-qty">1</td><td class="c-use">Fußnägel kurz &amp; glatt halten (Blasen!)</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Handdesinfektion / Feuchttücher</td><td class="c-size">≤100 ml</td><td class="c-qty">1</td><td class="c-use">Unterwegs</td></tr>
+        </table>
+      </div>
+
+      <div class="pcat">
+        <h4>8 · Reiseapotheke</h4>
+        <table class="ptbl">
+          <tr><th class="c-chk"></th><th>Item</th><th>Größe/Detail</th><th>Anz.</th><th>Zweck</th></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Ibuprofen 400</td><td class="c-size">—</td><td class="c-qty">1 Pack</td><td class="c-use">Schmerz / Entzündung</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Kopfschmerztabletten</td><td class="c-size">z. B. Paracetamol/ASS</td><td class="c-qty">1 Pack</td><td class="c-use">Kopfschmerzen</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Blasenset: Nadel, Desinfektion, Tape</td><td class="c-size">—</td><td class="c-qty">1</td><td class="c-use">Blasen fachgerecht versorgen</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Pflaster + Wunddesinfektion</td><td class="c-size">Sortiment</td><td class="c-qty">1</td><td class="c-use">Kleine Wunden</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Loperamid + Elektrolyt</td><td class="c-size">—</td><td class="c-qty">1</td><td class="c-use">Magen-Darm</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Persönliche Medikamente</td><td class="c-size">nach Bedarf</td><td class="c-qty">—</td><td class="c-use">Mit Rezept-Kopie</td></tr>
+        </table>
+      </div>
+
+      <div class="pcat">
+        <h4>9 · Supplements &amp; Ernährung</h4>
+        <table class="ptbl">
+          <tr><th class="c-chk"></th><th>Item</th><th>Größe/Detail</th><th>Anz.</th><th>Zweck</th></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Iso Clear (Portionsbeutel)</td><td class="c-size">Pulver, Handgep. ok</td><td class="c-qty">~28</td><td class="c-use">2/Tag · Fastenbrechen + Zuckerlust</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Vitamin B</td><td class="c-size">in Tagestütchen</td><td class="c-qty">14 T.</td><td class="c-use">Täglich mittags</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Magnesium 300–400 mg</td><td class="c-size">in Tagestütchen</td><td class="c-qty">14 T.</td><td class="c-use">Regeneration (21:30)</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Zink 15–25 mg</td><td class="c-size">in Tagestütchen</td><td class="c-qty">14 T.</td><td class="c-use">Regeneration (21:30)</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Papiertütchen (Tagesportionen)</td><td class="c-size">klein</td><td class="c-qty">~14</td><td class="c-use">Supplements pro Tag vorportionieren — spart Platz</td></tr>
+        </table>
+      </div>
+
+      <div class="pcat">
+        <h4>10 · Elektronik</h4>
+        <table class="ptbl">
+          <tr><th class="c-chk"></th><th>Item</th><th>Größe/Detail</th><th>Anz.</th><th>Zweck</th></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Smartphone</td><td class="c-size">—</td><td class="c-qty">1</td><td class="c-use">Navi, Fotos, Buchungen</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Powerbank Nitecore NB10000</td><td class="c-size">150 g</td><td class="c-qty">1</td><td class="c-use">Laden unterwegs</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Ladegerät USB-C + Kabel</td><td class="c-size">—</td><td class="c-qty">1</td><td class="c-use">Über Nacht laden</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Ohropax</td><td class="c-size">—</td><td class="c-qty">1</td><td class="c-use">Schlaf</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Kopfhörer</td><td class="c-size">optional</td><td class="c-qty">1</td><td class="c-use">Podcast / Musik</td></tr>
+        </table>
+      </div>
+
+      <div class="pcat">
+        <h4>11 · Dokumente, Geld &amp; Pilger</h4>
+        <table class="ptbl">
+          <tr><th class="c-chk"></th><th>Item</th><th>Größe/Detail</th><th>Anz.</th><th>Zweck</th></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Reisepass / Personalausweis</td><td class="c-size">—</td><td class="c-qty">1</td><td class="c-use">Flug, Grenze, Credencial</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Credencial (Pilgerausweis)</td><td class="c-size">in Porto holen</td><td class="c-qty">1</td><td class="c-use">Stempel → Compostela</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Flugtickets (FRA↔OPO/SCQ)</td><td class="c-size">digital + Print</td><td class="c-qty">1</td><td class="c-use">Hin/Rück · gebucht</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">EHIC + Auslandskranken-Police</td><td class="c-size">Karte + Kopie</td><td class="c-qty">1</td><td class="c-use">Notfall-Absicherung</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Kreditkarte + Bargeld</td><td class="c-size">~150 € bar</td><td class="c-qty">1</td><td class="c-use">Kleine Orte oft nur bar</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Kopien Pass/Versicherung (Cloud)</td><td class="c-size">digital</td><td class="c-qty">—</td><td class="c-use">Verlust-Absicherung</td></tr>
+        </table>
+      </div>
+
+      <div class="pcat">
+        <h4>12 · Kleinkram &amp; Optional</h4>
+        <table class="ptbl">
+          <tr><th class="c-chk"></th><th>Item</th><th>Größe/Detail</th><th>Anz.</th><th>Zweck</th></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Sicherheitsnadeln</td><td class="c-size">—</td><td class="c-qty">4–6</td><td class="c-use">Wäsche trocknen, Reparatur</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Mini-Taschenmesser</td><td class="c-size">→ Aufgabegepäck</td><td class="c-qty">1</td><td class="c-use">Obst, Käse, Allzweck</td></tr>
+          <tr><td class="c-chk"><input type="checkbox"></td><td class="i-name">Zip-Beutel (diverse)</td><td class="c-size">—</td><td class="c-qty">3–4</td><td class="c-use">Doku/Handy wasserdicht</td></tr>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section id="kosten">
+  <div class="wrap reveal">
+    <div class="sec-head"><div class="sec-num">07</div><h2>Kosten<small>Beträge editierbar · Summe rechnet live · leere Felder zählen als 0 · nicht gespeichert (zum Festhalten drucken)</small></h2></div>
+    <div class="pcat">
+      <table class="ctbl">
+        <tr><th>Position</th><th class="det">Detail</th><th class="r">Betrag €</th><th>Status</th></tr>
+
+        <tr><td class="i-name">Flug Hinflug</td><td class="det">FRA→OPO · TAP TP6682</td><td class="r"><input class="cost" type="number" step="0.01" value="258.00"></td><td><span class="st ok">gebucht</span></td></tr>
+        <tr><td class="i-name">Flug Rückflug</td><td class="det">SCQ→FRA</td><td class="r"><input class="cost" type="number" step="0.01" placeholder="0"></td><td><span class="st open">offen</span></td></tr>
+
+        <tr><td class="i-name">Porto (2 N)</td><td class="det">Carpe Diem by Dualgroup</td><td class="r"><input class="cost" type="number" step="0.01" value="186.83"></td><td><span class="st ok">gebucht</span></td></tr>
+        <tr><td class="i-name">Vila do Conde (E1)</td><td class="det">~ Pension</td><td class="r"><input class="cost" type="number" step="0.01" placeholder="0"></td><td><span class="st open">offen</span></td></tr>
+        <tr><td class="i-name">Esposende (E2)</td><td class="det">~ Guesthouse</td><td class="r"><input class="cost" type="number" step="0.01" placeholder="0"></td><td><span class="st open">offen</span></td></tr>
+        <tr><td class="i-name">Viana do Castelo (E3)</td><td class="det">~ Pension</td><td class="r"><input class="cost" type="number" step="0.01" placeholder="0"></td><td><span class="st open">offen</span></td></tr>
+        <tr><td class="i-name">Caminha (E4)</td><td class="det">~ Pension</td><td class="r"><input class="cost" type="number" step="0.01" placeholder="0"></td><td><span class="st open">offen</span></td></tr>
+        <tr><td class="i-name">Oia (E5)</td><td class="det">~ dünnes Angebot</td><td class="r"><input class="cost" type="number" step="0.01" placeholder="0"></td><td><span class="st open">offen</span></td></tr>
+        <tr><td class="i-name">Baiona (E6)</td><td class="det">~ Hostal</td><td class="r"><input class="cost" type="number" step="0.01" placeholder="0"></td><td><span class="st open">offen</span></td></tr>
+        <tr><td class="i-name">Vigo (E7)</td><td class="det">~ Stadthotel</td><td class="r"><input class="cost" type="number" step="0.01" placeholder="0"></td><td><span class="st open">offen</span></td></tr>
+        <tr><td class="i-name">Arcade (E8)</td><td class="det">~ Pension</td><td class="r"><input class="cost" type="number" step="0.01" placeholder="0"></td><td><span class="st open">offen</span></td></tr>
+        <tr><td class="i-name">Pontevedra (E9)</td><td class="det">~ Hostal casco vello</td><td class="r"><input class="cost" type="number" step="0.01" placeholder="0"></td><td><span class="st open">offen</span></td></tr>
+        <tr><td class="i-name">Caldas de Reis (E10)</td><td class="det">~ Pension/Balneario</td><td class="r"><input class="cost" type="number" step="0.01" placeholder="0"></td><td><span class="st open">offen</span></td></tr>
+        <tr><td class="i-name">Padrón (E11)</td><td class="det">~ Pension</td><td class="r"><input class="cost" type="number" step="0.01" placeholder="0"></td><td><span class="st open">offen</span></td></tr>
+        <tr><td class="i-name">Santiago (E12, 1 N)</td><td class="det">~ Hochsaison</td><td class="r"><input class="cost" type="number" step="0.01" placeholder="0"></td><td><span class="st open">offen</span></td></tr>
+
+        <tr><td class="i-name">Credencial (Pilgerpass)</td><td class="det">Sé do Porto</td><td class="r"><input class="cost" type="number" step="0.01" value="2.00"></td><td><span class="st est">fix ~2 €</span></td></tr>
+        <tr><td class="i-name">Nahverkehr</td><td class="det">Metro Porto · Fähre Caminha · Bus SCQ-Flughafen</td><td class="r"><input class="cost" type="number" step="0.01" placeholder="0"></td><td><span class="st est">Schätzung</span></td></tr>
+        <tr><td class="i-name">Verpflegung</td><td class="det">14 Tage Essen/Kaffee/Pilgermenüs</td><td class="r"><input class="cost" type="number" step="0.01" placeholder="0"></td><td><span class="st est">Schätzung</span></td></tr>
+        <tr><td class="i-name">Ausrüstung / Apotheke</td><td class="det">Restkäufe (Seife, Powerbank, Pflaster …)</td><td class="r"><input class="cost" type="number" step="0.01" placeholder="0"></td><td><span class="st est">Schätzung</span></td></tr>
+        <tr><td class="i-name">Puffer / Sonstiges</td><td class="det">Trinkgeld, Souvenirs, Unvorhergesehenes</td><td class="r"><input class="cost" type="number" step="0.01" placeholder="0"></td><td><span class="st est">Schätzung</span></td></tr>
+      </table>
+      <div class="ctot"><span class="lbl">Summe (aktuell erfasst)</span><span class="val" id="costTotal">0,00 €</span></div>
+    </div>
+    <div class="pl-note" style="margin-top:22px;margin-bottom:0">
+      <b>Orientierung:</b> Unterkünfte grob ~70 €/Nacht × 12 ≈ 840 €. Mit Rückflug, Verpflegung (~25–35 €/Tag) und Transport landet das realistische Gesamtbudget bei etwa <b>1.400–1.900 €</b>. Trag echte Beträge ein, dann stimmt die Summe oben.
+    </div>
+  </div>
+</section>
+
+<section id="countdown">
+  <div class="wrap reveal">
+    <div class="sec-head"><div class="sec-num">08</div><h2>Countdown –5 kg<small>93 → ~88 kg bis zum Abflug · ~0,7–1 kg/Woche · Ist-Gewicht editierbar</small></h2></div>
+    <div class="pl-note">
+      <b>Bewusst moderat, nicht Crash:</b> ~500–700 kcal Defizit, <b>Protein 140–150 g</b>, Kraft Mo/Mi/Fr weiter — so verlierst du Fett, nicht Muskeln/Kraft, die du für 266 km brauchst. Woche 1 fällt durch weniger Salz/verarbeitete KH schnell Wasser (Bonus auf der Waage). <b>Kein Alkohol</b> in den 6 Wochen. Letzte Woche <b>Taper</b>: Beine frisch, nicht weiter hart abnehmen.
+    </div>
+    <div class="pcat">
+      <table class="ctbl">
+        <tr><th>Woche</th><th class="det">Zeitraum</th><th class="r">Ziel</th><th class="r">Ist</th><th>Schritte/Tag</th><th class="det">Lange Wanderung</th><th>Fokus</th></tr>
+        <tr><td class="i-name">Start</td><td class="det">09.08.</td><td class="r">93,0 kg</td><td class="r"><input class="wt" type="number" step="0.1" value="93.0"></td><td>Baseline</td><td class="det">—</td><td>Ausgangswert</td></tr>
+        <tr><td class="i-name">W1</td><td class="det">11.–17.08.</td><td class="r">91,5</td><td class="r"><input class="wt" type="number" step="0.1" placeholder="kg"></td><td>8–9k</td><td class="det">10 km</td><td>Defizit sauber, wenig Salz/KH → Wasser fällt</td></tr>
+        <tr><td class="i-name">W2</td><td class="det">18.–24.08.</td><td class="r">90,5</td><td class="r"><input class="wt" type="number" step="0.1" placeholder="kg"></td><td>9–10k</td><td class="det">12–14 km</td><td>Protein hoch, Kraft halten</td></tr>
+        <tr><td class="i-name">W3</td><td class="det">25.–31.08.</td><td class="r">89,6</td><td class="r"><input class="wt" type="number" step="0.1" placeholder="kg"></td><td>10–12k</td><td class="det">16 km</td><td>Trailrunner einlaufen, Blasenstellen testen</td></tr>
+        <tr><td class="i-name">W4</td><td class="det">01.–07.09.</td><td class="r">88,8</td><td class="r"><input class="wt" type="number" step="0.1" placeholder="kg"></td><td>12k</td><td class="det">18–20 km mit Pack</td><td>Rucksack-Setup testen, &lt; 8 kg</td></tr>
+        <tr><td class="i-name">W5</td><td class="det">08.–14.09.</td><td class="r">88,0</td><td class="r"><input class="wt" type="number" step="0.1" placeholder="kg"></td><td>12–15k</td><td class="det">20+ km Generalprobe</td><td>Alles einmal komplett durchspielen</td></tr>
+        <tr><td class="i-name">W6</td><td class="det">15.–17.09.</td><td class="r">~88 halten</td><td class="r"><input class="wt" type="number" step="0.1" placeholder="kg"></td><td>locker</td><td class="det">1× 8 km locker</td><td>Taper: Beine frisch, KH wieder hoch, kein Crash</td></tr>
+      </table>
+    </div>
+    <div class="pl-note" style="margin-top:22px;margin-bottom:0">
+      <b>Realistisch:</b> 1–2 kg „schnell" über Wasser in Woche 1, danach ~0,7–0,9 kg/Woche echtes Fett → die 5 kg sind bis Mitte September drin — und du stehst <b>fit</b> am Start, nicht ausgezehrt. Wöchentlich montags früh wiegen (nüchtern) und Ist eintragen.
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>Camino Portugués da Costa · 266 km · 17.09.–01.10.2026</span>
+    <span>FRA → OPO · SCQ → FRA</span>
+  </div>
+</footer>
+
+<script>
+  const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.12});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+  document.querySelectorAll('.ptbl input[type=checkbox]').forEach(cb=>{
+    cb.addEventListener('change',()=>{cb.closest('tr').classList.toggle('done',cb.checked);});
+  });
+  (function(){
+    const inputs=document.querySelectorAll('input.cost');
+    const out=document.getElementById('costTotal');
+    if(!out||!inputs.length)return;
+    const fmt=new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR'});
+    function recalc(){
+      let s=0;
+      inputs.forEach(i=>{const v=parseFloat(i.value);if(!isNaN(v))s+=v;});
+      out.textContent=fmt.format(s);
+    }
+    inputs.forEach(i=>i.addEventListener('input',recalc));
+    recalc();
+  })();
+</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function(){
+  var el=document.getElementById('map');
+  if(!el){return;}
+  if(typeof L==='undefined'){
+    el.innerHTML='<div style="padding:28px;font-family:monospace;color:#857c6c;line-height:1.5">Karte konnte nicht geladen werden (Internet-Verbindung nötig). Alle Etappen &amp; Orte stehen in der Liste unten.</div>';
+    return;
+  }
+  try{
+  const stops=[
+    {n:"Porto — Sé Kathedrale",e:"START · 17.09.",m:"2 Nächte · Credencial & 1. Stempel",lat:41.142853,lng:-8.611116,hub:1},
+    {n:"Vila do Conde",e:"Etappe 1 · 19.09.",m:"20 km · noch 246 km",lat:41.333336,lng:-8.682063},
+    {n:"Esposende",e:"Etappe 2 · 20.09.",m:"24 km · noch 222 km",lat:41.532351,lng:-8.78308},
+    {n:"Viana do Castelo",e:"Etappe 3 · 21.09.",m:"25 km · noch 197 km",lat:41.694376,lng:-8.837134},
+    {n:"Caminha",e:"Etappe 4 · 22.09.",m:"26 km · noch 171 km · Fähre nach ESP",lat:41.873208,lng:-8.837845},
+    {n:"Oia",e:"Etappe 5 · 23.09.",m:"23 km · noch 148 km · ab hier 2 Stempel/Tag",lat:42.03204,lng:-8.85833},
+    {n:"Baiona",e:"Etappe 6 · 24.09.",m:"18 km · noch 130 km",lat:42.120152,lng:-8.852366},
+    {n:"Vigo",e:"Etappe 7 · 25.09.",m:"27 km · noch 103 km · längste Etappe",lat:42.240598,lng:-8.720726},
+    {n:"Arcade",e:"Etappe 8 · 26.09.",m:"22 km · noch 81 km · Austern",lat:42.340256,lng:-8.60898},
+    {n:"Pontevedra",e:"Etappe 9 · 27.09.",m:"15 km · noch 66 km · kürzeste Etappe",lat:42.429884,lng:-8.64462},
+    {n:"Caldas de Reis",e:"Etappe 10 · 28.09.",m:"22 km · noch 44 km · Thermalort",lat:42.604064,lng:-8.642019},
+    {n:"Padrón",e:"Etappe 11 · 29.09.",m:"19 km · noch 25 km",lat:42.736643,lng:-8.660243},
+    {n:"Santiago de Compostela",e:"ZIEL · 30.09.",m:"25 km · Praza do Obradoiro · Urkunde",lat:42.880688,lng:-8.544395,hub:1}
+  ];
+  const map=L.map('map',{scrollWheelZoom:false}).setView([42.0,-8.72],8);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    maxZoom:18, attribution:'&copy; OpenStreetMap'
+  }).addTo(map);
+  const line=stops.map(s=>[s.lat,s.lng]);
+  const costa=L.polyline(line,{color:'#f4b400',weight:4,opacity:.9}).addTo(map);
+  const litoralPts=[
+    [41.142853,-8.611116],[41.149,-8.670],[41.182,-8.703],[41.247,-8.726],
+    [41.293,-8.742],[41.345,-8.747],[41.383,-8.766],[41.452,-8.785],
+    [41.531,-8.789],[41.617,-8.810],[41.690,-8.840]
+  ];
+  const litoral=L.polyline(litoralPts,{color:'#2f9c95',weight:3,opacity:.9,dashArray:'6 7'}).addTo(map);
+  L.control.layers(null,{'Caminho da Costa':costa,'Senda Litoral (Küste)':litoral},{collapsed:false}).addTo(map);
+  stops.forEach((s,i)=>{
+    const hub=s.hub===1;
+    const mk=L.circleMarker([s.lat,s.lng],{
+      radius:hub?9:7, color:'#fff', weight:2,
+      fillColor:hub?'#f4b400':'#1f5d6c', fillOpacity:1
+    }).addTo(map);
+    mk.bindPopup('<div class="pop"><div class="pe">'+s.e+'</div><div class="pn">'+s.n+'</div><div class="pm">'+s.m+'</div></div>');
+  });
+  map.fitBounds(L.latLngBounds(line).pad(.12));
+  }catch(err){
+    el.innerHTML='<div style="padding:28px;font-family:monospace;color:#857c6c">Karte nicht verfügbar. Etappen siehe Liste unten.</div>';
+    console.error(err);
+  }
+})();
+</script>
+
+</body>
+</html>
