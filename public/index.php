@@ -23,7 +23,6 @@ $travel    = $repo->travelCards();
 $ankunft   = $repo->planSteps('ankunft');
 $ziel      = $repo->planSteps('ziel');
 $stages    = $repo->stages();
-$equipment = $repo->equipment();
 $packCats  = $repo->packList();
 $progress  = $repo->packProgress();
 $tagebuch  = new Tagebuch($db, $repo);
@@ -33,7 +32,6 @@ $kann      = $tagebuch->faehigkeiten();
 $healthTage = (new Gesundheit($db))->tage();
 $weg       = $repo->wegProgress();
 $stempel   = $repo->stempelProgress();
-$eqProg    = $repo->equipmentProgress();
 
 $stagesOffen    = count(array_filter($stages, static fn ($s) => !(int) $s['done']));
 $stagesErledigt = count($stages) - $stagesOffen;
@@ -125,11 +123,10 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
     <a href="#anreise">03 · Anreise</a>
     <a href="#ankunft">04 · Ankunft</a>
     <a href="#etappen">05 · Etappen</a>
-    <a href="#equipment">06 · Equipment</a>
-    <a href="#packliste">07 · Packliste</a>
-    <a href="#kosten">08 · Kosten</a>
-    <a href="#countdown">09 · Countdown</a>
-    <a href="#tagebuch">10 · Tagebuch</a>
+    <a href="#packliste">06 · Packliste</a>
+    <a href="#kosten">07 · Kosten</a>
+    <a href="#countdown">08 · Countdown</a>
+    <a href="#tagebuch">09 · Tagebuch</a>
   </div>
 </nav>
 
@@ -336,41 +333,9 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
   </div>
 </section>
 
-<section id="equipment">
-  <div class="wrap reveal">
-    <div class="sec-head"><div class="sec-num">06</div><h2>Equipment &amp; Gelenkschutz<small>Du trägst alles selbst — Packgewicht ist jetzt der kritische Faktor</small></h2></div>
-
-    <div class="tabs" data-tabs="equip">
-      <button type="button" class="tab is-on" data-tab="offen">Offen <i id="tabEquipOffen"><?= (int) ($eqProg['total'] - $eqProg['done']) ?></i></button>
-      <button type="button" class="tab" data-tab="erledigt">Erledigt <i id="tabEquipErledigt"><?= (int) $eqProg['done'] ?></i></button>
-      <button type="button" class="tab" data-tab="alle">Alle <i><?= (int) $eqProg['total'] ?></i></button>
-    </div>
-
-    <div class="eq" data-tabgruppe="equip" data-show="offen">
-      <?php foreach ($equipment as $card): ?>
-        <?php $eqDone = count(array_filter($card['items'], static fn ($i) => (int) $i['checked'] === 1)); ?>
-        <div class="eqcard" data-karte="<?= (int) $card['id'] ?>">
-          <h4><?= rich($card['title']) ?> <span class="eqcount"><?= $eqDone ?>/<?= count($card['items']) ?></span></h4>
-          <ul>
-            <?php foreach ($card['items'] as $item): ?>
-              <li data-done="<?= (int) $item['checked'] === 1 ? 1 : 0 ?>">
-                <label>
-                  <input type="checkbox" class="equipbox" data-id="<?= (int) $item['id'] ?>"<?= (int) $item['checked'] === 1 ? ' checked' : '' ?><?= $locked ? ' disabled' : '' ?>>
-                  <span><?= rich($item['body']) ?></span>
-                </label>
-              </li>
-            <?php endforeach; ?>
-          </ul>
-          <p class="leer" hidden>alles erledigt</p>
-        </div>
-      <?php endforeach; ?>
-    </div>
-  </div>
-</section>
-
 <section id="packliste">
   <div class="wrap reveal">
-    <div class="sec-head"><div class="sec-num">07</div><h2>Packliste<small>Häkchen werden gespeichert — Stand gilt auf allen Geräten</small></h2></div>
+    <div class="sec-head"><div class="sec-num">06</div><h2>Packliste<small>Häkchen werden gespeichert — Stand gilt auf allen Geräten</small></h2></div>
     <?php if (isset($notes['pack_intro'])): ?>
       <div class="pl-note"><?= rich($notes['pack_intro']) ?></div>
     <?php endif; ?>
@@ -423,7 +388,7 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
 
 <section id="kosten">
   <div class="wrap reveal">
-    <div class="sec-head"><div class="sec-num">08</div><h2>Kosten<small>Beträge werden gespeichert · Summe rechnet live · leere Felder zählen als 0</small></h2></div>
+    <div class="sec-head"><div class="sec-num">07</div><h2>Kosten<small>Beträge werden gespeichert · Summe rechnet live · leere Felder zählen als 0</small></h2></div>
     <div class="pcat">
       <table class="ctbl">
         <tr><th>Position</th><th class="det">Detail</th><th class="r">Betrag €</th><th>Status</th></tr>
@@ -453,7 +418,7 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
 
 <section id="countdown">
   <div class="wrap reveal">
-    <div class="sec-head"><div class="sec-num">09</div><h2>Countdown –5 kg<small>93 → ~88 kg bis zum Abflug · ~0,7–1 kg/Woche · Ist-Gewicht wird gespeichert</small></h2></div>
+    <div class="sec-head"><div class="sec-num">08</div><h2>Countdown –5 kg<small>93 → ~88 kg bis zum Abflug · ~0,7–1 kg/Woche · Ist-Gewicht wird gespeichert</small></h2></div>
     <?php if (isset($notes['weight_intro'])): ?>
       <div class="pl-note"><?= rich($notes['weight_intro']) ?></div>
     <?php endif; ?>
@@ -580,7 +545,7 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
 
 <section id="tagebuch">
   <div class="wrap reveal">
-    <div class="sec-head"><div class="sec-num">10</div><h2>Tagebuch &amp; Fotos<small>Sprachnotiz oder getippt · Aufnahmen und Bilder werden gemerkt, bis wieder Netz da ist</small></h2></div>
+    <div class="sec-head"><div class="sec-num">09</div><h2>Tagebuch &amp; Fotos<small>Sprachnotiz oder getippt · Aufnahmen und Bilder werden gemerkt, bis wieder Netz da ist</small></h2></div>
 
     <?php
       // Nachschlagewerk für die Anzeige: Etappen-Id → Beschriftung.

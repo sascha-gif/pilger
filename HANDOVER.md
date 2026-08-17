@@ -85,7 +85,8 @@ Port geöffnet werden. Details in `docs/DEPLOYMENT.md`.
 | Etappen abhaken, offen/erledigt als Reiter | **fertig** |
 | Fortschrittsbalken gelaufene km | **fertig**, rechnet aus den abgehakten Tagen |
 | Stempel-Checkliste (ab Spanien zwei/Tag) | **fertig** |
-| Equipment und Packliste als Reiter | **fertig** |
+| Packliste als Reiter | **fertig** |
+| Equipment & Gelenkschutz | **ausgeblendet** auf Wunsch — siehe unten |
 | Wetter je Etappe (Open-Meteo) | **fertig**, Vorhersage bzw. Vorjahresmittel |
 | Höhenprofil je Etappe | **fertig**, Geländemodell entlang der Küstenlinie |
 | Tagebuch: Sprachnotiz, Text, Fotos | **fertig**, offline-fähig |
@@ -223,6 +224,18 @@ Warnbildschirm „Google hat diese App nicht überprüft" und ist bei *sensitive
 Rechten keine Voraussetzung — sie wäre es nur bei *restricted* Rechten wie
 Gmail. Ungeprüft veröffentlicht gilt eine Grenze von 100 Nutzern; gebraucht
 wird einer.
+
+## Ausgeblendet: Equipment & Gelenkschutz
+
+Der Abschnitt ist auf Wunsch aus der Seite genommen; die folgenden Abschnitte
+sind nachgerückt (Packliste ist jetzt 06). Inhaltlich war er weitgehend eine
+Kurzfassung der Packliste, die dieselben Punkte ausführlicher führt.
+
+**Gelöscht wurde nichts.** Die Tabellen `equipment_cards` und
+`equipment_items` stehen samt gesetzter Häkchen unverändert in der Datenbank,
+und `Repo::equipment()`, `Repo::toggleEquipmentItem()` sowie die API-Aktion
+`equip.toggle` sind noch da. Wieder einblenden heißt: den Commit
+„Equipment-Abschnitt ausblenden" rückgängig machen, mehr nicht.
 
 ## Was bewusst nicht gebaut wurde
 
