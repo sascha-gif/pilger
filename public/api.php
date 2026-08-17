@@ -20,7 +20,7 @@ if (!is_array($body)) {
 }
 
 if (!may_write()) {
-    json_out(['ok' => false, 'error' => 'Bearbeiten ist gesperrt — bitte oben entsperren.'], 403);
+    json_out(['ok' => false, 'error' => 'Nicht angemeldet.'], 403);
 }
 
 $action = (string) ($body['action'] ?? '');

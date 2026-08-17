@@ -26,7 +26,12 @@ services:
       PILGER_DB_USER: ${DB_USER:-pilger}
       PILGER_DB_PASS: ${DB_PASS:?DB_PASS fehlt in der .env}
       PILGER_WRITE_PASSWORD: ${WRITE_PASSWORD:-}
+      PILGER_DATA_DIR: /var/www/data
       PILGER_DEBUG: "false"
+    volumes:
+      # Fotos und Sprachaufnahmen. Muss ein eigenes Volume sein: der Container
+      # wird bei jedem Deploy neu gebaut, alles im Image ist danach weg.
+      - pilger-data:/var/www/data
     depends_on:
       pilger-db:
         condition: service_healthy
@@ -57,6 +62,7 @@ services:
 
 volumes:
   pilger-db:
+  pilger-data:
 
 networks:
   # Nur zwischen App und Datenbank, von außen nicht erreichbar.

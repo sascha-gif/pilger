@@ -13,6 +13,7 @@ require APP_ROOT . '/src/helpers.php';
 require APP_ROOT . '/src/Database.php';
 require APP_ROOT . '/src/Schema.php';
 require APP_ROOT . '/src/Repo.php';
+require APP_ROOT . '/src/Auth.php';
 
 /** @return array<string,mixed> */
 function app_config(): array
@@ -26,6 +27,9 @@ function app_config(): array
         'driver'         => 'sqlite',
         'mysql'          => ['host' => 'localhost', 'port' => 3306, 'name' => 'pilger', 'user' => 'pilger', 'pass' => '', 'charset' => 'utf8mb4'],
         'sqlite'         => ['path' => 'var/pilger.sqlite'],
+        // Fotos und Sprachaufnahmen liegen bewusst außerhalb des Images: der
+        // Container wird bei jedem Deploy neu gebaut, ein eigenes Volume nicht.
+        'data_dir'       => APP_ROOT . '/var/data',
         'write_password' => null,
         'auto_migrate'   => true,
         'debug'          => false,
@@ -54,6 +58,9 @@ function app_config(): array
     }
     if (($v = $env('PILGER_SQLITE_PATH')) !== null) {
         $config['sqlite']['path'] = $v;
+    }
+    if (($v = $env('PILGER_DATA_DIR')) !== null) {
+        $config['data_dir'] = rtrim($v, '/');
     }
     if (($v = $env('PILGER_WRITE_PASSWORD')) !== null) {
         $config['write_password'] = $v;
@@ -90,15 +97,51 @@ try {
 $repo = new Repo($db);
 
 if (session_status() === PHP_SESSION_NONE) {
+    // Die Sitzung soll eine Reise überdauern, nicht einen Nachmittag.
+    session_set_cookie_params([
+        'lifetime' => 30 * 86400,
+        'path'     => '/',
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
     session_start();
 }
 
-/** Darf der aktuelle Besucher Änderungen speichern? */
+$auth = new Auth($db, $config['write_password'] === null ? null : (string) $config['write_password']);
+auth_instance($auth);
+$auth->restore();
+
+/**
+ * Zugriff auf den Zutritt aus einfachen Funktionen heraus.
+ * (Ein Objekt herumreichen wäre sauberer, lohnt bei einer Datei aber nicht.)
+ */
+function auth_instance(?Auth $set = null): Auth
+{
+    static $instance = null;
+    if ($set !== null) {
+        $instance = $set;
+    }
+    return $instance;
+}
+
+/**
+ * Darf der aktuelle Besucher etwas speichern?
+ * Ohne gesetztes Passwort ist die Antwort nein — eine frische Datenbank steht
+ * damit zu und nicht offen.
+ */
 function may_write(): bool
 {
-    $pass = app_config()['write_password'];
-    if ($pass === null || $pass === '') {
-        return true;
+    $auth = auth_instance();
+    return $auth->isConfigured() && $auth->isLoggedIn();
+}
+
+/** Verzeichnis für Fotos und Aufnahmen, bei Bedarf angelegt. */
+function data_path(string $sub = ''): string
+{
+    $base = rtrim((string) app_config()['data_dir'], '/');
+    $path = $sub === '' ? $base : $base . '/' . ltrim($sub, '/');
+    if (!is_dir($path)) {
+        @mkdir($path, 0775, true);
     }
-    return !empty($_SESSION['pilger_write']);
+    return $path;
 }

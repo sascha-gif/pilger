@@ -30,14 +30,23 @@ jobs:
           for f in ops/*.sh; do bash -n "$f" && echo "$f OK"; done
 
       - name: Start ohne Datenbankserver (SQLite-Rückfall)
+        env:
+          PILGER_WRITE_PASSWORD: pruefzutritt123
         run: |
           php -S 127.0.0.1:8123 -t public &
           sleep 3
-          code=$(curl -s -o /tmp/out.html -w '%{http_code}' http://127.0.0.1:8123/)
+
+          # Ohne Anmeldung darf nichts vom Plan zu sehen sein.
+          code=$(curl -s -o /tmp/tuer.html -w '%{http_code}' http://127.0.0.1:8123/)
+          test "$code" = "401" || { echo "::error::Die Seite steht offen (HTTP $code statt 401)"; exit 1; }
+          grep -q 'id="costTotal"' /tmp/tuer.html && { echo "::error::Inhalt vor der Anmeldung sichtbar"; exit 1; }
+
+          curl -s -c /tmp/cj -o /dev/null -X POST -d 'anmelden=pruefzutritt123' http://127.0.0.1:8123/
+          code=$(curl -s -b /tmp/cj -o /tmp/out.html -w '%{http_code}' http://127.0.0.1:8123/)
           test "$code" = "200" || { echo "::error::Startseite antwortet mit HTTP $code"; exit 1; }
           grep -q 'id="costTotal"' /tmp/out.html
           grep -q 'map-data' /tmp/out.html
-          echo "Startseite rendert, Datenbank wurde selbst eingespielt."
+          echo "Tür zu, Anmeldung greift, Startseite rendert, Datenbank selbst eingespielt."
 
   stack:
     name: Container-Stack prüfen
@@ -56,7 +65,7 @@ jobs:
           DB_USER=pilger
           DB_PASS=pruefpasswort123
           DB_ROOT_PASS=pruefrootpasswort123
-          WRITE_PASSWORD=
+          WRITE_PASSWORD=pruefzutritt123
           EOF
 
       - name: Bauen und starten
@@ -67,46 +76,65 @@ jobs:
       - name: Warten, bis die App antwortet
         run: |
           # Kein Port veröffentlicht — also aus einem Container im selben Netz prüfen,
-          # genau wie es der Reverse-Proxy auf dem Server tut.
+          # genau wie es der Reverse-Proxy auf dem Server tut. 401 ist hier das
+          # erwartete Lebenszeichen: die Tür steht, die App lebt.
           for i in $(seq 1 30); do
             if docker run --rm --network pruef-netz curlimages/curl:latest \
-                 -sS -o /tmp/live.html -w '%{http_code}' http://pilger-app/ 2>/dev/null | grep -q '^200$'; then
+                 -sS -o /dev/null -w '%{http_code}' http://pilger-app/ 2>/dev/null | grep -qE '^(200|401)$'; then
               echo "App antwortet nach $((i*5)) s."
               exit 0
             fi
             sleep 5
           done
-          echo "::error::pilger-app hat nach 150 s nicht mit HTTP 200 geantwortet."
+          echo "::error::pilger-app hat nach 150 s nicht geantwortet."
           docker compose logs --tail 60
           exit 1
 
-      - name: Inhalt und Datenbank prüfen
+      - name: Tür, Inhalt und Datenbank prüfen
         run: |
-          docker run --rm --network pruef-netz curlimages/curl:latest \
-            -sS http://pilger-app/ > seite.html
-          grep -q 'Camino Portugués' seite.html
-          grep -q 'id="costTotal"' seite.html
-          test "$(grep -c 'type="checkbox"' seite.html)" = "52"
-          echo "Seite vollständig: 52 Packlisten-Einträge, Kostentabelle vorhanden."
+          # Der curl-Container läuft nicht als root — das Ablageverzeichnis muss
+          # er trotzdem beschreiben können.
+          mkdir -p pruefung && chmod 777 pruefung
+
+          # Alles in einem Container, damit der Sitzungs-Cookie erhalten bleibt.
+          docker run --rm --network pruef-netz --entrypoint sh \
+            -v "$PWD/pruefung:/out" curlimages/curl:latest -c '
+              set -e
+              code=$(curl -sS -o /out/tuer.html -w "%{http_code}" http://pilger-app/)
+              [ "$code" = "401" ] || { echo "Seite steht offen: HTTP $code"; exit 1; }
+              grep -q "costTotal" /out/tuer.html && { echo "Inhalt vor Anmeldung sichtbar"; exit 1; }
+
+              curl -sS -o /dev/null -c /tmp/cj -X POST -d "anmelden=pruefzutritt123" http://pilger-app/
+              curl -sS -b /tmp/cj -o /out/seite.html http://pilger-app/
+
+              curl -sS -b /tmp/cj -o /out/antwort.json -X POST http://pilger-app/api.php \
+                -H "Content-Type: application/json" \
+                -d "{\"action\":\"cost.set\",\"id\":2,\"amount\":249.90}"
+            '
+          grep -q 'Camino Portugués' pruefung/seite.html
+          grep -q 'id="costTotal"' pruefung/seite.html
+          grep -q '/ 52 gepackt' pruefung/seite.html
+          cat pruefung/antwort.json; echo
+          grep -q '"ok":true' pruefung/antwort.json
+          echo "Tür zu, Anmeldung greift, Seite vollständig."
 
           # Gegen MariaDB, nicht gegen SQLite — der Rückfall darf hier nicht greifen.
-          docker compose exec -T pilger-db \
-            mariadb -upilger -ppruefpasswort123 pilger \
-            -e "select count(*) as etappen from stages; select count(*) as packliste from pack_items;"
-
-      - name: Speichern prüfen (schreibt wirklich in die Datenbank)
-        run: |
-          docker run --rm --network pruef-netz curlimages/curl:latest \
-            -sS -X POST http://pilger-app/api.php \
-            -H 'Content-Type: application/json' \
-            -d '{"action":"cost.set","id":2,"amount":249.90}' | tee antwort.json
-          grep -q '"ok":true' antwort.json
-
           gespeichert=$(docker compose exec -T pilger-db \
             mariadb -upilger -ppruefpasswort123 pilger -N -B \
             -e "select amount from cost_items where id = 2;")
           echo "In der Datenbank steht: $gespeichert"
           test "$gespeichert" = "249.90" || { echo "::error::Betrag kam nicht in der Datenbank an."; exit 1; }
+
+      - name: Fotos überleben einen Neubau
+        run: |
+          # Das Volume ist der ganze Punkt: was hier liegt, muss einen
+          # kompletten Neubau des Containers überstehen.
+          docker compose exec -T -u www-data app sh -c 'echo hallo > /var/www/data/fotos/pruefung.txt'
+          docker compose up -d --build --force-recreate app
+          sleep 5
+          inhalt=$(docker compose exec -T app cat /var/www/data/fotos/pruefung.txt)
+          test "$inhalt" = "hallo" || { echo "::error::Foto-Volume überlebt den Deploy nicht."; exit 1; }
+          echo "Foto-Volume hält."
 
       - name: Aufräumen
         if: always()

@@ -8,27 +8,10 @@ declare(strict_types=1);
 
 require dirname(__DIR__) . '/src/bootstrap.php';
 
-/* ---- Schreibschutz: Login / Logout ------------------------------------- */
-$loginError = null;
-$pass = $config['write_password'];
+/* ---- Tür: ohne Anmeldung geht es hier nicht weiter ---------------------- */
+require APP_ROOT . '/src/gate.php';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['unlock'])) {
-    if ($pass !== null && $pass !== '' && hash_equals((string) $pass, (string) $_POST['unlock'])) {
-        $_SESSION['pilger_write'] = true;
-        header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?'));
-        exit;
-    }
-    $loginError = 'Passwort stimmt nicht.';
-}
-
-if (isset($_GET['lock'])) {
-    unset($_SESSION['pilger_write']);
-    header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?'));
-    exit;
-}
-
-$locked   = !may_write();
-$hasLock  = $pass !== null && $pass !== '';
+$locked = !may_write();
 
 /* ---- Daten laden -------------------------------------------------------- */
 $s         = $repo->settings();
@@ -76,6 +59,7 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="light only">
+<meta name="robots" content="noindex, nofollow">
 <title><?= h($s['title'] ?? 'Camino Portugués 2026 — Masterplan') ?></title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -85,23 +69,25 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
 </head>
 <body<?= $locked ? ' data-readonly' : '' ?>>
 
-<?php if ($hasLock): ?>
 <div class="lockbar">
   <div class="wrap">
-    <?php if ($locked): ?>
-      <span>Nur-Lese-Modus — Häkchen, Beträge und Gewicht sind gesperrt.</span>
-      <form method="post">
-        <input type="password" name="unlock" placeholder="Passwort" autocomplete="current-password" required>
-        <button type="submit">Entsperren</button>
-        <?php if ($loginError): ?><span class="msg"><?= h($loginError) ?></span><?php endif; ?>
-      </form>
-    <?php else: ?>
-      <span>Bearbeiten aktiv — Änderungen werden sofort gespeichert.</span>
-      <a class="btn" href="?lock=1">Sperren</a>
+    <span class="who">Angemeldet — die Seite ist für alle anderen zu.</span>
+    <span class="netz" id="netz" hidden>offline — Eingaben werden gemerkt</span>
+    <?php if (!$auth->fromEnv()): ?>
+      <details class="pwchg">
+        <summary>Passwort ändern</summary>
+        <form method="post" autocomplete="off">
+          <input type="password" name="neu" placeholder="neues Passwort" minlength="8" required autocomplete="new-password">
+          <input type="password" name="wiederholung" placeholder="noch einmal" minlength="8" required autocomplete="new-password">
+          <button type="submit" name="passwort_aendern" value="1">Speichern</button>
+          <?php if (isset($gateError) && $gateError): ?><span class="msg"><?= h($gateError) ?></span><?php endif; ?>
+          <?php if (isset($_GET['geaendert'])): ?><span class="msg ok">Passwort geändert.</span><?php endif; ?>
+        </form>
+      </details>
     <?php endif; ?>
+    <form method="post" class="ab"><button type="submit" name="abmelden" value="1">Abmelden</button></form>
   </div>
 </div>
-<?php endif; ?>
 
 <header class="hero">
   <svg class="bigshell" viewBox="0 0 100 100" aria-hidden="true"><path fill="#f4b400" d="<?= $shellPath ?>"/></svg>

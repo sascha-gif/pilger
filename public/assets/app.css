@@ -212,6 +212,15 @@ footer a{color:var(--flecha)}
 .lockbar input{font-family:"Spline Sans Mono",monospace;font-size:12px;padding:6px 9px;border:1px solid var(--line-dark);border-radius:2px;background:#1c2226;color:var(--paper)}
 .lockbar button,.lockbar a.btn{font-family:"Spline Sans Mono",monospace;font-size:12px;font-weight:600;padding:7px 12px;border:none;border-radius:2px;background:var(--flecha);color:var(--granite);cursor:pointer;text-decoration:none}
 .lockbar .msg{color:#e8917a}
+.lockbar .msg.ok{color:#8ec98f}
+.lockbar .who{color:#9aa3a0}
+.lockbar .netz{background:#7a2d1a;color:#ffd9cd;padding:3px 8px;border-radius:2px}
+.lockbar .ab{margin-left:auto}
+.lockbar details.pwchg summary{cursor:pointer;color:#b3ad9c;list-style:none}
+.lockbar details.pwchg summary::-webkit-details-marker{display:none}
+.lockbar details.pwchg summary:hover{color:var(--flecha)}
+.lockbar details.pwchg[open]{flex-basis:100%;order:9}
+.lockbar details.pwchg form{margin-top:8px;flex-wrap:wrap}
 [data-readonly] input{cursor:not-allowed;opacity:.55}
 
 /* Zeitstempel an gespeicherten Werten */

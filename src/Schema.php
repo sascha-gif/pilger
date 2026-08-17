@@ -42,6 +42,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/003_ankunft.php';
             migration_003($db);
         });
+
+        // Zutritt: gemerkte Geräte und Fehlversuche.
+        $apply('004_zutritt', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/004_zutritt.php';
+            migration_004($db);
+        });
     }
 
     /** @return array<int,string> */
