@@ -107,14 +107,48 @@ systemctl enable --now pilger-update.timer >/dev/null
 ok "Zeitgeber aktiv — der Server holt sich neue Fassungen künftig alle 5 Minuten selbst"
 
 say "Prüfung"
-sleep 5
-if code=$(curl -sS -o /tmp/pilger-check.html -w '%{http_code}' --max-time 20 "https://$DOMAIN/" 2>/dev/null) && [ "$code" = "200" ]; then
-  ok "https://$DOMAIN antwortet mit HTTP 200"
-  grep -q 'costTotal' /tmp/pilger-check.html && ok "Die Seite ist vollständig aufgebaut, die Datenbank ist eingespielt."
+
+# Drei Ebenen, von innen nach außen. Nur die erste beiden sind aussagekräftig:
+# der Aufruf der öffentlichen Adresse scheitert auf vielen Servern daran, dass
+# sie ihre eigene öffentliche IP von innen nicht erreichen — das sagt nichts
+# über die Erreichbarkeit aus dem Internet.
+
+printf '    … warte auf die App'
+for _ in $(seq 1 24); do
+  APP_CODE="$(docker run --rm --network "$CADDY_NETWORK" curlimages/curl:latest \
+    -sS -o /tmp/pilger-check.html -w '%{http_code}' --max-time 10 "http://pilger-app/" 2>/dev/null || echo 000)"
+  [ "$APP_CODE" = "200" ] && break
+  printf '.'
+  sleep 5
+done
+printf '\n'
+
+if [ "$APP_CODE" = "200" ]; then
+  ok "Die App antwortet im Netz des Reverse-Proxy mit HTTP 200"
+  if docker run --rm --network "$CADDY_NETWORK" curlimages/curl:latest \
+       -sS --max-time 10 "http://pilger-app/" 2>/dev/null | grep -q 'costTotal'; then
+    ok "Die Seite ist vollständig aufgebaut, die Datenbank ist eingespielt"
+  fi
 else
-  warn "https://$DOMAIN antwortet noch nicht (HTTP ${code:-?})."
-  warn "Das kann am Zertifikat liegen, das Caddy gerade erst ausstellt — in ein bis zwei Minuten erneut versuchen."
-  warn "Protokoll der App:  docker logs --tail 40 pilger-app"
+  warn "Die App antwortet nicht (HTTP $APP_CODE). Das ist der eigentliche Fehler."
+  warn "Protokoll ansehen:  docker logs --tail 40 pilger-app"
+fi
+
+PROXY_CODE="$(curl -sk -o /dev/null -w '%{http_code}' --max-time 15 \
+  -H "Host: $DOMAIN" "https://127.0.0.1/" 2>/dev/null || echo 000)"
+if [ "$PROXY_CODE" = "200" ]; then
+  ok "Caddy liefert $DOMAIN aus"
+else
+  warn "Caddy antwortet für $DOMAIN mit HTTP $PROXY_CODE."
+  warn "Zertifikat und Fehler ansehen:  docker logs --tail 30 $CADDY_CONTAINER"
+fi
+
+PUB_CODE="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 15 "https://$DOMAIN/" 2>/dev/null || echo 000)"
+if [ "$PUB_CODE" = "200" ]; then
+  ok "https://$DOMAIN ist von hier aus erreichbar"
+else
+  warn "https://$DOMAIN ist vom Server aus nicht erreichbar (HTTP $PUB_CODE) — das ist oft normal,"
+  warn "weil ein Server seine eigene öffentliche Adresse von innen nicht erreicht. Im Browser prüfen."
 fi
 
 printf '\n\033[1mFertig.\033[0m  https://%s\n\n' "$DOMAIN"
