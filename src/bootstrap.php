@@ -38,6 +38,30 @@ function app_config(): array
     }
 
     $config = array_replace_recursive($defaults, $local);
+
+    // Umgebungsvariablen haben Vorrang — so kommt der Docker-Container ganz
+    // ohne config.php aus und bekommt alles über docker-compose.
+    $env = static fn (string $key) => ($v = getenv($key)) === false || $v === '' ? null : $v;
+
+    if ($v = $env('PILGER_DB_DRIVER')) {
+        $config['driver'] = $v === 'sqlite' ? 'sqlite' : 'mysql';
+    }
+    foreach (['HOST' => 'host', 'PORT' => 'port', 'NAME' => 'name', 'USER' => 'user', 'PASS' => 'pass'] as $suffix => $key) {
+        if (($v = $env('PILGER_DB_' . $suffix)) !== null) {
+            $config['mysql'][$key] = $key === 'port' ? (int) $v : $v;
+            $config['driver'] = $config['driver'] === 'sqlite' && $env('PILGER_DB_DRIVER') === null ? 'mysql' : $config['driver'];
+        }
+    }
+    if (($v = $env('PILGER_SQLITE_PATH')) !== null) {
+        $config['sqlite']['path'] = $v;
+    }
+    if (($v = $env('PILGER_WRITE_PASSWORD')) !== null) {
+        $config['write_password'] = $v;
+    }
+    if (($v = $env('PILGER_DEBUG')) !== null) {
+        $config['debug'] = filter_var($v, FILTER_VALIDATE_BOOLEAN);
+    }
+
     return $config;
 }
 

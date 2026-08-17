@@ -1,0 +1,11 @@
+.git
+.github
+docs
+ops
+var
+config/config.php
+*.md
+camino-masterplan-2026.html
+.dockerignore
+Dockerfile
+docker-compose.yml

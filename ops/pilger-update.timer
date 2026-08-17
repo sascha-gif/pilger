@@ -1,0 +1,10 @@
+[Unit]
+Description=Alle fünf Minuten nach einer neuen Fassung von pilger.milsh.com sehen
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=5min
+AccuracySec=30s
+
+[Install]
+WantedBy=timers.target

@@ -1,123 +1,136 @@
 # Deployment — pilger.milsh.com
 
-## Wie es funktioniert
+## Warum der Server sich den Code selbst holt
 
-Merge nach `main` → GitHub Actions startet → Dateien landen per rsync auf dem
-Server → die App installiert ihr Schema beim ersten Aufruf selbst.
+Der Server nimmt **von außen keine SSH-Verbindungen an**. Port 2222 ist
+öffentlich zu (Zeitüberschreitung), 22 ebenso; der Weg hinein führt
+ausschließlich über Tailscale. Ein Deploy, der die Dateien hinschiebt —
+GitHub Actions, rsync aus einer Sitzung — kann deshalb nicht funktionieren.
 
-Der Deploy läuft **auf GitHub**, nicht in einer Claude-Session: Claude-Sessions
-kommen per Netzwerkpolicy nicht auf Port 22 hinaus. Der GitHub-Runner hat freien
-Ausgang und übernimmt die Verbindung zum Server.
+Umgekehrt geht es: **der Server darf hinaus.** `sascha-gif/pilger` ist ein
+öffentliches Repository, ein `git fetch` von dort braucht keinerlei Anmeldung.
+Genau darauf baut der Ablauf auf.
 
 ```
-Commit ──► main ──► Actions-Runner ──► rsync über SSH ──► /var/www/pilger.milsh.com
-                                                              │
-                                                    erster HTTP-Aufruf
-                                                              │
-                                              Schema + Startdaten in MariaDB
+Commit ──► main ──► GitHub prüft (Container-Stack wird gebaut und getestet)
+                          │
+                          ▼
+             pilger-update.timer auf dem Server, alle 5 Minuten
+                          │  git fetch → Änderung? → git reset --hard
+                          ▼
+                 docker compose up -d --build
+                          │
+Browser ──HTTPS──► bcd_caddy ──► pilger-app:80 ──► pilger-db (MariaDB)
 ```
 
-## Schritte im Workflow
+Damit ist nach einem Merge nichts mehr zu tun: spätestens fünf Minuten später
+läuft die neue Fassung. Wer nicht warten will, ruft auf dem Server
+`pilger-update` auf.
 
-| # | Schritt | Was passiert |
-|---|---|---|
-| 1 | Syntax-Check | `php -l` über alle PHP-Dateien |
-| 2 | Smoke-Test | App startet gegen SQLite, Startseite muss HTTP 200 liefern |
-| 3 | Secrets prüfen | bricht mit klarer Meldung ab, wenn etwas fehlt |
-| 4 | SSH einrichten | Key aus Secret, `ssh-keyscan` für `known_hosts` |
-| 5 | Konfiguration bauen | `config/config.php` aus den DB-Secrets erzeugen |
-| 6 | Datenbank anlegen | nur wenn `DB_ADMIN_USER` hinterlegt ist |
-| 7 | Dateien übertragen | `rsync -az --delete`, ohne `.git`, `docs/`, `*.md`, `var/` |
-| 8 | Rechte setzen | `var/` beschreibbar für den SQLite-Fallback |
-| 9 | Live prüfen | `curl` auf die Domain, 5 Versuche — löst zugleich die Installation aus |
+## Die Container
 
-Schlägt Schritt 9 fehl, ist der Deploy rot und in den Actions-Logs steht, woran es lag.
+| | |
+|---|---|
+| `pilger-app` | PHP 8.3 mit Apache, Document-Root auf `public/` |
+| `pilger-db` | MariaDB 11, Daten im Volume `pilger-db` |
+| Netz `intern` | nur zwischen den beiden, von außen nicht erreichbar |
+| Netz `caddy` | das bestehende Netz von `bcd_caddy`, wird beim Einrichten ermittelt |
 
-## Benötigte Secrets
+Nach außen ist **kein Port veröffentlicht**. Der Reverse-Proxy erreicht die App
+über ihren Namen im gemeinsamen Netz — dasselbe Muster wie bei den übrigen
+Projekten auf der Maschine. Eine `ufw`-Regel ist deshalb nicht nötig; die
+brauchte das family-Projekt nur, weil es als Dienst auf dem Host läuft.
 
-`Settings → Secrets and variables → Actions → New repository secret`
+Die App bekommt ihre Zugangsdaten über Umgebungsvariablen (`PILGER_DB_*`),
+eine `config.php` gibt es im Container nicht.
 
-**Pflicht**
+## Einrichtung (einmalig)
 
-- `SSH_HOST` — `46.224.19.41`
-- `SSH_USER` — SSH-Benutzer
-- `DEPLOY_PATH` — Zielverzeichnis, z. B. `/var/www/pilger.milsh.com`
-- **entweder** `SSH_KEY` — privater Schlüssel, kompletter Text mit `-----BEGIN …-----` und `-----END …-----`
-  **oder** `SSH_PASSWORD` — das SSH-Passwort des Benutzers
+Auf dem Server, als `root` — der Zugang läuft über Tailscale:
 
-Der Workflow erkennt selbst, welcher der beiden Wege hinterlegt ist: mit `SSH_KEY`
-läuft er über den Schlüssel, sonst über `sshpass`. Ist beides gesetzt, gewinnt der
-Schlüssel. Ein eigener Deploy-Key ist einem persönlichen Schlüssel vorzuziehen.
+```
+ssh root@100.84.10.64
+curl -fsSL https://raw.githubusercontent.com/sascha-gif/pilger/main/ops/setup-server.sh | bash
+```
 
-**Optional**
+Das Skript ist wiederholbar und macht der Reihe nach:
 
-- `SSH_PORT` — falls nicht 22
-- `DB_NAME`, `DB_USER` — Standard ist jeweils `pilger`
-- `DB_PASS` — fehlt es, erzeugt der Workflow ein Passwort und schreibt es in `config.php`
-- `DB_HOST`, `DB_PORT` — Standard `localhost` / `3306`
-- `DB_DRIVER` — auf `sqlite` setzen, um ganz ohne Datenbankserver zu fahren
-- `DB_ADMIN_USER`, `DB_ADMIN_PASS` — MySQL-Admin zum Anlegen der Datenbank
-- `WRITE_PASSWORD` — schaltet den Schreibschutz scharf
-- `SITE_URL` — abweichende Prüf-URL
+1. prüft git, docker, docker compose und ob `bcd_caddy` läuft
+2. klont nach `/opt/pilger-milsh` (oder aktualisiert eine vorhandene Kopie)
+3. ermittelt das Docker-Netz von `bcd_caddy`
+4. legt `.env` mit frisch erzeugten Datenbank-Passwörtern an — **eine bestehende
+   `.env` bleibt unangetastet**, sonst passte die Datenbank nicht mehr dazu
+5. baut und startet die Container
+6. ergänzt den Eintrag im Caddyfile (mit Sicherung der alten Fassung) und liest
+   Caddy neu ein
+7. richtet `pilger-update.timer` ein
+8. ruft zum Schluss `https://pilger.milsh.com` auf und meldet das Ergebnis
 
-## Webserver
+Der Caddy-Eintrag, falls er von Hand nachgetragen werden muss — in
+`/opt/concierge-bot/server-config/Caddyfile`:
 
-Am saubersten zeigt das Document-Root der Domain direkt auf `…/public`:
-
-```nginx
-server {
-    server_name pilger.milsh.com;
-    root /var/www/pilger.milsh.com/public;
-    index index.php;
-
-    location / { try_files $uri $uri/ /index.php?$query_string; }
-    location ~ \.php$ {
-        include snippets/fastcgi-php.conf;
-        fastcgi_pass unix:/run/php/php8.2-fpm.sock;
-    }
+```
+pilger.milsh.com {
+    reverse_proxy pilger-app:80
 }
 ```
 
-Zeigt das Root stattdessen auf das Projektverzeichnis, greift die mitgelieferte
-`.htaccess` und schreibt alles nach `public/` um (Apache). Zusätzlich liegen in
-`config/`, `src/` und `db/` eigene `.htaccess`-Dateien, die den Abruf sperren.
+## Voraussetzungen
 
-**Voraussetzungen auf dem Server:** PHP ≥ 8.0 mit `pdo_mysql` (oder `pdo_sqlite`),
-`rsync`, SSH-Zugang. Kein Composer, kein Build-Schritt, kein Node.
+Auf dem Server: Docker mit Compose v2, git, der Container `bcd_caddy`. **Kein
+PHP auf dem Host** — das steckt im Image. Kein Node, kein Composer, kein Build.
 
-## Datenbank
+Im DNS: `pilger.milsh.com` → `46.224.19.41`. Steht bereits.
 
-Die App bringt ihr Schema selbst mit (`src/Schema.php` + `db/seed.php`) und legt
-es beim ersten Aufruf an. Nötig ist nur eine **leere Datenbank plus Benutzer**.
+## Was GitHub noch tut
 
-Sobald `DB_NAME` gesetzt ist, legt der Workflow Datenbank und Benutzer selbst an.
-Er versucht dafür zwei Wege, in dieser Reihenfolge:
+Der Workflow `.github/workflows/ci.yml` deployt nicht, er prüft:
 
-1. mit `DB_ADMIN_USER` / `DB_ADMIN_PASS`, falls hinterlegt
-2. sonst `sudo mysql` auf dem Server — funktioniert auf den meisten
-   Debian/Ubuntu-Installationen ohne zusätzliches Passwort
+| Auftrag | Inhalt |
+|---|---|
+| Code prüfen | PHP-Syntax, Shell-Syntax der Server-Skripte, Start über den SQLite-Rückfall |
+| Container-Stack prüfen | baut das Image, startet App und MariaDB, wartet auf HTTP 200, zählt die Packlisten-Einträge, schreibt über die API einen Betrag und liest ihn direkt aus der Datenbank zurück |
 
-Der angelegte Benutzer bekommt genau das Passwort aus `DB_PASS`; das ist also
-frei wählbar und muss nirgendwo vorher existieren. Klappt keiner der beiden Wege,
-bricht der Deploy mit einer Meldung ab und die Datenbank wird einmalig von Hand
-angelegt:
+Der zweite Auftrag stellt genau das nach, was auf dem Server läuft. Ist er grün,
+zieht sich der Server denselben Stand.
 
-```sql
-CREATE DATABASE pilger CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER 'pilger'@'localhost' IDENTIFIED BY '…';
-GRANT ALL PRIVILEGES ON pilger.* TO 'pilger'@'localhost';
+## Nachsehen und eingreifen
+
 ```
-
-Ohne `DB_NAME` läuft alles über SQLite in `var/pilger.sqlite` — voll funktionsfähig,
-aber die Datei muss beschreibbar bleiben und gehört ins Backup.
+systemctl list-timers pilger-update.timer      # wann kommt der nächste Lauf
+journalctl -u pilger-update.service -n 30      # was die letzten Läufe getan haben
+pilger-update                                  # sofort aktualisieren
+docker logs --tail 50 pilger-app               # Protokoll der App
+docker compose -f /opt/pilger-milsh/docker-compose.yml ps
+```
 
 ## Rollback
 
-Actions → gewünschten früheren Lauf öffnen → *Re-run all jobs*. Der Stand des
-damaligen Commits wird erneut übertragen. Die Datenbank bleibt dabei unberührt —
-Inhalte gehen bei einem Rollback also nicht verloren.
+```
+cd /opt/pilger-milsh
+systemctl stop pilger-update.timer     # sonst zieht der Zeitgeber sofort wieder vor
+git reset --hard <commit>
+docker compose up -d --build
+```
 
-## Manuell auslösen
+Zurück in den Normalbetrieb mit `systemctl start pilger-update.timer`. Wichtiger
+ist meist der andere Weg: den Fehler auf `main` beheben — der Server holt sich
+die Korrektur von allein.
 
-Actions → *Deploy pilger.milsh.com* → *Run workflow*. Nützlich nach dem
-Nachtragen von Secrets, ohne dass ein neuer Commit nötig ist.
+Die Datenbank bleibt bei alldem unberührt, sie liegt im Volume `pilger-db`.
+Eingetragene Beträge und Häkchen überstehen jedes Rollback.
+
+## Sicherung
+
+```
+docker exec pilger-db mariadb-dump -upilger -p"$DB_PASS" pilger > pilger-$(date +%F).sql
+```
+
+`$DB_PASS` steht in `/opt/pilger-milsh/.env`. Diese Datei gehört mit ins
+Backup — ohne sie ist das Volume nicht mehr zu öffnen.
+
+## Schreibschutz
+
+Die Seite ist öffentlich erreichbar; ohne Passwort darf jeder Besucher Häkchen
+setzen und Beträge ändern. Zum Absichern in `/opt/pilger-milsh/.env`
+`WRITE_PASSWORD=` ausfüllen und `docker compose up -d` aufrufen.

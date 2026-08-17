@@ -10,7 +10,7 @@ liest diese Datei zuerst. Stand: 17.08.2026.
 Der Camino-Masterplan (Porto → Santiago, 17.09.–01.10.2026) läuft als
 dynamische Web-App unter **pilger.milsh.com**. Ursprung war die statische Datei
 `camino-masterplan-2026.html`; die ist jetzt nur noch Referenz für Design und
-Inhalt. Die Quelle der Wahrheit sind die Datenbank und dieses Repo.
+Inhalt. Quelle der Wahrheit sind die Datenbank und dieses Repo.
 
 Was gegenüber der statischen Version dazugekommen ist:
 
@@ -22,18 +22,55 @@ Was gegenüber der statischen Version dazugekommen ist:
 
 ---
 
-## Feste Absprachen (Stand 17.08.2026)
+## Feste Absprachen
 
 Aus der Ansage „merken": so wird hier gearbeitet.
 
 1. **Alles läuft über GitHub.** Kein Terminal-Kram für Sascha. Änderungen gehen
    als Commit ins Repo, der Rest passiert automatisch.
-2. **Deploy und Merge macht Claude selbst.** Merge nach `main` löst den Deploy aus.
+2. **Merge macht Claude selbst.** Der Deploy passiert danach ohne Zutun.
 3. **Wissen wird in `.md`-Dateien festgehalten**, nicht im Chatverlauf.
-   Diese Datei ist der Einstieg, `CLAUDE.md` der Projektkontext, `docs/` das Detail.
-4. **Zielserver:** milsh.com bei Hetzner, Domain `pilger.milsh.com` existiert
-   bereits und zeigt auf **46.224.19.41**.
-5. **Datenbank** liegt auf demselben Server (MariaDB/MySQL).
+4. **Repo bleibt `sascha-gif/pilger` und bleibt öffentlich** — darauf beruht der
+   anmeldefreie Abruf durch den Server. Reisedaten sind darin für jeden lesbar;
+   Zugangsdaten stehen nirgends im Repo.
+
+### Wie mit Sascha zu arbeiten ist
+
+Er kennt die Werkzeuge nicht und will sie nicht lernen. Anleitungen brauchen
+deshalb: **direkter Link** wo möglich, sonst der **Navigationspfad Ebene für
+Ebene** mit den Bezeichnungen genau so, wie sie in der Oberfläche stehen,
+**nummerierte Schritte**, **ein Befehl pro Zeile**, dazu **was danach zu sehen
+sein muss** und **was zu tun ist, wenn es anders aussieht**.
+
+---
+
+## Der Server — das Wichtigste zuerst
+
+Übernommen aus `UEBERGABE.md` des Projekts family.milsh.com, das auf derselben
+Maschine läuft.
+
+| | |
+|---|---|
+| Öffentlich | `46.224.19.41` — **SSH von außen ist zu**, Port 2222 und 22 laufen in die Zeitüberschreitung |
+| Zugang | `ssh root@100.84.10.64` über **Tailscale**. Nur so kommt man hinein |
+| Maschine | Ubuntu 24.04 LTS, `ubuntu-4gb-nbg1-1` (Hetzner Nürnberg), 15 GB RAM |
+| Reverse-Proxy | Container `bcd_caddy`, gemeinsamer Eingang für rund 25 Projekte |
+| Caddy-Konfiguration | auf dem Host unter `/opt/concierge-bot/server-config/Caddyfile` |
+| Haus-Stil | alle anderen Projekte laufen in **Docker** |
+| `milsh.com` | `213.133.121.96` — **anderer Server, unangetastet lassen** |
+| `pilger.milsh.com` | `46.224.19.41`, A-Eintrag steht |
+
+**Daraus folgt der ganze Aufbau:** Weil niemand von außen hineinkommt, kann kein
+Deploy die Dateien hinschieben. Der Server **holt sie sich selbst** aus dem
+öffentlichen Repository — dafür braucht er keine Anmeldung, und es muss kein
+Port geöffnet werden. Details in `docs/DEPLOYMENT.md`.
+
+> Zwei Sackgassen, die schon Zeit gekostet haben und nicht erneut probiert
+> werden sollten: **GitHub Actions mit SSH-Deploy** scheitert daran, dass der
+> Runner den Server nicht erreicht. **Deploy Keys und Tokens** sind bei
+> `Pasaventures` per Organisationsrichtlinie gesperrt — für dieses Repo
+> irrelevant, weil es öffentlich unter `sascha-gif` liegt und gar keine
+> Anmeldung braucht.
 
 ---
 
@@ -46,74 +83,33 @@ Aus der Ansage „merken": so wird hier gearbeitet.
 | Speichern von Häkchen / Beträgen / Gewicht | **fertig**, End-to-End getestet |
 | Schreibschutz per Passwort | **fertig**, getestet |
 | Karte (Leaflet, 13 Stopps + Senda Litoral) | **fertig**, Daten aus der DB |
-| Deploy-Workflow (GitHub Actions) | **fertig**, wartet auf Secrets |
-| Live auf pilger.milsh.com | **offen** — siehe „Was noch fehlt" |
+| Container-Stack (Dockerfile, compose) | **fertig**, wird bei jedem Push auf GitHub gebaut und geprüft |
+| Selbstaktualisierung (systemd-Zeitgeber) | **fertig**, wartet auf die Einrichtung |
+| Live auf pilger.milsh.com | **offen** — einmalige Einrichtung auf dem Server steht aus |
 
-Getestet wurde gegen SQLite (vollständig durchgespielt: Rendern, Speichern,
-Neuladen, Sperren, Entsperren, Validierung). Die MySQL-Variante ist bislang nur
-per DDL-Prüfung kontrolliert, weil in der Bauumgebung kein MySQL-Server läuft —
-der erste echte Test passiert beim ersten Deploy.
+Getestet gegen SQLite wurde vollständig: Rendern, Speichern, Neuladen, Sperren,
+Entsperren, Wertebereichsprüfungen, Kaltstart aus leerem Zustand. Der
+Container-Stack samt MariaDB wird auf dem GitHub-Runner geprüft — dort wird ein
+Betrag über die API geschrieben und direkt aus der Datenbank zurückgelesen.
 
 ---
 
 ## Was noch fehlt
 
-Genau eine Sache blockiert den Live-Gang: **die Zugangsdaten zum Server.**
-Claude-Sessions haben von sich aus keinen Zugriff (Port 22 ist aus der
-Session-Umgebung gesperrt), deshalb deployt der GitHub-Actions-Runner.
+Ein einziger Aufruf auf dem Server. Über Tailscale, als `root`:
 
-Einzutragen unter
-`GitHub → Repo → Settings → Secrets and variables → Actions → New repository secret`
-(reines Web-UI, kein Terminal):
+```
+ssh root@100.84.10.64
+curl -fsSL https://raw.githubusercontent.com/sascha-gif/pilger/main/ops/setup-server.sh | bash
+```
 
-| Secret | Pflicht | Inhalt |
-|---|---|---|
-| `SSH_HOST` | ja | `46.224.19.41` |
-| `SSH_USER` | ja | SSH-Benutzer auf dem Server |
-| `SSH_PASSWORD` | ja¹ | SSH-Passwort — **oder** stattdessen `SSH_KEY` |
-| `SSH_KEY` | ja¹ | privater SSH-Schlüssel (kompletter Text inkl. BEGIN/END-Zeilen) |
-| `DEPLOY_PATH` | ja | Zielverzeichnis, z. B. `/var/www/pilger.milsh.com` |
-| `SSH_PORT` | nein | nur falls nicht 22 |
-| `DB_NAME` | nein² | Standard `pilger` |
-| `DB_USER` / `DB_PASS` | nein² | Standard `pilger`; fehlt das Passwort, erzeugt der Workflow eines |
-| `DB_HOST` / `DB_PORT` | nein | Standard `localhost` / `3306` |
-| `DB_DRIVER` | nein | auf `sqlite` setzen, um ganz ohne Datenbankserver zu fahren |
-| `DB_ADMIN_USER` / `DB_ADMIN_PASS` | nein³ | MySQL-Admin zum Anlegen der Datenbank |
-| `WRITE_PASSWORD` | nein | Passwort für den Bearbeiten-Modus |
-| `SITE_URL` | nein | Standard `https://pilger.milsh.com/` |
+Das Skript richtet alles ein — Klonen, Passwörter, Container, Caddy-Eintrag,
+Zeitgeber — und prüft am Ende selbst, ob die Seite antwortet. Es ist
+wiederholbar; ein zweiter Aufruf bringt nur auf den neuesten Stand und rührt die
+erzeugten Passwörter nicht an.
 
-¹ Eines von beiden genügt. Der Workflow erkennt selbst, welcher Weg hinterlegt ist;
-sind beide gesetzt, gewinnt der Schlüssel.
-
-² Für die Datenbank muss nichts hinterlegt werden. Ohne Angaben heißen Datenbank
-und Benutzer `pilger`, das Passwort erzeugt der Workflow. Das trägt, weil im selben
-Lauf sowohl der MySQL-Benutzer gesetzt als auch `config.php` geschrieben wird.
-
-³ Der Workflow legt Datenbank und Benutzer selbst an: zuerst über
-`DB_ADMIN_USER`/`DB_ADMIN_PASS`, sonst über `sudo mysql` auf dem Server. Klappt
-keines von beidem, bricht er mit einer klaren Meldung ab und nennt die Auswege.
-
-Sobald die Secrets stehen: `main` anstoßen (Actions → *Deploy pilger.milsh.com*
-→ *Run workflow*) oder einfach den nächsten Merge abwarten.
-
----
-
-## Repo-Situation — wichtig für die nächste Session
-
-Gearbeitet wird in **`sascha-gif/pilger`**, Branch
-`claude/pilger-milsh-project-setup-b8hd89`.
-
-In der Aufgabenstellung war von `Pasaventures/nexus`, Branch
-`claude/pilger-milsh-project-setup-7kt3ss` und einer `HANDOVER.md` die Rede.
-Beides gibt es hier nicht: Eine Claude-Session kann nur Repos desselben Owners
-nachladen, `Pasaventures/nexus` liegt also außer Reichweite, und eine
-`HANDOVER.md` existierte in `sascha-gif/pilger` nirgends — der einzige
-Projektstand war der Camino-Masterplan auf Branch
-`claude/anschauen-merken-f9qdrp`, auf dem dieser Branch aufsetzt.
-
-**Falls der eigentliche milsh.com-Kontext in `Pasaventures/nexus` liegt:** eine
-neue Session mit diesem Repo als Quelle starten, oder die betreffenden Inhalte
-hier einkippen.
+Danach ist nichts mehr zu tun: jeder Merge auf `main` ist spätestens fünf
+Minuten später live.
 
 ---
 
@@ -126,17 +122,30 @@ public/            Document-Root
   assets/          app.css, app.js
 src/               Anwendungscode (Database, Schema, Repo, Helfer)
 db/seed.php        kompletter Masterplan-Inhalt als Startdaten
-config/            config.example.php — echte config.php baut der Deploy
+config/            config.example.php — im Container über Umgebungsvariablen ersetzt
+ops/               setup-server.sh, pilger-update.sh, systemd-Einheiten
 docs/              DEPLOYMENT.md · DATENBANK.md · API.md
-.github/workflows/ deploy.yml
+Dockerfile         PHP 8.3 + Apache
+docker-compose.yml App + MariaDB
+.github/workflows/ ci.yml — prüft, deployt nicht
 camino-masterplan-2026.html   Referenz der statischen Ursprungsfassung
 ```
 
 ---
 
+## Verwandte Projekte auf derselben Maschine
+
+- **family.milsh.com** — Next.js + Supabase, läuft als systemd-Dienst auf dem
+  Host (nicht im Container) auf `172.19.0.1:3000`. Repos: `Pasaventures/family`
+  und `sascha-gif/family`. Dessen `UEBERGABE.md` ist die beste Quelle zum Server.
+- **nexus** (`sascha-gif/nexus`) — anderer Server (`nexus.helpingbrands.de`),
+  hat mit milsh.com nichts zu tun.
+
+---
+
 ## Nächste sinnvolle Schritte
 
-1. Secrets eintragen → erster Deploy → live prüfen.
+1. Einrichtung auf dem Server → live prüfen.
 2. Die 12 offenen Unterkünfte buchen; Beträge direkt auf der Seite eintragen
    (Oia und Santiago zuerst — dünnes Angebot bzw. hohe Nachfrage).
 3. Rückflugzeiten SCQ→FRA aus der Buchung nachtragen.

@@ -1,0 +1,113 @@
+name: Prüfung
+
+# Der Server nimmt von außen keine SSH-Verbindungen an — deployt wird deshalb
+# nicht von hier aus, sondern der Server holt sich den Code selbst
+# (ops/pilger-update.sh, alle fünf Minuten). Dieser Workflow stellt sicher,
+# dass auf main nur steht, was sich auch bauen und starten lässt: was hier
+# grün ist, zieht sich der Server binnen Minuten.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  code:
+    name: Code prüfen
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: PHP-Syntax
+        run: |
+          php -v
+          find src db public config -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Shell-Syntax der Server-Skripte
+        run: |
+          for f in ops/*.sh; do bash -n "$f" && echo "$f OK"; done
+
+      - name: Start ohne Datenbankserver (SQLite-Rückfall)
+        run: |
+          php -S 127.0.0.1:8123 -t public &
+          sleep 3
+          code=$(curl -s -o /tmp/out.html -w '%{http_code}' http://127.0.0.1:8123/)
+          test "$code" = "200" || { echo "::error::Startseite antwortet mit HTTP $code"; exit 1; }
+          grep -q 'id="costTotal"' /tmp/out.html
+          grep -q 'map-data' /tmp/out.html
+          echo "Startseite rendert, Datenbank wurde selbst eingespielt."
+
+  stack:
+    name: Container-Stack prüfen
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Umgebung wie auf dem Server nachstellen
+        run: |
+          # Auf dem Server liefert das Netz der Reverse-Proxy; hier genügt ein eigenes.
+          docker network create pruef-netz
+          cat > .env <<'EOF'
+          CADDY_NETWORK=pruef-netz
+          DB_NAME=pilger
+          DB_USER=pilger
+          DB_PASS=pruefpasswort123
+          DB_ROOT_PASS=pruefrootpasswort123
+          WRITE_PASSWORD=
+          EOF
+
+      - name: Bauen und starten
+        run: |
+          docker compose up -d --build
+          docker compose ps
+
+      - name: Warten, bis die App antwortet
+        run: |
+          # Kein Port veröffentlicht — also aus einem Container im selben Netz prüfen,
+          # genau wie es der Reverse-Proxy auf dem Server tut.
+          for i in $(seq 1 30); do
+            if docker run --rm --network pruef-netz curlimages/curl:latest \
+                 -sS -o /tmp/live.html -w '%{http_code}' http://pilger-app/ 2>/dev/null | grep -q '^200$'; then
+              echo "App antwortet nach $((i*5)) s."
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "::error::pilger-app hat nach 150 s nicht mit HTTP 200 geantwortet."
+          docker compose logs --tail 60
+          exit 1
+
+      - name: Inhalt und Datenbank prüfen
+        run: |
+          docker run --rm --network pruef-netz curlimages/curl:latest \
+            -sS http://pilger-app/ > seite.html
+          grep -q 'Camino Portugués' seite.html
+          grep -q 'id="costTotal"' seite.html
+          test "$(grep -c 'type="checkbox"' seite.html)" = "52"
+          echo "Seite vollständig: 52 Packlisten-Einträge, Kostentabelle vorhanden."
+
+          # Gegen MariaDB, nicht gegen SQLite — der Rückfall darf hier nicht greifen.
+          docker compose exec -T db \
+            mariadb -upilger -ppruefpasswort123 pilger \
+            -e "select count(*) as etappen from stages; select count(*) as packliste from pack_items;"
+
+      - name: Speichern prüfen (schreibt wirklich in die Datenbank)
+        run: |
+          docker run --rm --network pruef-netz curlimages/curl:latest \
+            -sS -X POST http://pilger-app/api.php \
+            -H 'Content-Type: application/json' \
+            -d '{"action":"cost.set","id":2,"amount":249.90}' | tee antwort.json
+          grep -q '"ok":true' antwort.json
+
+          gespeichert=$(docker compose exec -T db \
+            mariadb -upilger -ppruefpasswort123 pilger -N -B \
+            -e "select amount from cost_items where id = 2;")
+          echo "In der Datenbank steht: $gespeichert"
+          test "$gespeichert" = "249.90" || { echo "::error::Betrag kam nicht in der Datenbank an."; exit 1; }
+
+      - name: Aufräumen
+        if: always()
+        run: docker compose down -v || true

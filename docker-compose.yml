@@ -1,0 +1,65 @@
+# pilger.milsh.com
+#
+# Zwei Container: die App und ihre Datenbank. Nach außen ist kein Port
+# veröffentlicht — der gemeinsame Reverse-Proxy bcd_caddy erreicht die App
+# über ihren Namen im Netz `caddy`. Genau dieses Muster nutzen die anderen
+# Projekte auf dem Server auch.
+#
+# Werte kommen aus der .env-Datei daneben, die ops/setup-server.sh anlegt.
+
+services:
+  app:
+    build: .
+    image: pilger-app:latest
+    container_name: pilger-app
+    restart: unless-stopped
+    environment:
+      TZ: Europe/Berlin
+      PILGER_DB_DRIVER: mysql
+      PILGER_DB_HOST: db
+      PILGER_DB_PORT: "3306"
+      PILGER_DB_NAME: ${DB_NAME:-pilger}
+      PILGER_DB_USER: ${DB_USER:-pilger}
+      PILGER_DB_PASS: ${DB_PASS:?DB_PASS fehlt in der .env}
+      PILGER_WRITE_PASSWORD: ${WRITE_PASSWORD:-}
+      PILGER_DEBUG: "false"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - intern
+      - caddy
+
+  db:
+    image: mariadb:11
+    container_name: pilger-db
+    restart: unless-stopped
+    environment:
+      TZ: Europe/Berlin
+      MARIADB_DATABASE: ${DB_NAME:-pilger}
+      MARIADB_USER: ${DB_USER:-pilger}
+      MARIADB_PASSWORD: ${DB_PASS:?DB_PASS fehlt in der .env}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASS:?DB_ROOT_PASS fehlt in der .env}
+    volumes:
+      - pilger-db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    networks:
+      - intern
+
+volumes:
+  pilger-db:
+
+networks:
+  # Nur zwischen App und Datenbank, von außen nicht erreichbar.
+  intern:
+
+  # Das bestehende Netz, in dem bcd_caddy hängt. Der Name wird beim Einrichten
+  # ermittelt und in die .env geschrieben — er ist auf dem Server vorgegeben.
+  caddy:
+    external: true
+    name: ${CADDY_NETWORK:?CADDY_NETWORK fehlt in der .env}
