@@ -20,6 +20,7 @@ env:
   SSH_PORT: ${{ secrets.SSH_PORT }}
   SSHPASS: ${{ secrets.SSH_PASSWORD }}
   DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+  DB_DRIVER: ${{ secrets.DB_DRIVER }}
   DB_NAME: ${{ secrets.DB_NAME }}
   DB_USER: ${{ secrets.DB_USER }}
   DB_PASS: ${{ secrets.DB_PASS }}
@@ -146,18 +147,47 @@ jobs:
             exit 1
           fi
 
-      - name: Konfiguration aus Secrets bauen
+      - name: Datenbankdaten festlegen
         run: |
-          if [ -n "$DB_NAME" ]; then echo "Datenbank: MariaDB ($DB_NAME)"; else echo "Datenbank: SQLite-Fallback"; fi
+          # Es müssen keine DB-Secrets hinterlegt sein. Fehlen Name oder Benutzer,
+          # heißen beide 'pilger'; fehlt das Passwort, wird eines erzeugt. Da der
+          # Deploy im selben Lauf sowohl den MySQL-Benutzer setzt als auch
+          # config.php schreibt, passen beide Seiten immer zusammen.
+          driver="${DB_DRIVER:-mysql}"
+          name="${DB_NAME:-pilger}"
+          user="${DB_USER:-pilger}"
+          pass="$DB_PASS"
+
+          if [ "$driver" = "sqlite" ]; then
+            echo "Datenbank: SQLite (per DB_DRIVER erzwungen)"
+          else
+            if [ -z "$pass" ]; then
+              pass="$(openssl rand -base64 24 | tr -dc 'A-Za-z0-9' | cut -c1-28)"
+              echo "::add-mask::$pass"
+              echo "Kein DB_PASS hinterlegt — ein Passwort wurde erzeugt und in config.php eingetragen."
+            fi
+            echo "Datenbank: MariaDB ($name), Benutzer $user"
+          fi
+
+          {
+            echo "RES_DB_DRIVER=$driver"
+            echo "RES_DB_NAME=$name"
+            echo "RES_DB_USER=$user"
+            echo "RES_DB_PASS=$pass"
+          } >> "$GITHUB_ENV"
+
+      - name: Konfiguration bauen
+        run: |
           php -r '
+            $driver = getenv("RES_DB_DRIVER") === "sqlite" ? "sqlite" : "mysql";
             $cfg = [
-              "driver" => getenv("DB_NAME") ? "mysql" : "sqlite",
+              "driver" => $driver,
               "mysql"  => [
                 "host"    => getenv("DB_HOST") ?: "localhost",
                 "port"    => (int)(getenv("DB_PORT") ?: 3306),
-                "name"    => getenv("DB_NAME") ?: "",
-                "user"    => getenv("DB_USER") ?: "",
-                "pass"    => getenv("DB_PASS") ?: "",
+                "name"    => getenv("RES_DB_NAME"),
+                "user"    => getenv("RES_DB_USER"),
+                "pass"    => getenv("RES_DB_PASS"),
                 "charset" => "utf8mb4",
               ],
               "sqlite" => ["path" => "var/pilger.sqlite"],
@@ -171,10 +201,11 @@ jobs:
 
       - name: Datenbank und Benutzer anlegen
         run: |
-          if [ -z "$DB_NAME" ]; then
-            echo "Kein DB_NAME gesetzt — die App läuft über SQLite. Übersprungen."
+          if [ "$RES_DB_DRIVER" = "sqlite" ]; then
+            echo "SQLite-Betrieb — keine Datenbank anzulegen. Übersprungen."
             exit 0
           fi
+          DB_NAME="$RES_DB_NAME"; DB_USER="$RES_DB_USER"; DB_PASS="$RES_DB_PASS"
 
           # Zwei Wege zum MySQL-Admin: hinterlegte Zugangsdaten, sonst sudo mysql
           # (auf Debian/Ubuntu-Installationen üblicherweise ohne Passwort möglich).
@@ -195,7 +226,7 @@ jobs:
           if dssh "$SSH_USER@$SSH_HOST" "$client -e \"$sql\""; then
             echo "Datenbank '$DB_NAME' und Benutzer '$DB_USER' sind eingerichtet."
           else
-            echo "::error::Datenbank konnte nicht angelegt werden. Entweder DB_ADMIN_USER/DB_ADMIN_PASS hinterlegen oder die Datenbank einmal im Hosting-Panel anlegen — siehe docs/DEPLOYMENT.md."
+            echo "::error::Datenbank konnte nicht angelegt werden. Moeglichkeiten: DB_ADMIN_USER/DB_ADMIN_PASS als Secret hinterlegen, die Datenbank einmal im Hosting-Panel anlegen (dann DB_NAME/DB_USER/DB_PASS als Secrets setzen), oder mit dem Secret DB_DRIVER=sqlite ganz ohne Datenbankserver starten — siehe docs/DEPLOYMENT.md."
             exit 1
           fi
 
