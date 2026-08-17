@@ -62,6 +62,90 @@ final class Tagebuch
      * dann nicht geht, ist schlimmer als keiner. Deshalb macht der Server hier
      * einen echten, winzigen Aufruf und sagt, was zurückkam.
      */
+    /** Beide Zugänge nacheinander ausprobieren. */
+    public function pruefeAlles(): array
+    {
+        return [
+            'claude'  => $this->pruefeClaude(),
+            'whisper' => $this->pruefeWhisper(),
+        ];
+    }
+
+    /**
+     * Whisper mit einer echten, einsekündigen Aufnahme ausprobieren.
+     *
+     * Ein Abruf der Modellliste würde nur zeigen, dass der Schlüssel
+     * angenommen wird — nicht, ob Guthaben da ist. Das fällt sonst erst am
+     * ersten Abend in Porto auf. Der Testton kostet einen Bruchteil eines
+     * Cents und beantwortet beide Fragen auf einmal.
+     */
+    public function pruefeWhisper(): array
+    {
+        $key = $this->einstellung('openai_key');
+        if ($key === null) {
+            return ['ok' => false, 'meldung' => 'Kein Whisper-Schlüssel hinterlegt.'];
+        }
+        if (!function_exists('curl_init')) {
+            return ['ok' => false, 'meldung' => 'Der Server kann keine Anfragen nach außen stellen (curl fehlt).'];
+        }
+
+        $pfad = tempnam(sys_get_temp_dir(), 'pilger-ton') . '.wav';
+        file_put_contents($pfad, self::testTon());
+
+        $ch = curl_init(self::WHISPER);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST           => true,
+            CURLOPT_TIMEOUT        => 60,
+            CURLOPT_HTTPHEADER     => ['Authorization: Bearer ' . $key],
+            CURLOPT_POSTFIELDS     => [
+                'file'     => new CURLFile($pfad, 'audio/wav', 'probe.wav'),
+                'model'    => 'whisper-1',
+                'language' => 'de',
+            ],
+        ]);
+        $body = curl_exec($ch);
+        $code = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+        $netz = curl_error($ch);
+        curl_close($ch);
+        @unlink($pfad);
+
+        if ($code === 200) {
+            return ['ok' => true, 'meldung' => 'Whisper antwortet und nimmt Aufnahmen an.'];
+        }
+
+        $daten = json_decode((string) $body, true);
+        $grund = $daten['error']['message'] ?? ($netz ?: 'keine Antwort');
+        $typ   = $daten['error']['code'] ?? '';
+
+        return ['ok' => false, 'meldung' => match (true) {
+            $code === 0                   => 'Der Server kommt nicht ins Internet: ' . $grund,
+            $code === 401 || $code === 403 => 'Der Schlüssel wird nicht angenommen. Stimmt er noch?',
+            $typ === 'insufficient_quota' => 'Schlüssel gültig, aber kein Guthaben auf dem OpenAI-Konto.',
+            $code === 429                 => 'Zu viele Anfragen oder kein Guthaben auf dem Konto.',
+            default                       => 'HTTP ' . $code . ' — ' . $grund,
+        }];
+    }
+
+    /**
+     * Eine Sekunde 440 Hz als WAV, 16 kHz mono. Reine Stille wäre riskant —
+     * manche Dienste weisen sie ab, und dann sähe ein guter Schlüssel schlecht aus.
+     */
+    private static function testTon(): string
+    {
+        $rate   = 16000;
+        $proben = $rate;                 // eine Sekunde
+        $daten  = '';
+        for ($i = 0; $i < $proben; $i++) {
+            $daten .= pack('v', (int) (6000 * sin(2 * M_PI * 440 * $i / $rate)) & 0xFFFF);
+        }
+        $groesse = strlen($daten);
+
+        return 'RIFF' . pack('V', 36 + $groesse) . 'WAVE'
+             . 'fmt ' . pack('VvvVVvv', 16, 1, 1, $rate, $rate * 2, 2, 16)
+             . 'data' . pack('V', $groesse) . $daten;
+    }
+
     public function pruefeClaude(): array
     {
         $key = $this->einstellung('anthropic_key');

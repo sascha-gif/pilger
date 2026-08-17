@@ -388,7 +388,12 @@ footer a{color:var(--flecha)}
                       font-size:11.5px;letter-spacing:.06em;margin-bottom:14px}
 .tb-eform p.kannstand .ja{color:var(--ok);font-weight:600}
 .tb-eform p.kannstand .nein{color:var(--stone)}
-.tb-eform p.tb-hinweis{margin-top:10px;font-size:13px}
+.tb-eform p.tb-hinweis{margin-top:12px;font-size:13px;display:flex;flex-direction:column;gap:6px}
+.tb-eform .pz{font-family:"Public Sans",system-ui,sans-serif;font-size:13px;line-height:1.45;
+              border-left:3px solid var(--line);padding:5px 10px}
+.tb-eform .pz b{font-weight:600}
+.tb-eform .pz.ja{border-left-color:var(--ok);color:var(--ink)}
+.tb-eform .pz.nein{border-left-color:#a4341f;color:#7e2717;background:#fbeae6}
 .tb-eform i{font-style:normal;font-family:"Spline Sans Mono",monospace;font-size:12.5px;
             background:#efe9d8;padding:1px 5px}
 

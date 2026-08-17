@@ -206,12 +206,12 @@ try {
             json_out([
                 'ok'     => true,
                 'kann'   => $tagebuch->faehigkeiten(),
-                'pruefe' => $tagebuch->pruefeClaude(),
+                'pruefe' => $tagebuch->pruefeAlles(),
             ]);
 
         case 'schluessel.pruefen':
             $tagebuch = new Tagebuch($db, $repo);
-            json_out(['ok' => true, 'pruefe' => $tagebuch->pruefeClaude()]);
+            json_out(['ok' => true, 'pruefe' => $tagebuch->pruefeAlles()]);
 
         case 'wetter':
             // Kann ein paar Sekunden dauern — deshalb ruft die Seite das erst

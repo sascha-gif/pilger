@@ -450,8 +450,16 @@
 
   function zeigePruefung(p) {
     if (!hinweis || !p) return;
-    hinweis.textContent = (p.ok ? '✓ ' : '✗ ') + p.meldung;
-    hinweis.classList.toggle('fehler', !p.ok);
+    var zeilen = [
+      ['Claude (Glättung)', p.claude],
+      ['Whisper (Transkription)', p.whisper]
+    ];
+    hinweis.innerHTML = zeilen.map(function (z) {
+      var e = z[1] || { ok: false, meldung: 'nicht geprüft' };
+      return '<span class="pz ' + (e.ok ? 'ja' : 'nein') + '">' +
+             (e.ok ? '✓' : '✗') + ' <b>' + z[0] + '</b> — ' + e.meldung + '</span>';
+    }).join('');
+    hinweis.classList.remove('fehler');
   }
 
   var keySpeichern = document.getElementById('keySpeichern');
