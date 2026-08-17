@@ -52,7 +52,10 @@ Schlüssel. Ein eigener Deploy-Key ist einem persönlichen Schlüssel vorzuziehe
 **Optional**
 
 - `SSH_PORT` — falls nicht 22
-- `DB_NAME`, `DB_USER`, `DB_PASS`, `DB_HOST`, `DB_PORT` — für MariaDB statt SQLite
+- `DB_NAME`, `DB_USER` — Standard ist jeweils `pilger`
+- `DB_PASS` — fehlt es, erzeugt der Workflow ein Passwort und schreibt es in `config.php`
+- `DB_HOST`, `DB_PORT` — Standard `localhost` / `3306`
+- `DB_DRIVER` — auf `sqlite` setzen, um ganz ohne Datenbankserver zu fahren
 - `DB_ADMIN_USER`, `DB_ADMIN_PASS` — MySQL-Admin zum Anlegen der Datenbank
 - `WRITE_PASSWORD` — schaltet den Schreibschutz scharf
 - `SITE_URL` — abweichende Prüf-URL

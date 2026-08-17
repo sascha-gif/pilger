@@ -74,9 +74,10 @@ Einzutragen unter
 | `SSH_KEY` | ja¹ | privater SSH-Schlüssel (kompletter Text inkl. BEGIN/END-Zeilen) |
 | `DEPLOY_PATH` | ja | Zielverzeichnis, z. B. `/var/www/pilger.milsh.com` |
 | `SSH_PORT` | nein | nur falls nicht 22 |
-| `DB_NAME` | nein² | Name der Datenbank, z. B. `pilger` |
-| `DB_USER` / `DB_PASS` | nein² | DB-Benutzer; das Passwort ist frei wählbar und wird so angelegt |
+| `DB_NAME` | nein² | Standard `pilger` |
+| `DB_USER` / `DB_PASS` | nein² | Standard `pilger`; fehlt das Passwort, erzeugt der Workflow eines |
 | `DB_HOST` / `DB_PORT` | nein | Standard `localhost` / `3306` |
+| `DB_DRIVER` | nein | auf `sqlite` setzen, um ganz ohne Datenbankserver zu fahren |
 | `DB_ADMIN_USER` / `DB_ADMIN_PASS` | nein³ | MySQL-Admin zum Anlegen der Datenbank |
 | `WRITE_PASSWORD` | nein | Passwort für den Bearbeiten-Modus |
 | `SITE_URL` | nein | Standard `https://pilger.milsh.com/` |
@@ -84,12 +85,13 @@ Einzutragen unter
 ¹ Eines von beiden genügt. Der Workflow erkennt selbst, welcher Weg hinterlegt ist;
 sind beide gesetzt, gewinnt der Schlüssel.
 
-² Ohne `DB_NAME` läuft die App mit SQLite unter `var/pilger.sqlite` — funktioniert
-vollständig, braucht keinen DB-Server. Sobald `DB_NAME` gesetzt ist, wird MariaDB benutzt.
+² Für die Datenbank muss nichts hinterlegt werden. Ohne Angaben heißen Datenbank
+und Benutzer `pilger`, das Passwort erzeugt der Workflow. Das trägt, weil im selben
+Lauf sowohl der MySQL-Benutzer gesetzt als auch `config.php` geschrieben wird.
 
 ³ Der Workflow legt Datenbank und Benutzer selbst an: zuerst über
 `DB_ADMIN_USER`/`DB_ADMIN_PASS`, sonst über `sudo mysql` auf dem Server. Klappt
-keines von beidem, bricht er mit einer klaren Meldung ab.
+keines von beidem, bricht er mit einer klaren Meldung ab und nennt die Auswege.
 
 Sobald die Secrets stehen: `main` anstoßen (Actions → *Deploy pilger.milsh.com*
 → *Run workflow*) oder einfach den nächsten Merge abwarten.
