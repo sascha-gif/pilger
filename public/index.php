@@ -26,6 +26,12 @@ $stages    = $repo->stages();
 $equipment = $repo->equipment();
 $packCats  = $repo->packList();
 $progress  = $repo->packProgress();
+$weg       = $repo->wegProgress();
+$stempel   = $repo->stempelProgress();
+$eqProg    = $repo->equipmentProgress();
+
+$stagesOffen    = count(array_filter($stages, static fn ($s) => !(int) $s['done']));
+$stagesErledigt = count($stages) - $stagesOffen;
 $costs     = $repo->costItems();
 $costTotal = $repo->costTotal();
 $weeks     = $repo->weightWeeks();
@@ -229,16 +235,46 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
       </p>
     </div>
 
+    <div class="weg reveal">
+      <div class="wegkopf">
+        <span class="wegtitel">Auf dem Weg</span>
+        <span class="wegzahl" id="wegZahl">
+          <b><?= h(num_attr($weg['gelaufen'])) ?></b> von <?= h(num_attr($weg['gesamt'])) ?> km
+          · noch <span id="wegRest"><?= h(num_attr($weg['rest'])) ?></span> km
+        </span>
+      </div>
+      <span class="wegbalken"><i id="wegBalken" style="width:<?= (int) $weg['prozent'] ?>%"></i></span>
+      <div class="wegfuss">
+        <span id="wegEtappen"><?= (int) $weg['etappen'] ?> von <?= (int) $weg['etappen_gesamt'] ?> Etappen gelaufen</span>
+        <span class="stempelzahl<?= $stempel['fehlt'] > 0 ? ' fehlt' : '' ?>" id="stempelZahl">
+          <?= (int) $stempel['da'] ?> / <?= (int) $stempel['noetig'] ?> Stempel<?= $stempel['fehlt'] > 0 ? ' · ' . (int) $stempel['fehlt'] . ' fehlen' : '' ?>
+        </span>
+      </div>
+    </div>
+
+    <div class="tabs" data-tabs="etappen">
+      <button type="button" class="tab is-on" data-tab="offen">Offen <i id="tabEtappenOffen"><?= $stagesOffen ?></i></button>
+      <button type="button" class="tab" data-tab="erledigt">Erledigt <i id="tabEtappenErledigt"><?= $stagesErledigt ?></i></button>
+    </div>
+
+    <div class="stages" data-tabgruppe="etappen" data-show="offen">
     <?php foreach ($stages as $st): ?>
       <?php
         $cls = 'stage';
         if ($st['variant'] === 'special') { $cls .= ' special'; }
         if ($st['variant'] === 'anchor')  { $cls .= ' anchor-day'; }
+        $done   = (int) $st['done'] === 1;
+        $noetig = (int) $st['stamps_needed'];
+        $da     = (int) $st['stamps_done'];
       ?>
-      <div class="<?= $cls ?>">
+      <div class="<?= $cls ?>" data-done="<?= $done ? 1 : 0 ?>" data-stage="<?= (int) $st['id'] ?>">
         <div class="mojon">
           <div class="et"><?= h($st['code']) ?></div>
           <div class="km"><?= h($st['km_big']) ?><span><?= h($st['km_sub']) ?></span></div>
+          <label class="tagab" title="Tag abhaken">
+            <input type="checkbox" class="stagedone" data-id="<?= (int) $st['id'] ?>"<?= $done ? ' checked' : '' ?><?= $locked ? ' disabled' : '' ?>>
+            <span>erledigt</span>
+          </label>
         </div>
         <div>
           <h3><?= h($st['title']) ?><?php if ($st['title_suffix']): ?> <span style="font-size:14px;color:var(--stone)"><?= h($st['title_suffix']) ?></span><?php endif; ?></h3>
@@ -246,12 +282,29 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
           <?php if ($st['target']): ?><div class="target"><?= rich($st['target']) ?></div><?php endif; ?>
           <?php if ($st['note']): ?><div class="note"><?= rich($st['note']) ?></div><?php endif; ?>
           <?php if ($st['alt_note']): ?><div class="alt"><?= rich($st['alt_note']) ?></div><?php endif; ?>
+
+          <?php if ($noetig > 0): ?>
+            <div class="stempel" data-noetig="<?= $noetig ?>">
+              <span class="slabel">Stempel<?= $noetig > 1 ? ' (' . $noetig . ' nötig)' : '' ?></span>
+              <?php for ($i = 1; $i <= $noetig; $i++): ?>
+                <label class="sbox" title="Stempel <?= $i ?>">
+                  <input type="checkbox" class="stampbox" data-id="<?= (int) $st['id'] ?>" data-nr="<?= $i ?>"<?= $i <= $da ? ' checked' : '' ?><?= $locked ? ' disabled' : '' ?>>
+                  <span></span>
+                </label>
+              <?php endfor; ?>
+              <span class="swarn"<?= ($done && $da < $noetig) ? '' : ' hidden' ?>>Tag ist abgehakt, aber es fehlt ein Stempel.</span>
+            </div>
+          <?php endif; ?>
+
           <?php if ($st['booking_url']): ?>
             <a class="book" href="<?= h($st['booking_url']) ?>" target="_blank" rel="noopener"><?= h($st['booking_label']) ?></a>
           <?php endif; ?>
         </div>
       </div>
     <?php endforeach; ?>
+      <p class="leer" data-leer="offen" hidden>Alles abgehakt. 266 km. Das war’s.</p>
+      <p class="leer" data-leer="erledigt" hidden>Noch nichts abgehakt — der erste Tag steht im Reiter nebenan.</p>
+    </div>
 
   </div>
 </section>
@@ -259,15 +312,29 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
 <section id="equipment">
   <div class="wrap reveal">
     <div class="sec-head"><div class="sec-num">06</div><h2>Equipment &amp; Gelenkschutz<small>Du trägst alles selbst — Packgewicht ist jetzt der kritische Faktor</small></h2></div>
-    <div class="eq">
+
+    <div class="tabs" data-tabs="equip">
+      <button type="button" class="tab is-on" data-tab="offen">Offen <i id="tabEquipOffen"><?= (int) ($eqProg['total'] - $eqProg['done']) ?></i></button>
+      <button type="button" class="tab" data-tab="erledigt">Erledigt <i id="tabEquipErledigt"><?= (int) $eqProg['done'] ?></i></button>
+      <button type="button" class="tab" data-tab="alle">Alle <i><?= (int) $eqProg['total'] ?></i></button>
+    </div>
+
+    <div class="eq" data-tabgruppe="equip" data-show="offen">
       <?php foreach ($equipment as $card): ?>
-        <div class="eqcard">
-          <h4><?= rich($card['title']) ?></h4>
+        <?php $eqDone = count(array_filter($card['items'], static fn ($i) => (int) $i['checked'] === 1)); ?>
+        <div class="eqcard" data-karte="<?= (int) $card['id'] ?>">
+          <h4><?= rich($card['title']) ?> <span class="eqcount"><?= $eqDone ?>/<?= count($card['items']) ?></span></h4>
           <ul>
             <?php foreach ($card['items'] as $item): ?>
-              <li><?= rich($item['body']) ?></li>
+              <li data-done="<?= (int) $item['checked'] === 1 ? 1 : 0 ?>">
+                <label>
+                  <input type="checkbox" class="equipbox" data-id="<?= (int) $item['id'] ?>"<?= (int) $item['checked'] === 1 ? ' checked' : '' ?><?= $locked ? ' disabled' : '' ?>>
+                  <span><?= rich($item['body']) ?></span>
+                </label>
+              </li>
             <?php endforeach; ?>
           </ul>
+          <p class="leer" hidden>alles erledigt</p>
         </div>
       <?php endforeach; ?>
     </div>
@@ -288,7 +355,13 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
       <button type="button" class="toggle-all" id="toggleAll" aria-expanded="false">alle aufklappen</button>
     </div>
 
-    <div class="pack">
+    <div class="tabs" data-tabs="pack">
+      <button type="button" class="tab is-on" data-tab="alle">Alle <i><?= (int) $progress['total'] ?></i></button>
+      <button type="button" class="tab" data-tab="offen">Offen <i id="tabPackOffen"><?= (int) ($progress['total'] - $progress['done']) ?></i></button>
+      <button type="button" class="tab" data-tab="erledigt">Gepackt <i id="tabPackErledigt"><?= (int) $progress['done'] ?></i></button>
+    </div>
+
+    <div class="pack" data-tabgruppe="pack" data-show="alle">
       <?php foreach ($packCats as $cat): ?>
         <?php
           $total = count($cat['items']);
@@ -303,7 +376,7 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
             <table class="ptbl">
               <tr><th class="c-chk"></th><th>Item</th><th>Größe/Detail</th><th>Anz.</th><th>Zweck</th></tr>
               <?php foreach ($cat['items'] as $item): ?>
-                <tr<?= $item['checked'] ? ' class="done"' : '' ?>>
+                <tr data-done="<?= $item['checked'] ? 1 : 0 ?>"<?= $item['checked'] ? ' class="done"' : '' ?>>
                   <td class="c-chk">
                     <input type="checkbox" data-id="<?= (int) $item['id'] ?>"<?= $item['checked'] ? ' checked' : '' ?><?= $locked ? ' disabled' : '' ?>>
                   </td>

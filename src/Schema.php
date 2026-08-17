@@ -48,6 +48,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/004_zutritt.php';
             migration_004($db);
         });
+
+        // Erledigt-Häkchen für Etappen und Ausrüstung, echte Kilometer, Stempel.
+        $apply('005_erledigt', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/005_erledigt.php';
+            migration_005($db);
+        });
     }
 
     /** @return array<int,string> */

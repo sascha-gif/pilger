@@ -88,6 +88,36 @@ final class Database
         return $val === false ? null : $val;
     }
 
+    /**
+     * Spaltennamen einer Tabelle. Migrationen fragen damit nach, bevor sie
+     * etwas anlegen — ein zweiter Durchlauf soll nicht am „gibt es schon"
+     * scheitern und die Migration dauerhaft rot stehen lassen.
+     *
+     * @return array<int,string>
+     */
+    public function columns(string $table): array
+    {
+        if ($this->driver === 'mysql') {
+            return array_map(
+                static fn ($r) => (string) $r['Field'],
+                $this->all('SHOW COLUMNS FROM ' . $table)
+            );
+        }
+        return array_map(
+            static fn ($r) => (string) $r['name'],
+            $this->all('PRAGMA table_info(' . $table . ')')
+        );
+    }
+
+    /** Spalte anlegen, falls sie fehlt. */
+    public function addColumn(string $table, string $name, string $definition): void
+    {
+        if (in_array($name, $this->columns($table), true)) {
+            return;
+        }
+        $this->exec("ALTER TABLE $table ADD COLUMN $name $definition");
+    }
+
     public function tableExists(string $table): bool
     {
         try {

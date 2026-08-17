@@ -91,6 +91,36 @@ try {
                 'latest' => $repo->latestWeight(),
             ]);
 
+        case 'stage.done':
+            if ($id <= 0) {
+                json_out(['ok' => false, 'error' => 'Ungültige ID.'], 400);
+            }
+            $done = !empty($body['done']);
+            if (!$repo->setStageDone($id, $done)) {
+                json_out(['ok' => false, 'error' => 'Etappe nicht gefunden.'], 404);
+            }
+            json_out(['ok' => true, 'done' => $done, 'weg' => $repo->wegProgress(), 'stempel' => $repo->stempelProgress()]);
+
+        case 'stage.stamps':
+            if ($id <= 0) {
+                json_out(['ok' => false, 'error' => 'Ungültige ID.'], 400);
+            }
+            if (!$repo->setStageStamps($id, (int) ($body['stamps'] ?? 0))) {
+                json_out(['ok' => false, 'error' => 'Etappe nicht gefunden.'], 404);
+            }
+            json_out(['ok' => true, 'stempel' => $repo->stempelProgress()]);
+
+        case 'equip.toggle':
+            if ($id <= 0) {
+                json_out(['ok' => false, 'error' => 'Ungültige ID.'], 400);
+            }
+            $checked = !empty($body['checked']);
+            if (!$repo->toggleEquipmentItem($id, $checked)) {
+                json_out(['ok' => false, 'error' => 'Punkt nicht gefunden.'], 404);
+            }
+            $e = $repo->equipmentProgress();
+            json_out(['ok' => true, 'checked' => $checked, 'done' => $e['done'], 'total' => $e['total']]);
+
         case 'stage.update':
             if ($id <= 0) {
                 json_out(['ok' => false, 'error' => 'Ungültige ID.'], 400);
@@ -105,10 +135,13 @@ try {
             $p = $repo->packProgress();
             $total = $repo->costTotal();
             json_out([
-                'ok'    => true,
-                'pack'  => $p,
-                'costs' => ['total' => $total, 'total_formatted' => money($total)],
-                'weight' => ['latest' => $repo->latestWeight()],
+                'ok'      => true,
+                'pack'    => $p,
+                'equip'   => $repo->equipmentProgress(),
+                'weg'     => $repo->wegProgress(),
+                'stempel' => $repo->stempelProgress(),
+                'costs'   => ['total' => $total, 'total_formatted' => money($total)],
+                'weight'  => ['latest' => $repo->latestWeight()],
             ]);
 
         default:

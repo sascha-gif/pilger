@@ -80,12 +80,16 @@
       var details = cb.closest('details.pcat');
       var checked = cb.checked;
       row.classList.toggle('done', checked);
+      row.dataset.done = checked ? '1' : '0';
       paintCategory(details);
+      zaehleTabs('pack', 'tabPackOffen', 'tabPackErledigt');
 
       if (readOnly) {
         cb.checked = !checked;
         row.classList.toggle('done', !checked);
+        row.dataset.done = checked ? '0' : '1';
         paintCategory(details);
+        zaehleTabs('pack', 'tabPackOffen', 'tabPackErledigt');
         return;
       }
 
@@ -97,7 +101,9 @@
         .catch(function () {
           cb.checked = !checked;
           row.classList.toggle('done', !checked);
+          row.dataset.done = checked ? '0' : '1';
           paintCategory(details);
+          zaehleTabs('pack', 'tabPackOffen', 'tabPackErledigt');
         });
     });
   });
@@ -154,6 +160,203 @@
       reopen = [];
     });
   }
+
+  /* ---------- Reiter: offen / erledigt ----------------------------------- */
+  /* Es wird nichts umgehängt, nur ein Attribut am Behälter umgesetzt — das
+     CSS blendet aus, was gerade nicht dran ist. Damit bleibt der Zustand einer
+     Karte erhalten, auch wenn sie zwischen den Reitern wandert. */
+  var TABSTORE = 'pilger.tabs';
+
+  function readTabs() {
+    try { return JSON.parse(localStorage.getItem(TABSTORE)) || {}; } catch (e) { return {}; }
+  }
+
+  function writeTab(gruppe, wert) {
+    try {
+      var s = readTabs();
+      s[gruppe] = wert;
+      localStorage.setItem(TABSTORE, JSON.stringify(s));
+    } catch (e) { /* privater Modus — dann eben nicht merken */ }
+  }
+
+  function zeigeTab(gruppe, wert) {
+    var leiste = document.querySelector('[data-tabs="' + gruppe + '"]');
+    var inhalt = document.querySelector('[data-tabgruppe="' + gruppe + '"]');
+    if (!leiste || !inhalt) return;
+    inhalt.dataset.show = wert;
+    leiste.querySelectorAll('.tab').forEach(function (b) {
+      b.classList.toggle('is-on', b.dataset.tab === wert);
+    });
+    paintLeer(inhalt, wert);
+  }
+
+  /* „Nichts da"-Hinweis, wenn ein Reiter leer ist. */
+  function paintLeer(inhalt, wert) {
+    inhalt.querySelectorAll(':scope > .leer').forEach(function (p) {
+      var sichtbar = inhalt.querySelectorAll('[data-done="' + (wert === 'offen' ? '0' : '1') + '"]').length === 0;
+      p.hidden = !(p.dataset.leer === wert && sichtbar);
+    });
+    // Equipment: Karten ohne sichtbare Punkte fallen weg.
+    inhalt.querySelectorAll('.eqcard').forEach(function (karte) {
+      var offen = karte.querySelectorAll('li[data-done="0"]').length;
+      var fertig = karte.querySelectorAll('li[data-done="1"]').length;
+      var sichtbar = wert === 'alle' || (wert === 'offen' ? offen : fertig) > 0;
+      karte.hidden = !sichtbar;
+      var hinweis = karte.querySelector('.leer');
+      if (hinweis) hinweis.hidden = !(wert === 'alle' && offen === 0 && fertig > 0);
+    });
+  }
+
+  var gespeicherteTabs = readTabs();
+  document.querySelectorAll('.tabs[data-tabs]').forEach(function (leiste) {
+    var gruppe = leiste.dataset.tabs;
+    var inhalt = document.querySelector('[data-tabgruppe="' + gruppe + '"]');
+    if (gespeicherteTabs[gruppe]) {
+      zeigeTab(gruppe, gespeicherteTabs[gruppe]);
+    } else if (inhalt) {
+      paintLeer(inhalt, inhalt.dataset.show);
+    }
+    leiste.addEventListener('click', function (e) {
+      var b = e.target.closest('.tab');
+      if (!b) return;
+      zeigeTab(gruppe, b.dataset.tab);
+      writeTab(gruppe, b.dataset.tab);
+    });
+  });
+
+  function setzeZahl(id, wert) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = wert;
+  }
+
+  function zaehleTabs(gruppe, offenId, fertigId) {
+    var inhalt = document.querySelector('[data-tabgruppe="' + gruppe + '"]');
+    if (!inhalt) return;
+    var sel = gruppe === 'etappen' ? '.stage' : (gruppe === 'equip' ? 'li[data-done]' : 'tr[data-done]');
+    var alle = inhalt.querySelectorAll(sel);
+    var fertig = 0;
+    alle.forEach(function (el) { if (el.dataset.done === '1') fertig++; });
+    setzeZahl(offenId, alle.length - fertig);
+    setzeZahl(fertigId, fertig);
+    paintLeer(inhalt, inhalt.dataset.show);
+  }
+
+  /* ---------- Etappen abhaken -------------------------------------------- */
+  function malWeg(weg) {
+    var balken = document.getElementById('wegBalken');
+    if (balken) balken.style.width = weg.prozent + '%';
+    var zahl = document.getElementById('wegZahl');
+    if (zahl) {
+      var b = zahl.querySelector('b');
+      if (b) b.textContent = String(weg.gelaufen).replace('.', ',');
+    }
+    setzeZahl('wegRest', String(weg.rest).replace('.', ','));
+    setzeZahl('wegEtappen', weg.etappen + ' von ' + weg.etappen_gesamt + ' Etappen gelaufen');
+  }
+
+  function malStempel(st) {
+    var el = document.getElementById('stempelZahl');
+    if (!el) return;
+    el.textContent = st.da + ' / ' + st.noetig + ' Stempel' + (st.fehlt > 0 ? ' · ' + st.fehlt + ' fehlen' : '');
+    el.classList.toggle('fehlt', st.fehlt > 0);
+  }
+
+  /* Warnung an der Etappe: abgehakter Tag ohne vollständige Stempel. */
+  function malWarnung(karte) {
+    var warn = karte.querySelector('.swarn');
+    if (!warn) return;
+    var stempel = karte.querySelector('.stempel');
+    var noetig = stempel ? Number(stempel.dataset.noetig) : 0;
+    var da = karte.querySelectorAll('.stampbox:checked').length;
+    warn.hidden = !(karte.dataset.done === '1' && da < noetig);
+  }
+
+  document.querySelectorAll('input.stagedone').forEach(function (cb) {
+    cb.addEventListener('change', function () {
+      var karte = cb.closest('.stage');
+      var an = cb.checked;
+      karte.dataset.done = an ? '1' : '0';
+      zaehleTabs('etappen', 'tabEtappenOffen', 'tabEtappenErledigt');
+      malWarnung(karte);
+
+      if (readOnly) { cb.checked = !an; karte.dataset.done = an ? '0' : '1'; return; }
+
+      send({ action: 'stage.done', id: Number(cb.dataset.id), done: an })
+        .then(function (data) {
+          malWeg(data.weg);
+          malStempel(data.stempel);
+          flash(an
+            ? 'Etappe abgehakt · <b>' + String(data.weg.gelaufen).replace('.', ',') + ' km</b> gelaufen'
+            : 'Häkchen entfernt');
+        })
+        .catch(function () {
+          cb.checked = !an;
+          karte.dataset.done = an ? '0' : '1';
+          zaehleTabs('etappen', 'tabEtappenOffen', 'tabEtappenErledigt');
+          malWarnung(karte);
+        });
+    });
+  });
+
+  /* ---------- Stempel ----------------------------------------------------- */
+  /* Die Kästchen füllen sich auf: klickt man das zweite an, ist das erste
+     automatisch mit dabei — anders sammelt man Stempel auch nicht. */
+  document.querySelectorAll('.stempel').forEach(function (block) {
+    var boxen = Array.prototype.slice.call(block.querySelectorAll('.stampbox'));
+    var karte = block.closest('.stage');
+
+    boxen.forEach(function (box, i) {
+      box.addEventListener('change', function () {
+        var vorher = boxen.map(function (b) { return b.checked; });
+        var anzahl = box.checked ? i + 1 : i;
+        boxen.forEach(function (b, j) { b.checked = j < anzahl; });
+        malWarnung(karte);
+
+        if (readOnly) { boxen.forEach(function (b, j) { b.checked = vorher[j]; }); return; }
+
+        send({ action: 'stage.stamps', id: Number(box.dataset.id), stamps: anzahl })
+          .then(function (data) {
+            malStempel(data.stempel);
+            flash(anzahl > 0 ? 'Stempel notiert · <b>' + anzahl + '</b>' : 'Stempel zurückgesetzt');
+          })
+          .catch(function () {
+            boxen.forEach(function (b, j) { b.checked = vorher[j]; });
+            malWarnung(karte);
+          });
+      });
+    });
+  });
+
+  /* ---------- Equipment abhaken ------------------------------------------ */
+  function malEqKarte(karte) {
+    var zaehler = karte.querySelector('.eqcount');
+    if (!zaehler) return;
+    var alle = karte.querySelectorAll('li[data-done]');
+    var fertig = karte.querySelectorAll('li[data-done="1"]').length;
+    zaehler.textContent = fertig + '/' + alle.length;
+  }
+
+  document.querySelectorAll('input.equipbox').forEach(function (cb) {
+    cb.addEventListener('change', function () {
+      var zeile = cb.closest('li');
+      var karte = cb.closest('.eqcard');
+      var an = cb.checked;
+      zeile.dataset.done = an ? '1' : '0';
+      malEqKarte(karte);
+      zaehleTabs('equip', 'tabEquipOffen', 'tabEquipErledigt');
+
+      if (readOnly) { cb.checked = !an; zeile.dataset.done = an ? '0' : '1'; return; }
+
+      send({ action: 'equip.toggle', id: Number(cb.dataset.id), checked: an })
+        .then(function (data) { flash(an ? 'Erledigt · <b>' + data.done + '/' + data.total + '</b>' : 'Häkchen entfernt'); })
+        .catch(function () {
+          cb.checked = !an;
+          zeile.dataset.done = an ? '0' : '1';
+          malEqKarte(karte);
+          zaehleTabs('equip', 'tabEquipOffen', 'tabEquipErledigt');
+        });
+    });
+  });
 
   /* ---------- Kosten ----------------------------------------------------- */
   var euro = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' });

@@ -206,6 +206,70 @@ footer a{color:var(--flecha)}
 .progress .cnt{font-weight:600;color:var(--granite);white-space:nowrap}
 
 /* Schreibschutz-Hinweis + Login */
+/* ---- Reiter: offen / erledigt ------------------------------------------ */
+.tabs{display:flex;gap:2px;margin-bottom:16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.tab{font-family:"Spline Sans Mono",monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+     font-weight:600;color:var(--stone);background:none;border:none;border-bottom:2px solid transparent;
+     padding:10px 14px;cursor:pointer;display:flex;align-items:center;gap:7px}
+.tab:hover{color:var(--atlantic)}
+.tab i{font-style:normal;font-size:11px;font-weight:600;background:var(--line);color:var(--granite);
+       padding:2px 7px;border-radius:9px;min-width:20px;text-align:center}
+.tab.is-on{color:var(--granite);border-bottom-color:var(--flecha)}
+.tab.is-on i{background:var(--flecha)}
+
+[data-tabgruppe][data-show="offen"] [data-done="1"]{display:none}
+[data-tabgruppe][data-show="erledigt"] [data-done="0"]{display:none}
+.leer{font-family:"Spline Sans Mono",monospace;font-size:12.5px;color:var(--stone);
+      padding:18px 2px;border-top:1px dashed var(--line)}
+
+/* Abgehakte Etappe: sichtbar erledigt, aber noch lesbar. */
+.stage[data-done="1"]{background:#f2eee1;border-color:#cfc6b0;opacity:.85}
+.stage[data-done="1"] h3{text-decoration:line-through;text-decoration-color:var(--stone);text-decoration-thickness:1px}
+.stage[data-done="1"] .mojon .km{color:var(--ok)}
+.tagab{display:flex;align-items:center;justify-content:center;gap:5px;margin-top:12px;
+       padding-top:10px;border-top:1px solid var(--line);cursor:pointer}
+.tagab input{width:17px;height:17px;accent-color:var(--ok);cursor:pointer}
+.tagab span{font-family:"Spline Sans Mono",monospace;font-size:9.5px;letter-spacing:.08em;
+            text-transform:uppercase;color:var(--stone)}
+.stage[data-done="1"] .tagab span{color:var(--ok);font-weight:600}
+
+/* Stempel je Tag — ab Spanien zwei. */
+.stempel{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px;
+         padding-top:10px;border-top:1px dashed var(--line)}
+.stempel .slabel{font-family:"Spline Sans Mono",monospace;font-size:10.5px;letter-spacing:.09em;
+                 text-transform:uppercase;color:var(--stone)}
+.stempel .sbox{cursor:pointer;line-height:0}
+.stempel .sbox input{position:absolute;opacity:0;width:0;height:0}
+.stempel .sbox span{display:inline-block;width:22px;height:22px;border:1.5px dashed var(--line);
+                    border-radius:50%;background:#fff;transition:all .15s ease}
+.stempel .sbox input:checked + span{border:1.5px solid var(--flecha);background:var(--flecha);
+                    box-shadow:inset 0 0 0 3px var(--paper-2)}
+.stempel .sbox input:focus-visible + span{outline:2px solid var(--atlantic);outline-offset:2px}
+.stempel .swarn{font-size:12.5px;color:#a4341f;font-weight:600}
+
+/* Fortschritt auf dem Weg */
+.weg{background:var(--granite);color:var(--paper);padding:20px 22px;margin-bottom:18px}
+.wegkopf{display:flex;justify-content:space-between;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+.wegtitel{font-family:"Spline Sans Mono",monospace;font-size:11px;letter-spacing:.22em;
+          text-transform:uppercase;color:var(--flecha)}
+.wegzahl{font-family:"Fraunces",serif;font-size:17px}
+.wegzahl b{font-size:26px;font-weight:900;color:var(--flecha)}
+.wegbalken{display:block;height:9px;background:#3a444a;overflow:hidden}
+.wegbalken i{display:block;height:100%;background:var(--flecha);width:0;transition:width .5s ease}
+.wegfuss{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-top:10px;
+         font-family:"Spline Sans Mono",monospace;font-size:11.5px;color:#b3ad9c}
+.stempelzahl.fehlt{color:#f0a08c;font-weight:600}
+
+/* Equipment zum Abhaken */
+.eqcard h4 .eqcount{font-family:"Spline Sans Mono",monospace;font-size:11px;font-weight:600;
+                    color:var(--stone);float:right;padding-top:5px}
+.eqcard li::before{display:none}
+.eqcard li{padding-left:0}
+.eqcard li label{display:flex;gap:9px;align-items:flex-start;cursor:pointer}
+.eqcard li input{margin-top:3px;width:16px;height:16px;flex:0 0 auto;accent-color:var(--ok);cursor:pointer}
+.eqcard li[data-done="1"] span{text-decoration:line-through;color:var(--stone)}
+.eqcard .leer{padding:6px 0;border:none;font-size:12px}
+
 .lockbar{background:#2b3338;color:#e4ddca;border-bottom:1px solid var(--line-dark);padding:10px 0;font-family:"Spline Sans Mono",monospace;font-size:12px}
 .lockbar .wrap{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
 .lockbar form{display:flex;gap:8px;align-items:center}

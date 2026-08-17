@@ -57,6 +57,47 @@ final class Repo
         return $this->db->all('SELECT * FROM stages ORDER BY seq');
     }
 
+    /**
+     * Wie weit ist er? Gerechnet wird aus den abgehakten Etappen, nicht aus
+     * dem Datum — wer einen Tag mit dem Bus abkürzt, hat die Kilometer nicht.
+     *
+     * @return array{gelaufen:float,gesamt:float,rest:float,prozent:int,etappen:int,etappen_gesamt:int}
+     */
+    public function wegProgress(): array
+    {
+        $gesamt   = round((float) ($this->db->value('SELECT COALESCE(SUM(km_walk), 0) FROM stages') ?? 0), 1);
+        $gelaufen = round((float) ($this->db->value('SELECT COALESCE(SUM(km_walk), 0) FROM stages WHERE done = 1') ?? 0), 1);
+
+        // Der Ankunftstag in Porto zählt als Etappe nicht mit — er hat 0 km.
+        $etappenGesamt = (int) $this->db->value('SELECT COUNT(*) FROM stages WHERE km_walk > 0');
+        $etappen       = (int) $this->db->value('SELECT COUNT(*) FROM stages WHERE km_walk > 0 AND done = 1');
+
+        return [
+            'gelaufen'       => $gelaufen,
+            'gesamt'         => $gesamt,
+            'rest'           => round($gesamt - $gelaufen, 1),
+            'prozent'        => $gesamt > 0 ? (int) round($gelaufen / $gesamt * 100) : 0,
+            'etappen'        => $etappen,
+            'etappen_gesamt' => $etappenGesamt,
+        ];
+    }
+
+    /** @return array{noetig:int,da:int,fehlt:int} */
+    public function stempelProgress(): array
+    {
+        $noetig = (int) $this->db->value('SELECT COALESCE(SUM(stamps_needed), 0) FROM stages');
+        $da     = (int) $this->db->value('SELECT COALESCE(SUM(stamps_done), 0) FROM stages');
+
+        // Fehlend heißt: an einem bereits erledigten Tag fehlt ein Stempel.
+        // Was noch vor einem liegt, fehlt nicht — das kommt ja noch.
+        $fehlt = (int) $this->db->value(
+            'SELECT COALESCE(SUM(stamps_needed - stamps_done), 0)
+               FROM stages WHERE done = 1 AND stamps_done < stamps_needed'
+        );
+
+        return ['noetig' => $noetig, 'da' => $da, 'fehlt' => $fehlt];
+    }
+
     /** Schritte für „Ankunft & Heimreise", nach Phase gruppiert. */
     public function planSteps(string $phase): array
     {
@@ -179,6 +220,46 @@ final class Repo
             [$actual, date('c'), $id]
         );
         return $stmt->rowCount() > 0;
+    }
+
+    /** Etappe als gelaufen markieren (oder das Häkchen wieder wegnehmen). */
+    public function setStageDone(int $id, bool $done): bool
+    {
+        $stmt = $this->db->run(
+            'UPDATE stages SET done = ?, done_at = ? WHERE id = ?',
+            [$done ? 1 : 0, $done ? date('c') : null, $id]
+        );
+        return $stmt->rowCount() > 0;
+    }
+
+    /** Zahl der gesammelten Stempel eines Tages setzen. */
+    public function setStageStamps(int $id, int $anzahl): bool
+    {
+        $noetig = $this->db->value('SELECT stamps_needed FROM stages WHERE id = ?', [$id]);
+        if ($noetig === null) {
+            return false;
+        }
+        $anzahl = max(0, min((int) $noetig, $anzahl));
+        $this->db->run('UPDATE stages SET stamps_done = ? WHERE id = ?', [$anzahl, $id]);
+        return true;
+    }
+
+    public function toggleEquipmentItem(int $id, bool $checked): bool
+    {
+        $stmt = $this->db->run(
+            'UPDATE equipment_items SET checked = ?, checked_at = ? WHERE id = ?',
+            [$checked ? 1 : 0, $checked ? date('c') : null, $id]
+        );
+        return $stmt->rowCount() > 0;
+    }
+
+    /** @return array{done:int,total:int} */
+    public function equipmentProgress(): array
+    {
+        return [
+            'done'  => (int) $this->db->value('SELECT COUNT(*) FROM equipment_items WHERE checked = 1'),
+            'total' => (int) $this->db->value('SELECT COUNT(*) FROM equipment_items'),
+        ];
     }
 
     /** Buchungsstand einer Etappe pflegen. */
