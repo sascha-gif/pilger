@@ -26,6 +26,13 @@ git reset --hard --quiet origin/main
 
 # --build, weil die Änderungen im Image stecken; ohne Änderung am Dockerfile
 # nutzt Docker seinen Zwischenspeicher und ist in Sekunden durch.
-docker compose up -d --build
+# --remove-orphans räumt Container weg, deren Dienst es nicht mehr gibt —
+# sonst blockiert ein umbenannter Dienst den Namen, den der neue haben will.
+if ! docker compose up -d --build --remove-orphans; then
+  echo "Neustart mit belegten Namen fehlgeschlagen — Container abräumen und neu aufbauen."
+  # down ohne -v: die benannten Volumes und damit alle Daten bleiben erhalten.
+  docker compose down --remove-orphans
+  docker compose up -d --build
+fi
 
 echo "Aktualisiert auf ${after:0:7}"
