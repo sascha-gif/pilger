@@ -41,6 +41,11 @@ git reset --hard --quiet origin/main
 # nutzt Docker seinen Zwischenspeicher und ist in Sekunden durch.
 # --remove-orphans räumt Container weg, deren Dienst es nicht mehr gibt —
 # sonst blockiert ein umbenannter Dienst den Namen, den der neue haben will.
+# Stand und Bauzeit ins Image geben, damit die Seite selbst sagen kann,
+# was gerade laeuft.
+export GIT_COMMIT="$(git rev-parse --short HEAD)"
+export BUILD_TIME="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
 if ! docker compose up -d --build --remove-orphans; then
   echo "Start fehlgeschlagen — Container abräumen und neu aufbauen."
   # down ohne -v: die benannten Volumes und damit alle Daten bleiben erhalten.

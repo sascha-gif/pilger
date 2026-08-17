@@ -483,3 +483,6 @@ footer a{color:var(--flecha)}
   header.hero,.anchor-day,footer{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 .gsd .tb-hinweis{display:flex;flex-direction:column;gap:5px;margin-top:10px;max-width:40rem}
+footer .stand{font-family:"Spline Sans Mono",monospace;font-size:11px;color:#6f6a60}
+footer .stand a{color:#a49c8b;text-decoration:none;border-bottom:1px dotted #6f6a60}
+footer .stand a:hover{color:var(--flecha);border-bottom-color:var(--flecha)}

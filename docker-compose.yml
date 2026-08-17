@@ -9,7 +9,13 @@
 
 services:
   app:
-    build: .
+    build:
+      context: .
+      # Damit im Seitenfuss steht, welcher Stand wirklich laeuft. Ohne das
+      # bleibt "ist es schon deployt?" eine Frage, die niemand beantworten kann.
+      args:
+        GIT_COMMIT: ${GIT_COMMIT:-unbekannt}
+        BUILD_TIME: ${BUILD_TIME:-}
     image: pilger-app:latest
     container_name: pilger-app
     restart: unless-stopped

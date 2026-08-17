@@ -360,22 +360,30 @@ final class Gesundheit
      */
     private function rollUp(string $typ, string $von, string $bis, string $token): array
     {
-        $ende = (new DateTimeImmutable($bis))->modify('+1 day');
+        $start = new DateTimeImmutable($von);
+        $ende  = (new DateTimeImmutable($bis))->modify('+1 day');
 
-        $antwort = $this->postJson(
+        // pageSize ist bei dieser Schnittstelle keine reine Obergrenze: Google
+        // rechnet `window_size_days * page_size` als abgedeckte Dauer und weist
+        // ab, wenn die über der Grenze des Datentyps liegt (90 Tage, bei Puls,
+        // aktiven Minuten und Kalorien 14). Ein grosszügiges pageSize=1000
+        // bedeutet also 1000 Tage und scheitert immer. Deshalb genau so viele
+        // Seiten wie Tage im Abschnitt — mehr Punkte kann es bei Tagesfenstern
+        // gar nicht geben.
+        $tage = max(1, (int) $start->diff($ende)->days);
+
+        return $this->postJson(
             self::BASIS . $typ . '/dataPoints:dailyRollUp',
             [
                 'range' => [
-                    'start' => ['date' => self::datum(new DateTimeImmutable($von))],
+                    'start' => ['date' => self::datum($start)],
                     'end'   => ['date' => self::datum($ende)],
                 ],
                 'windowSizeDays' => 1,
-                'pageSize'       => 1000,
+                'pageSize'       => $tage,
             ],
             $token
         );
-
-        return $antwort;
     }
 
     /**

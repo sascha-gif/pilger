@@ -29,6 +29,12 @@ RUN sed -ri 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-avail
 RUN printf 'ServerName pilger.milsh.com\n' > /etc/apache2/conf-available/servername.conf \
  && a2enconf servername
 
+# Welcher Stand steckt in diesem Image? Steht spaeter im Seitenfuss.
+ARG GIT_COMMIT=unbekannt
+ARG BUILD_TIME=
+ENV PILGER_COMMIT=$GIT_COMMIT
+ENV PILGER_BUILD_TIME=$BUILD_TIME
+
 WORKDIR /var/www/html
 COPY . /var/www/html
 
