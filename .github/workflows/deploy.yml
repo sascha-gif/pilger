@@ -88,13 +88,41 @@ jobs:
           if [ -n "$SSH_KEY" ]; then echo "Zugang: SSH-Schlüssel"; else echo "Zugang: Passwort"; fi
           echo "Alle Pflicht-Secrets vorhanden, DEPLOY_PATH sieht plausibel aus."
 
+      - name: Server erreichbar? SSH-Port prüfen
+        run: |
+          port="${SSH_PORT:-22}"
+          echo "Prüfe $SSH_HOST:$port …"
+          if timeout 8 bash -c "cat < /dev/null > /dev/tcp/$SSH_HOST/$port" 2>/dev/null; then
+            echo "Port $port ist offen."
+            exit 0
+          fi
+
+          echo "Port $port antwortet nicht. Suche nach einem alternativen SSH-Port …"
+          found=""
+          for p in 22 2222 2022 2200 22222 62222 8022; do
+            if timeout 4 bash -c "cat < /dev/null > /dev/tcp/$SSH_HOST/$p" 2>/dev/null; then
+              found="$found $p"
+            fi
+          done
+
+          if [ -n "$found" ]; then
+            echo "::error::SSH-Port $port ist zu. Offen sind dagegen:$found — bitte das Secret SSH_PORT auf den passenden Wert setzen."
+          else
+            echo "::error::Auf $SSH_HOST ist kein SSH-Port erreichbar (geprüft: 22 2222 2022 2200 22222 62222 8022). Entweder läuft SSH auf einem anderen Port, oder die Firewall lässt nur bestimmte Adressen zu — GitHub-Runner haben wechselnde IPs und brauchen daher offenen Zugang. Siehe docs/DEPLOYMENT.md."
+          fi
+          exit 1
+
       - name: SSH-Zugang einrichten
         env:
           SSH_KEY: ${{ secrets.SSH_KEY }}
         run: |
           port="${SSH_PORT:-22}"
           mkdir -p ~/.ssh ~/bin
-          ssh-keyscan -p "$port" -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          if ssh-keyscan -T 10 -p "$port" -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null; then
+            echo "Hostkey übernommen."
+          else
+            echo "Hinweis: ssh-keyscan lieferte keinen Hostkey — es wird StrictHostKeyChecking=accept-new verwendet."
+          fi
           chmod 644 ~/.ssh/known_hosts
 
           # dssh kapselt den Unterschied zwischen Schlüssel und Passwort,
@@ -102,19 +130,21 @@ jobs:
           if [ -n "$SSH_KEY" ]; then
             printf '%s\n' "$SSH_KEY" > ~/.ssh/id_deploy
             chmod 600 ~/.ssh/id_deploy
-            printf '#!/bin/sh\nexec ssh -i "$HOME/.ssh/id_deploy" -p %s "$@"\n' "$port" > ~/bin/dssh
+            printf '#!/bin/sh\nexec ssh -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -i "$HOME/.ssh/id_deploy" -p %s "$@"\n' "$port" > ~/bin/dssh
           else
             sudo apt-get update -qq
             sudo apt-get install -y -qq sshpass
-            printf '#!/bin/sh\nexec sshpass -e ssh -p %s "$@"\n' "$port" > ~/bin/dssh
+            printf '#!/bin/sh\nexec sshpass -e ssh -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -p %s "$@"\n' "$port" > ~/bin/dssh
           fi
           chmod +x ~/bin/dssh
           echo "$HOME/bin" >> "$GITHUB_PATH"
 
       - name: Verbindung testen
         run: |
-          dssh -o BatchMode=no -o StrictHostKeyChecking=yes "$SSH_USER@$SSH_HOST" \
-            'echo "verbunden als $(whoami) auf $(hostname)"; php -v | head -1 || echo "ACHTUNG: kein php auf dem Server gefunden"'
+          if ! dssh "$SSH_USER@$SSH_HOST" 'echo "verbunden als $(whoami) auf $(hostname)"; php -v | head -1 || echo "ACHTUNG: kein php auf dem Server gefunden"; command -v rsync >/dev/null || echo "ACHTUNG: kein rsync auf dem Server gefunden"'; then
+            echo "::error::Anmeldung an $SSH_HOST fehlgeschlagen. Prüfe SSH_USER und SSH_PASSWORD bzw. SSH_KEY — oder ob der Server Passwort-Anmeldung überhaupt erlaubt (PasswordAuthentication in der sshd-Konfiguration)."
+            exit 1
+          fi
 
       - name: Konfiguration aus Secrets bauen
         run: |
