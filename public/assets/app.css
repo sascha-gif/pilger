@@ -51,6 +51,16 @@ section + section{border-top:1px solid var(--line)}
 .slot time{font-family:"Spline Sans Mono",monospace;font-weight:600;font-size:14px;color:var(--atlantic)}
 .slot .txt{margin-top:2px;color:var(--ink)}
 .slot .txt b{font-weight:600}
+/* Abschnitt „Ankunft & Heimreise" — dieselbe Zeitleiste wie beim Tagesablauf,
+   nur mit Überschrift, Fließtext und Hinweis je Schritt. */
+.phase-head{font-family:"Fraunces",serif;font-size:20px;font-weight:600;margin:6px 0 18px}
+.day + .phase-head{margin-top:34px}
+.slot .step-title{display:block;font-weight:700;font-size:15.5px;margin-bottom:3px}
+.slot .step-body{display:block;font-size:14.5px}
+.slot .step-note{display:block;font-size:13.5px;color:var(--stone);margin-top:6px;
+  padding-left:11px;border-left:2px solid var(--line)}
+.slot .step-note b{color:var(--ink);font-weight:600}
+
 .pill-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:26px}
 .pill{font-family:"Spline Sans Mono",monospace;font-size:12px;background:var(--granite);color:var(--paper);padding:6px 12px;border-radius:2px}
 .pill b{color:var(--flecha)}

@@ -37,6 +37,8 @@ $profile   = $repo->profileFacts();
 $pills     = $repo->nutritionPills();
 $slots     = $repo->nutritionSlots();
 $travel    = $repo->travelCards();
+$ankunft   = $repo->planSteps('ankunft');
+$ziel      = $repo->planSteps('ziel');
 $stages    = $repo->stages();
 $equipment = $repo->equipment();
 $packCats  = $repo->packList();
@@ -124,11 +126,12 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
     <a href="#profil">01 · Profil</a>
     <a href="#ernaehrung">02 · Ernährung</a>
     <a href="#anreise">03 · Anreise</a>
-    <a href="#etappen">04 · Etappen</a>
-    <a href="#equipment">05 · Equipment</a>
-    <a href="#packliste">06 · Packliste</a>
-    <a href="#kosten">07 · Kosten</a>
-    <a href="#countdown">08 · Countdown</a>
+    <a href="#ankunft">04 · Ankunft</a>
+    <a href="#etappen">05 · Etappen</a>
+    <a href="#equipment">06 · Equipment</a>
+    <a href="#packliste">07 · Packliste</a>
+    <a href="#kosten">08 · Kosten</a>
+    <a href="#countdown">09 · Countdown</a>
   </div>
 </nav>
 
@@ -182,9 +185,48 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
   </div>
 </section>
 
+<section id="ankunft">
+  <div class="wrap reveal">
+    <div class="sec-head"><div class="sec-num">04</div><h2>Ankunft &amp; Heimreise<small>Was an den beiden Enden konkret zu tun ist — Schritt für Schritt</small></h2></div>
+
+    <h3 class="phase-head">Porto — ankommen und startklar werden</h3>
+    <div class="day">
+      <?php foreach ($ankunft as $s): ?>
+        <div class="slot<?= $s['accent'] ? ' acc' : '' ?>">
+          <time><?= h($s['time_label']) ?></time>
+          <div class="txt">
+            <span class="step-title"><?= h($s['title']) ?></span>
+            <?php if ($s['body']): ?><span class="step-body"><?= rich($s['body']) ?></span><?php endif; ?>
+            <?php if ($s['note']): ?><span class="step-note"><?= rich($s['note']) ?></span><?php endif; ?>
+          </div>
+        </div>
+      <?php endforeach; ?>
+    </div>
+
+    <h3 class="phase-head">Santiago — ankommen und heimreisen</h3>
+    <div class="day">
+      <?php foreach ($ziel as $s): ?>
+        <div class="slot<?= $s['accent'] ? ' acc' : '' ?>">
+          <time><?= h($s['time_label']) ?></time>
+          <div class="txt">
+            <span class="step-title"><?= h($s['title']) ?></span>
+            <?php if ($s['body']): ?><span class="step-body"><?= rich($s['body']) ?></span><?php endif; ?>
+            <?php if ($s['note']): ?><span class="step-note"><?= rich($s['note']) ?></span><?php endif; ?>
+          </div>
+        </div>
+      <?php endforeach; ?>
+    </div>
+
+    <div class="pl-note" style="margin-top:26px;margin-bottom:0">
+      <b>Stand August 2026.</b> Fahrpreise und Fahrpläne ändern sich — Metro-Ticket und Flughafenbus
+      kurz vor dem Abflug noch einmal prüfen. Die Wege und Adressen bleiben.
+    </div>
+  </div>
+</section>
+
 <section id="etappen">
   <div class="wrap reveal">
-    <div class="sec-head"><div class="sec-num">04</div><h2>Etappen &amp; Unterkünfte<small>Budget-Ausrichtung · ohne Gepäcktransport · Booking-Links nach Preis sortiert (live prüfen, Sept. schwankt)</small></h2></div>
+    <div class="sec-head"><div class="sec-num">05</div><h2>Etappen &amp; Unterkünfte<small>Budget-Ausrichtung · ohne Gepäcktransport · Booking-Links nach Preis sortiert (live prüfen, Sept. schwankt)</small></h2></div>
 
     <div class="mapwrap reveal">
       <div id="map"></div>
@@ -230,7 +272,7 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
 
 <section id="equipment">
   <div class="wrap reveal">
-    <div class="sec-head"><div class="sec-num">05</div><h2>Equipment &amp; Gelenkschutz<small>Du trägst alles selbst — Packgewicht ist jetzt der kritische Faktor</small></h2></div>
+    <div class="sec-head"><div class="sec-num">06</div><h2>Equipment &amp; Gelenkschutz<small>Du trägst alles selbst — Packgewicht ist jetzt der kritische Faktor</small></h2></div>
     <div class="eq">
       <?php foreach ($equipment as $card): ?>
         <div class="eqcard">
@@ -248,7 +290,7 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
 
 <section id="packliste">
   <div class="wrap reveal">
-    <div class="sec-head"><div class="sec-num">06</div><h2>Packliste<small>Häkchen werden gespeichert — Stand gilt auf allen Geräten</small></h2></div>
+    <div class="sec-head"><div class="sec-num">07</div><h2>Packliste<small>Häkchen werden gespeichert — Stand gilt auf allen Geräten</small></h2></div>
     <?php if (isset($notes['pack_intro'])): ?>
       <div class="pl-note"><?= rich($notes['pack_intro']) ?></div>
     <?php endif; ?>
@@ -295,7 +337,7 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
 
 <section id="kosten">
   <div class="wrap reveal">
-    <div class="sec-head"><div class="sec-num">07</div><h2>Kosten<small>Beträge werden gespeichert · Summe rechnet live · leere Felder zählen als 0</small></h2></div>
+    <div class="sec-head"><div class="sec-num">08</div><h2>Kosten<small>Beträge werden gespeichert · Summe rechnet live · leere Felder zählen als 0</small></h2></div>
     <div class="pcat">
       <table class="ctbl">
         <tr><th>Position</th><th class="det">Detail</th><th class="r">Betrag €</th><th>Status</th></tr>
@@ -325,7 +367,7 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
 
 <section id="countdown">
   <div class="wrap reveal">
-    <div class="sec-head"><div class="sec-num">08</div><h2>Countdown –5 kg<small>93 → ~88 kg bis zum Abflug · ~0,7–1 kg/Woche · Ist-Gewicht wird gespeichert</small></h2></div>
+    <div class="sec-head"><div class="sec-num">09</div><h2>Countdown –5 kg<small>93 → ~88 kg bis zum Abflug · ~0,7–1 kg/Woche · Ist-Gewicht wird gespeichert</small></h2></div>
     <?php if (isset($notes['weight_intro'])): ?>
       <div class="pl-note"><?= rich($notes['weight_intro']) ?></div>
     <?php endif; ?>

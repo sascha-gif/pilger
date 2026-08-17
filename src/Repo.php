@@ -57,6 +57,12 @@ final class Repo
         return $this->db->all('SELECT * FROM stages ORDER BY seq');
     }
 
+    /** Schritte für „Ankunft & Heimreise", nach Phase gruppiert. */
+    public function planSteps(string $phase): array
+    {
+        return $this->db->all('SELECT * FROM plan_steps WHERE phase = ? ORDER BY seq', [$phase]);
+    }
+
     /** Etappen mit Koordinaten, für die Karte. */
     public function mapStops(): array
     {

@@ -36,6 +36,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/002_kuestenroute.php';
             migration_002($db);
         });
+
+        // Abschnitt „Ankunft & Heimreise" — Schritt für Schritt an beiden Enden.
+        $apply('003_ankunft', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/003_ankunft.php';
+            migration_003($db);
+        });
     }
 
     /** @return array<int,string> */
