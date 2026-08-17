@@ -131,6 +131,16 @@ try {
             }
             json_out(['ok' => true]);
 
+        case 'wetter':
+            // Kann ein paar Sekunden dauern — deshalb ruft die Seite das erst
+            // nach dem Rendern auf und nicht beim Aufbau.
+            $aussen = new Aussen($db, $repo);
+            json_out(['ok' => true] + $aussen->wetter(!empty($body['erneuern'])));
+
+        case 'hoehen':
+            $aussen = new Aussen($db, $repo);
+            json_out(['ok' => true] + $aussen->hoehen(!empty($body['erneuern'])));
+
         case 'state':
             $p = $repo->packProgress();
             $total = $repo->costTotal();

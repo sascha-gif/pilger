@@ -358,6 +358,109 @@
     });
   });
 
+  /* ---------- Wetter und Höhenprofil ------------------------------------- */
+  /* Beides holt der Server und legt es in der Datenbank ab. Der Aufruf kommt
+     erst nach dem Rendern: die Seite soll nicht darauf warten, dass irgendwo
+     ein fremder Dienst antwortet. Geht es schief, bleibt die Zeile leer statt
+     eine Fehlermeldung in den Plan zu schreiben. */
+  var ZEICHEN = { 0:'☀', 1:'☀', 2:'⛅', 3:'☁', 45:'🌫', 48:'🌫', 51:'🌦', 53:'🌦', 55:'🌦',
+                  61:'🌧', 63:'🌧', 65:'🌧', 80:'🌦', 81:'🌧', 82:'🌧', 95:'⛈', 96:'⛈', 99:'⛈' };
+
+  function grad(v) {
+    return v === null || v === undefined ? '–' : Math.round(v) + '°';
+  }
+
+  function malWetter(daten) {
+    var stand = null;
+    Object.keys(daten.tage || {}).forEach(function (id) {
+      var w = daten.tage[id];
+      var box = document.querySelector('.tagdaten[data-stage="' + id + '"]');
+      if (!box) return;
+      var feld = box.querySelector('.wetterfeld');
+      var zeichen = w.code === null || w.code === undefined ? '📅' : (ZEICHEN[w.code] || '☁');
+      var teile = [grad(w.max) + ' / ' + grad(w.min)];
+      if (w.regenp !== null && w.regenp !== undefined) teile.push(w.regenp + ' % Regen');
+      if (w.wind) teile.push(Math.round(w.wind) + ' km/h Wind');
+
+      feld.innerHTML = '<b>' + zeichen + '</b> ' + teile.join(' · ') +
+        '<em>' + (w.quelle === 'vorhersage' ? 'Vorhersage' : 'Mittel aus ' + w.jahre + ' Jahren') + '</em>';
+      feld.classList.add('da');
+      box.hidden = false;
+      if (w.quelle) stand = w.quelle;
+    });
+    return stand;
+  }
+
+  /* Kleine Kurve aus den Höhenwerten — kein Diagramm-Paket, nur ein Pfad. */
+  function kurve(punkte, breite, hoehe) {
+    var min = Math.min.apply(null, punkte);
+    var max = Math.max.apply(null, punkte);
+    var spanne = Math.max(max - min, 20);   // sonst wird aus 3 m Welligkeit ein Alpenpanorama
+    var schritt = breite / (punkte.length - 1);
+    var d = punkte.map(function (m, i) {
+      var y = hoehe - ((m - min) / spanne) * (hoehe - 2) - 1;
+      return (i ? 'L' : 'M') + (i * schritt).toFixed(1) + ' ' + y.toFixed(1);
+    }).join(' ');
+    return { d: d, flaeche: d + ' L' + breite + ' ' + hoehe + ' L0 ' + hoehe + ' Z' };
+  }
+
+  function malHoehen(daten) {
+    Object.keys(daten.etappen || {}).forEach(function (id) {
+      var e = daten.etappen[id];
+      if (!e || !e.punkte || e.punkte.length < 2) return;
+      var box = document.querySelector('.tagdaten[data-stage="' + id + '"]');
+      if (!box) return;
+      var feld = box.querySelector('.hoehenfeld');
+      var k = kurve(e.punkte, 120, 26);
+      feld.innerHTML =
+        '<svg viewBox="0 0 120 26" preserveAspectRatio="none" aria-hidden="true">' +
+        '<path class="fl" d="' + k.flaeche + '"/><path class="ln" d="' + k.d + '"/></svg>' +
+        '<span>↑ ' + e.auf + ' m · ↓ ' + e.ab + ' m<em>höchster Punkt ' + e.max + ' m</em></span>';
+      feld.classList.add('da');
+      box.hidden = false;
+    });
+  }
+
+  function ladeAussen() {
+    if (!document.querySelector('.tagdaten')) return;
+    var quelle = document.getElementById('datenQuelle');
+    var texte = [];
+
+    fetch(API, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'wetter' })
+    }).then(function (r) { return r.json(); }).then(function (d) {
+      if (!d.ok) return;
+      var art = malWetter(d);
+      if (art) {
+        texte.push(art === 'vorhersage'
+          ? 'Wetter: Vorhersage von Open-Meteo'
+          : 'Wetter: Mittel derselben Kalendertage der Vorjahre (Open-Meteo) — eine echte Vorhersage gibt es erst 16 Tage vorher');
+        quelle.textContent = texte.join(' · ');
+        quelle.hidden = false;
+      }
+    }).catch(function () { /* ohne Netz eben ohne Wetter */ });
+
+    fetch(API, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'hoehen' })
+    }).then(function (r) { return r.json(); }).then(function (d) {
+      if (!d.ok) return;
+      malHoehen(d);
+      if (d.etappen && Object.keys(d.etappen).length) {
+        texte.push('Höhen: Geländemodell entlang der hinterlegten Küstenlinie — grober Verlauf, keine GPX-Spur');
+        quelle.textContent = texte.join(' · ');
+        quelle.hidden = false;
+      }
+    }).catch(function () { /* dito */ });
+  }
+
+  if ('requestIdleCallback' in window) {
+    requestIdleCallback(ladeAussen, { timeout: 2500 });
+  } else {
+    setTimeout(ladeAussen, 400);
+  }
+
   /* ---------- Kosten ----------------------------------------------------- */
   var euro = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' });
   var totalOut = document.getElementById('costTotal');

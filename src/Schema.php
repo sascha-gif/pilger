@@ -54,6 +54,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/005_erledigt.php';
             migration_005($db);
         });
+
+        // Zwischenspeicher für Wetter und Höhen.
+        $apply('006_aussen', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/006_aussen.php';
+            migration_006($db);
+        });
     }
 
     /** @return array<int,string> */

@@ -279,6 +279,12 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
         <div>
           <h3><?= h($st['title']) ?><?php if ($st['title_suffix']): ?> <span style="font-size:14px;color:var(--stone)"><?= h($st['title_suffix']) ?></span><?php endif; ?></h3>
           <?php if ($st['dist']): ?><div class="dist"><?= h($st['dist']) ?></div><?php endif; ?>
+
+          <div class="tagdaten" data-stage="<?= (int) $st['id'] ?>" hidden>
+            <span class="wetterfeld"></span>
+            <span class="hoehenfeld"></span>
+          </div>
+
           <?php if ($st['target']): ?><div class="target"><?= rich($st['target']) ?></div><?php endif; ?>
           <?php if ($st['note']): ?><div class="note"><?= rich($st['note']) ?></div><?php endif; ?>
           <?php if ($st['alt_note']): ?><div class="alt"><?= rich($st['alt_note']) ?></div><?php endif; ?>
@@ -305,6 +311,8 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
       <p class="leer" data-leer="offen" hidden>Alles abgehakt. 266 km. Das war’s.</p>
       <p class="leer" data-leer="erledigt" hidden>Noch nichts abgehakt — der erste Tag steht im Reiter nebenan.</p>
     </div>
+
+    <p class="quelle" id="datenQuelle" hidden></p>
 
   </div>
 </section>

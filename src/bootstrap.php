@@ -14,6 +14,7 @@ require APP_ROOT . '/src/Database.php';
 require APP_ROOT . '/src/Schema.php';
 require APP_ROOT . '/src/Repo.php';
 require APP_ROOT . '/src/Auth.php';
+require APP_ROOT . '/src/Aussen.php';
 
 /** @return array<string,mixed> */
 function app_config(): array
