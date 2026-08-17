@@ -72,6 +72,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/008_gesundheit.php';
             migration_008($db);
         });
+
+        // Wo es den Stempel gibt — Kartensuche je Ort, feste Adressen wo belegt.
+        $apply('009_stempelorte', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/009_stempelorte.php';
+            migration_009($db);
+        });
     }
 
     /** @return array<int,string> */

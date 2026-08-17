@@ -219,22 +219,37 @@ final class Gesundheit
         }
 
         $gesammelt = [];
+        $bericht   = [];
+
         foreach (self::TYPEN as $typ => $maxTage) {
+            $treffer = 0;
+            $fehler  = null;
+
             foreach ($this->abschnitte($von, $bis, $maxTage) as [$a, $b]) {
-                $punkte = $this->rollUp($typ, $a, $b, $token);
-                if ($punkte === null) {
-                    // Ein Typ kann fehlen — etwa weil das Konto ihn nicht führt.
-                    // Das darf die anderen nicht mitreißen.
+                $antwort = $this->rollUp($typ, $a, $b, $token);
+
+                if (isset($antwort['error'])) {
+                    // Ein Typ kann fehlen — etwa weil das Konto ihn nicht führt
+                    // oder das Recht nicht erteilt wurde. Das darf die anderen
+                    // nicht mitreißen, muss aber sichtbar sein.
+                    $fehler ??= (string) $antwort['error'];
                     continue;
                 }
-                foreach ($punkte as $p) {
+
+                foreach ($antwort['rollupDataPoints'] ?? [] as $p) {
                     $tag = $this->tagAus($p);
                     if ($tag === null) {
                         continue;
                     }
-                    $gesammelt[$tag] = ($gesammelt[$tag] ?? []) + $this->werteAus($p);
+                    $werte = $this->werteAus($p);
+                    if ($werte) {
+                        $treffer++;
+                        $gesammelt[$tag] = ($gesammelt[$tag] ?? []) + $werte;
+                    }
                 }
             }
+
+            $bericht[$typ] = ['tage' => $treffer, 'fehler' => $fehler];
         }
 
         foreach ($gesammelt as $tag => $werte) {
@@ -249,9 +264,12 @@ final class Gesundheit
         return [
             'ok'      => true,
             'meldung' => $gesammelt
-                ? count($gesammelt) . ' Tage geholt.'
-                : 'Google hat für den Zeitraum nichts geliefert — meist heißt das, die Uhr hat nicht synchronisiert.',
+                ? count($gesammelt) . ' Tage geholt (' . $von . ' bis ' . $bis . ').'
+                : 'Google hat für ' . $von . ' bis ' . $bis . ' nichts geliefert. '
+                  . 'Entweder hat die Uhr nicht synchronisiert, oder die Daten liegen unter einem '
+                  . 'anderen Google-Konto als dem, mit dem verbunden wurde.',
             'tage'    => count($gesammelt),
+            'bericht' => $bericht,
         ];
     }
 
@@ -276,7 +294,7 @@ final class Gesundheit
      * Ein Datentyp, ein Zeitraum. Das Ende ist bei Google ausschließend —
      * wer den letzten Tag mit haben will, muss einen Tag weiter fragen.
      */
-    private function rollUp(string $typ, string $von, string $bis, string $token): ?array
+    private function rollUp(string $typ, string $von, string $bis, string $token): array
     {
         $ende = (new DateTimeImmutable($bis))->modify('+1 day');
 
@@ -293,7 +311,7 @@ final class Gesundheit
             $token
         );
 
-        return $antwort['rollupDataPoints'] ?? null;
+        return $antwort;
     }
 
     /** @return array{year:int,month:int,day:int} */

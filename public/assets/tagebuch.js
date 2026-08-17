@@ -490,6 +490,27 @@
     });
   }
 
+  /* Je Datentyp anzeigen, was ankam. Ein Konto fuehrt nicht zwangslaeufig
+     alles — so sieht man auf einen Blick, ob es an der Verbindung liegt oder
+     nur an einem einzelnen Wert. */
+  var NAMEN = {
+    'steps': 'Schritte', 'distance': 'Strecke', 'total-calories': 'Kalorien',
+    'heart-rate': 'Puls', 'active-minutes': 'aktive Minuten',
+    'daily-resting-heart-rate': 'Ruhepuls'
+  };
+
+  function malBericht(bericht) {
+    if (!gsdHinweis || !bericht) return;
+    gsdHinweis.innerHTML = Object.keys(bericht).map(function (typ) {
+      var b = bericht[typ];
+      var gut = b.tage > 0;
+      return '<span class="pz ' + (gut ? 'ja' : 'nein') + '">' + (gut ? '✓' : '○') +
+             ' <b>' + (NAMEN[typ] || typ) + '</b> — ' +
+             (gut ? b.tage + ' Tage' : (b.fehler ? b.fehler : 'nichts geliefert')) + '</span>';
+    }).join('');
+    gsdHinweis.classList.remove('fehler');
+  }
+
   var gsdHolen = document.getElementById('gsdHolen');
   if (gsdHolen) {
     gsdHolen.addEventListener('click', function () {
@@ -497,8 +518,8 @@
       gsdSag('wird geholt — das dauert ein paar Sekunden …');
       sendeJson({ action: 'gesundheit.holen' }).then(function (d) {
         gsdHolen.disabled = false;
-        gsdSag(d.meldung);
-        if (d.tage) setTimeout(function () { location.reload(); }, 900);
+        if (d.bericht) { malBericht(d.bericht); } else { gsdSag(d.meldung); }
+        if (d.tage) setTimeout(function () { location.reload(); }, 2500);
       }).catch(function (err) {
         gsdHolen.disabled = false;
         gsdSag(err.message, true);

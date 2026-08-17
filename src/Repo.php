@@ -98,6 +98,19 @@ final class Repo
         return ['noetig' => $noetig, 'da' => $da, 'fehlt' => $fehlt];
     }
 
+    /**
+     * Stempelstellen je Etappe.
+     * @return array<int,array<int,array<string,mixed>>> Etappen-Id => Orte
+     */
+    public function stempelOrte(): array
+    {
+        $out = [];
+        foreach ($this->db->all('SELECT * FROM stamp_spots ORDER BY stage_id, seq') as $r) {
+            $out[(int) $r['stage_id']][] = $r;
+        }
+        return $out;
+    }
+
     /** Schritte für „Ankunft & Heimreise", nach Phase gruppiert. */
     public function planSteps(string $phase): array
     {

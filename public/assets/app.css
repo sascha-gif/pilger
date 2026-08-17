@@ -247,6 +247,25 @@ footer a{color:var(--flecha)}
 .stempel .sbox input:focus-visible + span{outline:2px solid var(--atlantic);outline-offset:2px}
 .stempel .swarn{font-size:12.5px;color:#a4341f;font-weight:600}
 
+/* Wo gibt es den Stempel? */
+.sorte{margin-top:8px}
+.sorte summary{font-family:"Spline Sans Mono",monospace;font-size:11px;letter-spacing:.06em;
+               color:var(--atlantic);cursor:pointer;font-weight:600}
+.sorte summary:hover{color:var(--granite)}
+.sorte ul{list-style:none;margin:10px 0 0}
+.sorte li{padding:7px 0 7px 20px;position:relative;border-bottom:1px solid var(--line);font-size:14px}
+.sorte li:last-child{border-bottom:none}
+.sorte li::before{position:absolute;left:0;top:7px;font-size:12px}
+.sorte li.fest::before{content:"📍"}
+.sorte li.suche::before{content:"🔎"}
+.sorte li a{color:var(--granite);font-weight:600;text-decoration:none;border-bottom:1px solid var(--flecha)}
+.sorte li a:hover{color:var(--atlantic);border-bottom-color:var(--atlantic)}
+.sorte .lupe{font-family:"Spline Sans Mono",monospace;font-size:9.5px;letter-spacing:.08em;
+             text-transform:uppercase;color:var(--stone);font-weight:400;border:none;margin-left:6px}
+.sorte .adr,.sorte .hin{display:block;font-size:12.5px;color:var(--stone);margin-top:2px}
+.sorte .adr{font-family:"Spline Sans Mono",monospace;font-size:11.5px}
+.sfuss{font-size:12.5px;color:var(--stone);margin-top:10px;padding-top:8px;border-top:1px dashed var(--line)}
+
 /* Wetter und Höhenprofil je Etappe */
 .tagdaten{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:2px 0 10px}
 .tagdaten > span{display:none;align-items:center;gap:8px;background:#efe9d8;border:1px solid var(--line);
@@ -417,11 +436,11 @@ footer a{color:var(--flecha)}
 .tb-eform p.kannstand .ja{color:var(--ok);font-weight:600}
 .tb-eform p.kannstand .nein{color:var(--stone)}
 .tb-eform p.tb-hinweis{margin-top:12px;font-size:13px;display:flex;flex-direction:column;gap:6px}
-.tb-eform .pz{font-family:"Public Sans",system-ui,sans-serif;font-size:13px;line-height:1.45;
+.tb-eform .pz,.gsd .pz{font-family:"Public Sans",system-ui,sans-serif;font-size:13px;line-height:1.45;
               border-left:3px solid var(--line);padding:5px 10px}
-.tb-eform .pz b{font-weight:600}
-.tb-eform .pz.ja{border-left-color:var(--ok);color:var(--ink)}
-.tb-eform .pz.nein{border-left-color:#a4341f;color:#7e2717;background:#fbeae6}
+.tb-eform .pz b,.gsd .pz b{font-weight:600}
+.tb-eform .pz.ja,.gsd .pz.ja{border-left-color:var(--ok);color:var(--ink)}
+.tb-eform .pz.nein,.gsd .pz.nein{border-left-color:#a4341f;color:#7e2717;background:#fbeae6}
 .tb-eform i{font-style:normal;font-family:"Spline Sans Mono",monospace;font-size:12.5px;
             background:#efe9d8;padding:1px 5px}
 
@@ -463,3 +482,4 @@ footer a{color:var(--flecha)}
   body{background:#fff}.book{border:1px solid var(--granite)}
   header.hero,.anchor-day,footer{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
+.gsd .tb-hinweis{display:flex;flex-direction:column;gap:5px;margin-top:10px;max-width:40rem}

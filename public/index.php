@@ -32,6 +32,7 @@ $kann      = $tagebuch->faehigkeiten();
 $healthTage = (new Gesundheit($db))->tage();
 $weg       = $repo->wegProgress();
 $stempel   = $repo->stempelProgress();
+$stempelOrte = $repo->stempelOrte();
 
 $stagesOffen    = count(array_filter($stages, static fn ($s) => !(int) $s['done']));
 $stagesErledigt = count($stages) - $stagesOffen;
@@ -316,6 +317,29 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
               <?php endfor; ?>
               <span class="swarn"<?= ($done && $da < $noetig) ? '' : ' hidden' ?>>Tag ist abgehakt, aber es fehlt ein Stempel.</span>
             </div>
+
+            <?php $orte = $stempelOrte[(int) $st['id']] ?? []; ?>
+            <?php if ($orte): ?>
+              <details class="sorte">
+                <summary>Wo gibt es den Stempel?</summary>
+                <ul>
+                  <?php foreach ($orte as $o): ?>
+                    <li class="<?= $o['art'] === 'fest' ? 'fest' : 'suche' ?>">
+                      <a href="<?= h(maps_link($o['adresse'], $o['suche'])) ?>" target="_blank" rel="noopener">
+                        <?= h($o['name']) ?><?= $o['art'] === 'suche' ? ' <span class="lupe">auf der Karte suchen</span>' : '' ?>
+                      </a>
+                      <?php if ($o['adresse']): ?><span class="adr"><?= h($o['adresse']) ?></span><?php endif; ?>
+                      <?php if ($o['note']): ?><span class="hin"><?= h($o['note']) ?></span><?php endif; ?>
+                    </li>
+                  <?php endforeach; ?>
+                </ul>
+                <p class="sfuss">
+                  Deine Unterkunft stempelt auch — und Cafés und Bars am Weg fast immer.
+                  Die Suchen führen in den Zielort; benannte Adressen sind geprüft, die Suchen
+                  zeigen dir, was es dort <b>gerade</b> gibt. Albergues machen zu und ziehen um.
+                </p>
+              </details>
+            <?php endif; ?>
           <?php endif; ?>
 
           <?php if ($st['booking_url']): ?>

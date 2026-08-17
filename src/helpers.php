@@ -97,6 +97,17 @@ function bild_kachel(array $f, bool $gross): string
         . '</figure>';
 }
 
+/**
+ * Link auf Google Maps. Bei einer Adresse zeigt er genau dorthin, bei einer
+ * Suche öffnet er die Suche im richtigen Ort — das ist bei Albergues das
+ * Ehrlichere, weil die zumachen und umziehen.
+ */
+function maps_link(?string $adresse, ?string $suche): string
+{
+    $frage = $adresse !== null && $adresse !== '' ? $adresse : (string) $suche;
+    return 'https://www.google.com/maps/search/?api=1&query=' . rawurlencode($frage);
+}
+
 /** JSON-Antwort senden und beenden. */
 function json_out(array $payload, int $status = 200): void
 {
