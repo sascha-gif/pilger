@@ -8,25 +8,34 @@ declare(strict_types=1);
  */
 final class Schema
 {
-    public const VERSION = '001_init';
-
     public static function migrate(Database $db): void
     {
         $db->exec('CREATE TABLE IF NOT EXISTS schema_migrations (version VARCHAR(64) NOT NULL PRIMARY KEY, applied_at VARCHAR(32) NOT NULL)');
 
-        $done = $db->value('SELECT version FROM schema_migrations WHERE version = ?', [self::VERSION]);
-        if ($done !== null) {
-            return;
-        }
+        $done = array_column($db->all('SELECT version FROM schema_migrations'), 'version');
 
-        foreach (self::tables($db->driver()) as $sql) {
-            $db->exec($sql);
-        }
+        $apply = static function (string $version, callable $fn) use ($db, $done): void {
+            if (in_array($version, $done, true)) {
+                return;
+            }
+            $fn($db);
+            $db->run('INSERT INTO schema_migrations (version, applied_at) VALUES (?, ?)', [$version, date('c')]);
+        };
 
-        require APP_ROOT . '/db/seed.php';
-        seed_database($db);
+        // Tabellen und der komplette Masterplan-Inhalt.
+        $apply('001_init', static function (Database $db): void {
+            foreach (self::tables($db->driver()) as $sql) {
+                $db->exec($sql);
+            }
+            require_once APP_ROOT . '/db/seed.php';
+            seed_database($db);
+        });
 
-        $db->run('INSERT INTO schema_migrations (version, applied_at) VALUES (?, ?)', [self::VERSION, date('c')]);
+        // Küstenroute statt Geraden zwischen den Etappenorten.
+        $apply('002_kuestenroute', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/002_kuestenroute.php';
+            migration_002($db);
+        });
     }
 
     /** @return array<int,string> */

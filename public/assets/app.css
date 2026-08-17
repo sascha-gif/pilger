@@ -117,6 +117,30 @@ section + section{border-top:1px solid var(--line)}
 .pack{display:flex;flex-direction:column;gap:16px}
 .pcat{background:var(--paper-2);border:1px solid var(--line);border-top:3px solid var(--atlantic);overflow-x:auto}
 .pcat h4{font-family:"Fraunces",serif;font-size:19px;font-weight:600;padding:14px 18px 10px}
+
+/* Packliste als Aufklapper — zwölf Bereiche machen die Seite sonst sehr lang. */
+details.pcat{overflow:visible}
+details.pcat > summary{
+  display:flex;align-items:center;gap:14px;padding:13px 18px;cursor:pointer;
+  list-style:none;user-select:none;transition:background .15s ease}
+details.pcat > summary::-webkit-details-marker{display:none}
+details.pcat > summary:hover{background:#f3ecd9}
+details.pcat > summary:focus-visible{outline:2px solid var(--atlantic);outline-offset:-2px}
+details.pcat > summary h4{padding:0;flex:1;min-width:0}
+details.pcat > summary::after{
+  content:"";flex:none;width:9px;height:9px;margin-right:2px;
+  border-right:2px solid var(--stone);border-bottom:2px solid var(--stone);
+  transform:rotate(45deg) translate(-2px,-2px);transition:transform .2s ease}
+details.pcat[open] > summary::after{transform:rotate(-135deg) translate(-2px,-2px)}
+.catcount{font-family:"Spline Sans Mono",monospace;font-size:12px;color:var(--stone);white-space:nowrap}
+.catcount.full{color:var(--ok);font-weight:600}
+.ptbl-wrap{overflow-x:auto;border-top:1px solid var(--line)}
+
+.progress .toggle-all{
+  font-family:"Spline Sans Mono",monospace;font-size:11px;letter-spacing:.04em;
+  color:var(--granite);background:none;border:1px solid var(--line);border-radius:2px;
+  padding:5px 10px;cursor:pointer;white-space:nowrap}
+.progress .toggle-all:hover{border-color:var(--atlantic);color:var(--atlantic)}
 .ptbl{width:100%;border-collapse:collapse;font-size:14px}
 .ptbl th{font-family:"Spline Sans Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--stone);text-align:left;padding:6px 12px;border-bottom:1px solid var(--line)}
 .ptbl td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
@@ -193,7 +217,11 @@ footer a{color:var(--flecha)}
   .progress .bar i{transition:none}
 }
 @media print{
-  nav.toc,.lockbar,.saver{display:none}.stage:hover{transform:none;box-shadow:none}.reveal{opacity:1;transform:none}
+  nav.toc,.lockbar,.saver,.progress .toggle-all{display:none}
+  .stage:hover{transform:none;box-shadow:none}.reveal{opacity:1;transform:none}
+  /* Zugeklappte Bereiche würden sonst fehlen — vor dem Druck öffnet app.js alle. */
+  details.pcat > summary::after{display:none}
+  details.pcat > summary{background:none}
   body{background:#fff}.book{border:1px solid var(--granite)}
   header.hero,.anchor-day,footer{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }

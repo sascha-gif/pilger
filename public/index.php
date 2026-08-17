@@ -191,10 +191,14 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
       <div class="maplegend">
         <span><i class="dot" style="background:#f4b400"></i> Start / Ziel</span>
         <span><i class="dot" style="background:#1f5d6c"></i> Etappenort</span>
-        <span><i style="background:#f4b400"></i> Caminho da Costa</span>
-        <span><i style="background:#2f9c95;height:0;border-top:3px dashed #2f9c95"></i> Senda Litoral (Küste)</span>
+        <?php foreach ($mapPayload['routes'] as $r): ?>
+          <span><i style="background:<?= h($r['color']) ?><?= $r['dashed'] ? ';height:0;border-top:3px dashed ' . h($r['color']) : '' ?>"></i> <?= h($r['name']) ?></span>
+        <?php endforeach; ?>
       </div>
-      <p style="font-family:'Spline Sans Mono',monospace;font-size:11px;color:var(--stone);margin-top:8px">Über das Layer-Menü oben rechts lässt sich die Senda Litoral ein-/ausblenden.</p>
+      <p style="font-family:'Spline Sans Mono',monospace;font-size:11px;color:var(--stone);margin-top:8px">
+        Von Porto bis Caminha die Senda Litoral am Atlantik, über den Minho nach Spanien, dann die
+        galicische Küste bis Vigo. Ab Pontevedra geht es landeinwärts nach Santiago.
+      </p>
     </div>
 
     <?php foreach ($stages as $st): ?>
@@ -253,27 +257,37 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
       <span>Fortschritt</span>
       <span class="bar"><i style="width:<?= $progress['total'] ? round($progress['done'] / $progress['total'] * 100) : 0 ?>%"></i></span>
       <span class="cnt"><?= (int) $progress['done'] ?> / <?= (int) $progress['total'] ?> gepackt</span>
+      <button type="button" class="toggle-all" id="toggleAll" aria-expanded="false">alle aufklappen</button>
     </div>
 
     <div class="pack">
       <?php foreach ($packCats as $cat): ?>
-        <div class="pcat">
-          <h4><?= rich($cat['title']) ?></h4>
-          <table class="ptbl">
-            <tr><th class="c-chk"></th><th>Item</th><th>Größe/Detail</th><th>Anz.</th><th>Zweck</th></tr>
-            <?php foreach ($cat['items'] as $item): ?>
-              <tr<?= $item['checked'] ? ' class="done"' : '' ?>>
-                <td class="c-chk">
-                  <input type="checkbox" data-id="<?= (int) $item['id'] ?>"<?= $item['checked'] ? ' checked' : '' ?><?= $locked ? ' disabled' : '' ?>>
-                </td>
-                <td class="i-name"><?= h($item['name']) ?></td>
-                <td class="c-size"><?= h($item['size']) ?></td>
-                <td class="c-qty"><?= h($item['qty']) ?></td>
-                <td class="c-use"><?= rich($item['purpose']) ?></td>
-              </tr>
-            <?php endforeach; ?>
-          </table>
-        </div>
+        <?php
+          $total = count($cat['items']);
+          $done  = count(array_filter($cat['items'], static fn ($i) => (int) $i['checked'] === 1));
+        ?>
+        <details class="pcat" data-cat="<?= (int) $cat['id'] ?>">
+          <summary>
+            <h4><?= rich($cat['title']) ?></h4>
+            <span class="catcount<?= $total && $done === $total ? ' full' : '' ?>"><?= $done ?> / <?= $total ?></span>
+          </summary>
+          <div class="ptbl-wrap">
+            <table class="ptbl">
+              <tr><th class="c-chk"></th><th>Item</th><th>Größe/Detail</th><th>Anz.</th><th>Zweck</th></tr>
+              <?php foreach ($cat['items'] as $item): ?>
+                <tr<?= $item['checked'] ? ' class="done"' : '' ?>>
+                  <td class="c-chk">
+                    <input type="checkbox" data-id="<?= (int) $item['id'] ?>"<?= $item['checked'] ? ' checked' : '' ?><?= $locked ? ' disabled' : '' ?>>
+                  </td>
+                  <td class="i-name"><?= h($item['name']) ?></td>
+                  <td class="c-size"><?= h($item['size']) ?></td>
+                  <td class="c-qty"><?= h($item['qty']) ?></td>
+                  <td class="c-use"><?= rich($item['purpose']) ?></td>
+                </tr>
+              <?php endforeach; ?>
+            </table>
+          </div>
+        </details>
       <?php endforeach; ?>
     </div>
   </div>
