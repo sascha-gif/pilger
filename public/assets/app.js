@@ -282,6 +282,41 @@
     warn.hidden = !(karte.dataset.done === '1' && da < noetig);
   }
 
+  /* Die Tagesauswahl im Tagebuch zieht sofort mit: erledigte Tage rutschen
+     unter „Erledigt" ans Ende. Sie verschwinden bewusst nicht ganz — der
+     Eintrag zu einem Tag entsteht abends, wenn der Tag längst abgehakt ist. */
+  function sortiereTagAuswahl(id, erledigt) {
+    var auswahl = document.getElementById('tbTag');
+    if (!auswahl) return;
+    var option = auswahl.querySelector('option[value="' + id + '"]');
+    if (!option) return;
+
+    var zielName = erledigt ? 'erledigt' : 'offen';
+    var ziel = auswahl.querySelector('optgroup[data-gruppe="' + zielName + '"]');
+    if (!ziel) {
+      ziel = document.createElement('optgroup');
+      ziel.label = erledigt ? 'Erledigt' : 'Offen';
+      ziel.dataset.gruppe = zielName;
+      // Offen gehört nach oben, Erledigt ans Ende.
+      if (erledigt) { auswahl.appendChild(ziel); } else { auswahl.insertBefore(ziel, auswahl.firstChild); }
+    }
+
+    var vorherGewaehlt = auswahl.value === String(id);
+    var alteGruppe = option.parentElement;
+    erledigt ? ziel.insertBefore(option, ziel.firstChild) : ziel.appendChild(option);
+    if (alteGruppe && alteGruppe.tagName === 'OPTGROUP' && !alteGruppe.children.length) {
+      alteGruppe.remove();
+    }
+
+    // Stand jemand auf dem Tag, den er gerade abgehakt hat, springt die
+    // Auswahl auf den nächsten offenen — aber erst nach dem Verschieben,
+    // damit sie nicht ins Leere zeigt.
+    if (vorherGewaehlt && erledigt) {
+      var ersterOffener = auswahl.querySelector('optgroup[data-gruppe="offen"] option');
+      auswahl.value = ersterOffener ? ersterOffener.value : String(id);
+    }
+  }
+
   document.querySelectorAll('input.stagedone').forEach(function (cb) {
     cb.addEventListener('change', function () {
       var karte = cb.closest('.stage');
@@ -289,8 +324,19 @@
       karte.dataset.done = an ? '1' : '0';
       zaehleTabs('etappen', 'tabEtappenOffen', 'tabEtappenErledigt');
       malWarnung(karte);
+      sortiereTagAuswahl(Number(cb.dataset.id), an);
 
-      if (readOnly) { cb.checked = !an; karte.dataset.done = an ? '0' : '1'; return; }
+      // Zurücknehmen heißt: alles zurücknehmen, auch die Tagesauswahl. Sonst
+      // stünde sie nach einem fehlgeschlagenen Speichern falsch da.
+      var zurueck = function () {
+        cb.checked = !an;
+        karte.dataset.done = an ? '0' : '1';
+        zaehleTabs('etappen', 'tabEtappenOffen', 'tabEtappenErledigt');
+        malWarnung(karte);
+        sortiereTagAuswahl(Number(cb.dataset.id), !an);
+      };
+
+      if (readOnly) { zurueck(); return; }
 
       send({ action: 'stage.done', id: Number(cb.dataset.id), done: an })
         .then(function (data) {
@@ -300,12 +346,7 @@
             ? 'Etappe abgehakt · <b>' + String(data.weg.gelaufen).replace('.', ',') + ' km</b> gelaufen'
             : 'Häkchen entfernt');
         })
-        .catch(function () {
-          cb.checked = !an;
-          karte.dataset.done = an ? '0' : '1';
-          zaehleTabs('etappen', 'tabEtappenOffen', 'tabEtappenErledigt');
-          malWarnung(karte);
-        });
+        .catch(zurueck);
     });
   });
 

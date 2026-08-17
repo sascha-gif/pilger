@@ -482,14 +482,35 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
     ?>
 
     <div class="tb-neu">
+      <?php
+        // Erledigte Tage rutschen nach unten, damit die Auswahl mit der Reise
+        // kürzer wird. Ganz verschwinden dürfen sie nicht: der Eintrag zu einem
+        // Tag entsteht abends, wenn der Tag längst abgehakt ist.
+        $offeneTage    = array_values(array_filter($stages, static fn ($st) => !(int) $st['done']));
+        $erledigteTage = array_values(array_filter($stages, static fn ($st) => (int) $st['done']));
+        $vorauswahl    = $offeneTage ? (int) $offeneTage[0]['id'] : 0;
+      ?>
       <div class="tb-kopf">
         <label for="tbTag">Zu welchem Tag?</label>
         <select id="tbTag">
-          <?php foreach ($stages as $st): ?>
-            <option value="<?= (int) $st['id'] ?>" data-tag="<?= h((string) $st['date_iso']) ?>">
-              <?= h($stageLabel[(int) $st['id']]) ?>
-            </option>
-          <?php endforeach; ?>
+          <?php if ($offeneTage): ?>
+            <optgroup label="Offen" data-gruppe="offen">
+              <?php foreach ($offeneTage as $st): ?>
+                <option value="<?= (int) $st['id'] ?>" data-tag="<?= h((string) $st['date_iso']) ?>"<?= (int) $st['id'] === $vorauswahl ? ' selected' : '' ?>>
+                  <?= h($stageLabel[(int) $st['id']]) ?>
+                </option>
+              <?php endforeach; ?>
+            </optgroup>
+          <?php endif; ?>
+          <?php if ($erledigteTage): ?>
+            <optgroup label="Erledigt" data-gruppe="erledigt">
+              <?php foreach (array_reverse($erledigteTage) as $st): ?>
+                <option value="<?= (int) $st['id'] ?>" data-tag="<?= h((string) $st['date_iso']) ?>"<?= !$offeneTage && (int) $st['id'] === (int) $erledigteTage[count($erledigteTage) - 1]['id'] ? ' selected' : '' ?>>
+                  <?= h($stageLabel[(int) $st['id']]) ?>
+                </option>
+              <?php endforeach; ?>
+            </optgroup>
+          <?php endif; ?>
         </select>
       </div>
 
