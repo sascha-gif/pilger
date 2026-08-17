@@ -10,6 +10,19 @@
 set -euo pipefail
 
 APP_DIR="/opt/pilger-milsh"
+
+# Aus einer Kopie weiterlaufen: gleich folgt ein `git reset --hard`, das diese
+# Datei mitten im Lauf austauschen kann — und bash liest Skripte häppchenweise
+# nach, statt sie einmal komplett einzulesen. Ohne die Kopie führte eine
+# Änderung an genau dieser Datei zu unvorhersehbarem Verhalten.
+if [ "${PILGER_SELFCOPY:-}" != "1" ]; then
+  copy="$(mktemp /tmp/pilger-update.XXXXXX)"
+  cp "$0" "$copy"
+  chmod +x "$copy"
+  PILGER_SELFCOPY=1 exec "$copy" "$@"
+fi
+trap 'rm -f "$0"' EXIT
+
 cd "$APP_DIR"
 
 git fetch --quiet origin main
@@ -29,7 +42,7 @@ git reset --hard --quiet origin/main
 # --remove-orphans räumt Container weg, deren Dienst es nicht mehr gibt —
 # sonst blockiert ein umbenannter Dienst den Namen, den der neue haben will.
 if ! docker compose up -d --build --remove-orphans; then
-  echo "Neustart mit belegten Namen fehlgeschlagen — Container abräumen und neu aufbauen."
+  echo "Start fehlgeschlagen — Container abräumen und neu aufbauen."
   # down ohne -v: die benannten Volumes und damit alle Daten bleiben erhalten.
   docker compose down --remove-orphans
   docker compose up -d --build

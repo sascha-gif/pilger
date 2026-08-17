@@ -6,6 +6,6 @@ Requires=docker.service
 
 [Service]
 Type=oneshot
-ExecStart=/usr/local/bin/pilger-update
+ExecStart=/opt/pilger-milsh/ops/pilger-update.sh
 WorkingDirectory=/opt/pilger-milsh
 TimeoutStartSec=600

@@ -99,7 +99,10 @@ else
 fi
 
 say "7/7  Selbstaktualisierung einrichten"
-install -m 755 ops/pilger-update.sh /usr/local/bin/pilger-update
+chmod +x ops/pilger-update.sh
+# Bewusst ein Verweis statt einer Kopie: eine Kopie würde beim git pull nicht
+# mitwandern, und dann liefe für immer die Fassung vom Tag der Einrichtung.
+ln -sfn "$APP_DIR/ops/pilger-update.sh" /usr/local/bin/pilger-update
 install -m 644 ops/pilger-update.service /etc/systemd/system/pilger-update.service
 install -m 644 ops/pilger-update.timer   /etc/systemd/system/pilger-update.timer
 systemctl daemon-reload
