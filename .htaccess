@@ -1,0 +1,19 @@
+# Greift nur, wenn das Document-Root der Domain auf das Projektverzeichnis zeigt.
+# Sauberer ist es, das Document-Root direkt auf .../public zu legen — dann ist
+# diese Datei wirkungslos und stört nicht.
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Alles, was nicht schon in public/ liegt, dorthin umschreiben
+  RewriteCond %{REQUEST_URI} !^/public/
+  RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+# Verzeichnislisten aus
+Options -Indexes
+
+# Konfiguration und Datenbankdateien nie ausliefern
+<FilesMatch "\.(sqlite|sqlite-journal|sqlite-wal|md|yml|yaml)$">
+  Require all denied
+</FilesMatch>

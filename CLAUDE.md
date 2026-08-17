@@ -1,9 +1,20 @@
 # Camino Portugués da Costa 2026 — Projektkontext
 
-Referenzdokument: `camino-masterplan-2026.html` (interaktiver Masterplan, deutsch,
-Leaflet-Karte, anklickbare Packliste, live rechnende Kostentabelle, Gewichts-Countdown).
-Bei Änderungen an Etappen/Kosten/Packliste immer diese Datei anpassen — sie ist die
-einzige Quelle der Wahrheit.
+Der Plan läuft als Web-App unter **pilger.milsh.com** (PHP 8 + MariaDB).
+Quelle der Wahrheit sind die **Datenbank** und dieses Repo, nicht mehr die
+statische Datei `camino-masterplan-2026.html` — die liegt nur noch als Referenz
+der Ursprungsfassung dabei.
+
+Projektstand, Absprachen und offene Punkte: **[HANDOVER.md](HANDOVER.md)**.
+Technik: `docs/DEPLOYMENT.md`, `docs/DATENBANK.md`, `docs/API.md`.
+
+## So wird hier gearbeitet
+
+- Alles über GitHub, **kein Terminal-Kram für Sascha**.
+- Wissen gehört in `.md`-Dateien, nicht in den Chatverlauf.
+- Merge nach `main` löst den Deploy aus; Merge und Deploy macht Claude selbst.
+- Etappen, Kosten, Packliste ändern heißt: `db/seed.php` für neue Datenbanken
+  **und** ein `UPDATE` für die laufende — nicht nur das HTML anfassen.
 
 ## Eckdaten
 

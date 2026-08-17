@@ -1,0 +1,14 @@
+# Lokale Konfiguration mit Zugangsdaten — niemals committen
+/config/config.php
+
+# SQLite-Fallback-Datenbank und Laufzeitdateien
+/var/
+*.sqlite
+*.sqlite-journal
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/

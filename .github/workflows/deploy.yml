@@ -1,0 +1,197 @@
+name: Deploy pilger.milsh.com
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: "Grund für den manuellen Deploy"
+        required: false
+        default: "manueller Deploy"
+
+concurrency:
+  group: deploy-pilger
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Auf den Server spielen
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Repo auschecken
+        uses: actions/checkout@v4
+
+      - name: PHP prüfen (Syntax aller Dateien)
+        run: |
+          php -v
+          find src db public config -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Smoke-Test gegen SQLite (App muss ohne DB-Server starten)
+        run: |
+          php -S 127.0.0.1:8123 -t public &
+          sleep 3
+          code=$(curl -s -o /tmp/out.html -w '%{http_code}' http://127.0.0.1:8123/)
+          echo "HTTP $code"
+          test "$code" = "200"
+          grep -q 'id="costTotal"' /tmp/out.html
+          grep -q 'map-data' /tmp/out.html
+          echo "Startseite rendert."
+
+      - name: Secrets prüfen
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          missing=""
+          [ -z "$SSH_HOST" ]    && missing="$missing SSH_HOST"
+          [ -z "$SSH_USER" ]    && missing="$missing SSH_USER"
+          [ -z "$SSH_KEY" ]     && missing="$missing SSH_KEY"
+          [ -z "$DEPLOY_PATH" ] && missing="$missing DEPLOY_PATH"
+          if [ -n "$missing" ]; then
+            echo "::error::Fehlende Repository-Secrets:$missing — siehe docs/DEPLOYMENT.md"
+            exit 1
+          fi
+
+          # Schutz vor einem versehentlich zu weit gefassten DEPLOY_PATH:
+          # rsync läuft mit --delete, ein falscher Pfad wäre teuer.
+          case "$DEPLOY_PATH" in
+            /|/var|/var/www|/home|/usr|/etc|/srv|/root|*/)
+              echo "::error::DEPLOY_PATH '$DEPLOY_PATH' ist zu weit gefasst oder endet auf '/'. Bitte ein eigenes Verzeichnis angeben, z. B. /var/www/pilger.milsh.com"
+              exit 1;;
+          esac
+          depth=$(echo "$DEPLOY_PATH" | awk -F/ '{print NF-1}')
+          if [ "${DEPLOY_PATH#/}" = "$DEPLOY_PATH" ] || [ "$depth" -lt 2 ]; then
+            echo "::error::DEPLOY_PATH muss ein absoluter Pfad mit mindestens zwei Ebenen sein (aktuell: '$DEPLOY_PATH')."
+            exit 1
+          fi
+
+          echo "Alle Pflicht-Secrets vorhanden, DEPLOY_PATH sieht plausibel aus."
+
+      - name: SSH-Zugang einrichten
+        env:
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+          ssh-keyscan -p "${SSH_PORT:-22}" -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Konfiguration aus Secrets bauen
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASS: ${{ secrets.DB_PASS }}
+          WRITE_PASSWORD: ${{ secrets.WRITE_PASSWORD }}
+        run: |
+          if [ -n "$DB_NAME" ]; then DRIVER=mysql; else DRIVER=sqlite; fi
+          echo "Datenbank-Treiber: $DRIVER"
+          php -r '
+            $cfg = [
+              "driver" => getenv("DB_NAME") ? "mysql" : "sqlite",
+              "mysql"  => [
+                "host"    => getenv("DB_HOST") ?: "localhost",
+                "port"    => (int)(getenv("DB_PORT") ?: 3306),
+                "name"    => getenv("DB_NAME") ?: "",
+                "user"    => getenv("DB_USER") ?: "",
+                "pass"    => getenv("DB_PASS") ?: "",
+                "charset" => "utf8mb4",
+              ],
+              "sqlite" => ["path" => "var/pilger.sqlite"],
+              "write_password" => getenv("WRITE_PASSWORD") ?: null,
+              "auto_migrate"   => true,
+              "debug"          => false,
+            ];
+            file_put_contents("config/config.php", "<?php\nreturn " . var_export($cfg, true) . ";\n");
+          '
+          php -l config/config.php
+
+      - name: Datenbank anlegen, falls Admin-Zugang hinterlegt ist
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASS: ${{ secrets.DB_PASS }}
+          DB_ADMIN_USER: ${{ secrets.DB_ADMIN_USER }}
+          DB_ADMIN_PASS: ${{ secrets.DB_ADMIN_PASS }}
+        run: |
+          if [ -z "$DB_ADMIN_USER" ] || [ -z "$DB_NAME" ]; then
+            echo "Kein DB_ADMIN_USER hinterlegt — Datenbank muss bereits existieren. Übersprungen."
+            exit 0
+          fi
+          ssh -i ~/.ssh/id_deploy -p "${SSH_PORT:-22}" "$SSH_USER@$SSH_HOST" \
+            "MYSQL_PWD='$DB_ADMIN_PASS' mysql -u '$DB_ADMIN_USER' -e \"
+              CREATE DATABASE IF NOT EXISTS \\\`$DB_NAME\\\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+              CREATE USER IF NOT EXISTS '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASS';
+              GRANT ALL PRIVILEGES ON \\\`$DB_NAME\\\`.* TO '$DB_USER'@'localhost';
+              FLUSH PRIVILEGES;\""
+          echo "Datenbank und Benutzer sind angelegt."
+
+      - name: Dateien übertragen
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          rsync -az --delete \
+            -e "ssh -i ~/.ssh/id_deploy -p ${SSH_PORT:-22}" \
+            --exclude '.git' \
+            --exclude '.github' \
+            --exclude 'var/' \
+            --exclude 'camino-masterplan-2026.html' \
+            --exclude '*.md' \
+            --exclude 'docs/' \
+            ./ "$SSH_USER@$SSH_HOST:$DEPLOY_PATH/"
+          echo "Dateien liegen unter $DEPLOY_PATH."
+
+      - name: Schreibrechte für den SQLite-Fallback setzen
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          ssh -i ~/.ssh/id_deploy -p "${SSH_PORT:-22}" "$SSH_USER@$SSH_HOST" \
+            "mkdir -p '$DEPLOY_PATH/var' && chmod 775 '$DEPLOY_PATH/var'"
+
+      - name: Live prüfen (löst zugleich die Schema-Installation aus)
+        env:
+          SITE_URL: ${{ secrets.SITE_URL }}
+        run: |
+          url="${SITE_URL:-https://pilger.milsh.com/}"
+          echo "Rufe $url auf …"
+          for i in 1 2 3 4 5; do
+            code=$(curl -sS -L -o /tmp/live.html -w '%{http_code}' "$url" || echo 000)
+            [ "$code" = "200" ] && break
+            echo "Versuch $i: HTTP $code — warte 5 s"
+            sleep 5
+          done
+          echo "HTTP $code"
+          test "$code" = "200"
+          grep -q 'id="costTotal"' /tmp/live.html
+          echo "pilger.milsh.com ist live und die Datenbank ist installiert."
+
+      - name: Zusammenfassung
+        if: always()
+        env:
+          SITE_URL: ${{ secrets.SITE_URL }}
+        run: |
+          {
+            echo "### Deploy pilger.milsh.com"
+            echo ""
+            echo "- Commit: \`${GITHUB_SHA:0:7}\`"
+            echo "- Ziel: ${SITE_URL:-https://pilger.milsh.com/}"
+            echo "- Ergebnis: ${{ job.status }}"
+          } >> "$GITHUB_STEP_SUMMARY"

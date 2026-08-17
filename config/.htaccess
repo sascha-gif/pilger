@@ -1,0 +1,2 @@
+# Zugangsdaten — niemals über den Webserver ausliefern.
+Require all denied
