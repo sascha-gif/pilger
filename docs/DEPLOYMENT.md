@@ -141,22 +141,25 @@ Volume `pilger-data` kennt sie Bilder, die es nicht mehr gibt.
 
 ## Zutritt
 
-Die Seite steht komplett hinter einem Passwort — nicht nur das Speichern. Ohne
-Anmeldung gibt es 401 und sonst nichts.
+Die Seite steht komplett hinter einem **sechsstelligen Zahlencode** — nicht nur
+das Speichern, und nicht nur das Bearbeiten. Ohne Anmeldung gibt es 401 und
+sonst nichts. Kein Benutzername, keine Mailadresse: nur der Code, eingegeben auf
+einem Ziffernblock wie bei der Gerätesperre am Handy. Unterwegs mit klammen
+Fingern ist das der einzige brauchbare Weg.
 
-Gesetzt wird es **in der Oberfläche**: Solange keins hinterlegt ist, zeigt die
+Gesetzt wird er **in der Oberfläche**: Solange keiner hinterlegt ist, zeigt die
 Seite ausschließlich die Einrichtung. Eine frisch angelegte Datenbank steht
 damit zu und nicht offen. Auf dem Server ist dafür keine Zeile Terminal nötig.
 
 Wer es lieber in der `.env` pflegt, füllt `WRITE_PASSWORD=` aus und ruft
-`docker compose up -d` auf. Dieser Wert gewinnt dann, und die Oberfläche kann
-ihn nicht mehr ändern.
+`docker compose up -d` auf. Dieser Wert gewinnt dann, wird als **Passwort**
+behandelt (nicht als Code) und lässt sich in der Oberfläche nicht mehr ändern.
 
-Zurücksetzen (Passwort vergessen):
+Zurücksetzen (Code vergessen):
 
 ```
 docker compose exec pilger-db mariadb -upilger -p"$DB_PASS" pilger \
-  -e "delete from settings where skey='auth_hash'; delete from auth_tokens;"
+  -e "delete from settings where skey in ('auth_hash','auth_kind'); delete from auth_tokens;"
 ```
 
 ## Schlüssel für das Tagebuch

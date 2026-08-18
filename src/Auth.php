@@ -18,6 +18,10 @@ declare(strict_types=1);
  */
 final class Auth
 {
+    /** Sechs Ziffern, wie beim iPad. Feste Länge: dann weiß die Anmeldung,
+     *  wann sie abschicken kann, ohne die Länge irgendwo zu verraten. */
+    public const CODE_LEN = 6;
+
     private const COOKIE    = 'pilger_zutritt';
     private const SETTING   = 'auth_hash';
     private const REMEMBER  = 180 * 86400;   // ein halbes Jahr — die Reise dauert zwei Wochen
@@ -44,6 +48,39 @@ final class Auth
     public function fromEnv(): bool
     {
         return $this->envPassword() !== null;
+    }
+
+    /**
+     * Zahlencode oder Passwort? Ein Code aus der .env ist nicht vorgesehen —
+     * was dort steht, ist beliebiger Text und wird als Passwort behandelt.
+     */
+    public function kind(): string
+    {
+        if ($this->fromEnv()) {
+            return 'passwort';
+        }
+        try {
+            $v = $this->db->value('SELECT svalue FROM settings WHERE skey = ?', ['auth_kind']);
+        } catch (Throwable $e) {
+            return 'passwort';
+        }
+        return $v === 'code' ? 'code' : 'passwort';
+    }
+
+    public function istCode(): bool
+    {
+        return $this->kind() === 'code';
+    }
+
+    public static function istGueltigerCode(string $code): bool
+    {
+        return (bool) preg_match('/^\d{' . self::CODE_LEN . '}$/', $code);
+    }
+
+    /** Zahlencode setzen. Sonst wie setPassword — nur die Art wird vermerkt. */
+    public function setCode(string $code): void
+    {
+        $this->setPassword($code, 'code');
     }
 
     /* ---- Anmelden ------------------------------------------------------- */
@@ -81,9 +118,10 @@ final class Auth
      * Passwort setzen oder ändern. Alle gemerkten Geräte fliegen dabei raus —
      * ein Passwortwechsel, der alte Sitzungen stehen lässt, ist keiner.
      */
-    public function setPassword(string $plain): void
+    public function setPassword(string $plain, string $art = 'passwort'): void
     {
         $this->putSetting(self::SETTING, password_hash($plain, PASSWORD_DEFAULT));
+        $this->putSetting('auth_kind', $art === 'code' ? 'code' : 'passwort');
         $this->db->exec('DELETE FROM auth_tokens');
     }
 

@@ -17,8 +17,6 @@ $locked = !may_write();
 $s         = $repo->settings();
 $hero      = $repo->heroFacts();
 $profile   = $repo->profileFacts();
-$pills     = $repo->nutritionPills();
-$slots     = $repo->nutritionSlots();
 $travel    = $repo->travelCards();
 $ankunft   = $repo->planSteps('ankunft');
 $ziel      = $repo->planSteps('ziel');
@@ -85,13 +83,18 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
     <span class="netz" id="netz" hidden>offline — Eingaben werden gemerkt</span>
     <?php if (!$auth->fromEnv()): ?>
       <details class="pwchg">
-        <summary>Passwort ändern</summary>
+        <summary><?= $auth->istCode() ? 'Code ändern' : 'Code festlegen' ?></summary>
         <form method="post" autocomplete="off">
-          <input type="password" name="neu" placeholder="neues Passwort" minlength="8" required autocomplete="new-password">
-          <input type="password" name="wiederholung" placeholder="noch einmal" minlength="8" required autocomplete="new-password">
+          <input type="password" name="neu" placeholder="neuer Code" inputmode="numeric"
+                 pattern="[0-9]*" minlength="<?= Auth::CODE_LEN ?>" maxlength="<?= Auth::CODE_LEN ?>"
+                 required autocomplete="new-password">
+          <input type="password" name="wiederholung" placeholder="noch einmal" inputmode="numeric"
+                 pattern="[0-9]*" minlength="<?= Auth::CODE_LEN ?>" maxlength="<?= Auth::CODE_LEN ?>"
+                 required autocomplete="new-password">
           <button type="submit" name="passwort_aendern" value="1">Speichern</button>
           <?php if (isset($gateError) && $gateError): ?><span class="msg"><?= h($gateError) ?></span><?php endif; ?>
-          <?php if (isset($_GET['geaendert'])): ?><span class="msg ok">Passwort geändert.</span><?php endif; ?>
+          <?php if (isset($_GET['geaendert'])): ?><span class="msg ok">Code gespeichert.</span><?php endif; ?>
+          <?php if (!$auth->istCode()): ?><span class="msg">Noch ein Passwort — <?= Auth::CODE_LEN ?> Ziffern setzen, dann reicht der Ziffernblock.</span><?php endif; ?>
         </form>
       </details>
     <?php endif; ?>
@@ -120,14 +123,13 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
 <nav class="toc">
   <div class="wrap">
     <a href="#profil">01 · Profil</a>
-    <a href="#ernaehrung">02 · Ernährung</a>
-    <a href="#anreise">03 · Anreise</a>
-    <a href="#ankunft">04 · Ankunft</a>
-    <a href="#etappen">05 · Etappen</a>
-    <a href="#packliste">06 · Packliste</a>
-    <a href="#kosten">07 · Kosten</a>
-    <a href="#countdown">08 · Countdown</a>
-    <a href="#tagebuch">09 · Tagebuch</a>
+    <a href="#anreise">02 · Anreise</a>
+    <a href="#ankunft">03 · Ankunft</a>
+    <a href="#etappen">04 · Etappen</a>
+    <a href="#packliste">05 · Packliste</a>
+    <a href="#kosten">06 · Kosten</a>
+    <a href="#countdown">07 · Countdown</a>
+    <a href="#tagebuch">08 · Tagebuch</a>
   </div>
 </nav>
 
@@ -145,28 +147,9 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
   </div>
 </section>
 
-<section id="ernaehrung">
-  <div class="wrap reveal">
-    <div class="sec-head"><div class="sec-num">02</div><h2>Ernährung &amp; Supplements<small>16:8 Intervallfasten · Tagesprotokoll</small></h2></div>
-    <div class="pill-row">
-      <?php foreach ($pills as $p): ?>
-        <span class="pill"><b><?= h($p['strong']) ?></b> <?= h($p['rest']) ?></span>
-      <?php endforeach; ?>
-    </div>
-    <div class="day">
-      <?php foreach ($slots as $slot): ?>
-        <div class="slot<?= $slot['accent'] ? ' acc' : '' ?>">
-          <time><?= h($slot['time_label']) ?></time>
-          <div class="txt"><?= rich($slot['body']) ?></div>
-        </div>
-      <?php endforeach; ?>
-    </div>
-  </div>
-</section>
-
 <section id="anreise">
   <div class="wrap reveal">
-    <div class="sec-head"><div class="sec-num">03</div><h2>Anreise &amp; Logistik<small>17.09. – 01.10.2026 · ab/an Frankfurt Main (FRA)</small></h2></div>
+    <div class="sec-head"><div class="sec-num">02</div><h2>Anreise &amp; Logistik<small>17.09. – 01.10.2026 · ab/an Frankfurt Main (FRA)</small></h2></div>
     <div class="flight">
       <?php foreach ($travel as $t): ?>
         <div class="fcard">
@@ -183,7 +166,7 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
 
 <section id="ankunft">
   <div class="wrap reveal">
-    <div class="sec-head"><div class="sec-num">04</div><h2>Ankunft &amp; Heimreise<small>Was an den beiden Enden konkret zu tun ist — Schritt für Schritt</small></h2></div>
+    <div class="sec-head"><div class="sec-num">03</div><h2>Ankunft &amp; Heimreise<small>Was an den beiden Enden konkret zu tun ist — Schritt für Schritt</small></h2></div>
 
     <h3 class="phase-head">Porto — ankommen und startklar werden</h3>
     <div class="day">
@@ -222,7 +205,7 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
 
 <section id="etappen">
   <div class="wrap reveal">
-    <div class="sec-head"><div class="sec-num">05</div><h2>Etappen &amp; Unterkünfte<small>Budget-Ausrichtung · ohne Gepäcktransport · Booking-Links nach Preis sortiert (live prüfen, Sept. schwankt)</small></h2></div>
+    <div class="sec-head"><div class="sec-num">04</div><h2>Etappen &amp; Unterkünfte<small>Budget-Ausrichtung · ohne Gepäcktransport · Booking-Links nach Preis sortiert (live prüfen, Sept. schwankt)</small></h2></div>
 
     <div class="mapwrap reveal">
       <div id="map"></div>
@@ -359,7 +342,7 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
 
 <section id="packliste">
   <div class="wrap reveal">
-    <div class="sec-head"><div class="sec-num">06</div><h2>Packliste<small>Häkchen werden gespeichert — Stand gilt auf allen Geräten</small></h2></div>
+    <div class="sec-head"><div class="sec-num">05</div><h2>Packliste<small>Häkchen werden gespeichert — Stand gilt auf allen Geräten</small></h2></div>
     <?php if (isset($notes['pack_intro'])): ?>
       <div class="pl-note"><?= rich($notes['pack_intro']) ?></div>
     <?php endif; ?>
@@ -412,7 +395,7 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
 
 <section id="kosten">
   <div class="wrap reveal">
-    <div class="sec-head"><div class="sec-num">07</div><h2>Kosten<small>Beträge werden gespeichert · Summe rechnet live · leere Felder zählen als 0</small></h2></div>
+    <div class="sec-head"><div class="sec-num">06</div><h2>Kosten<small>Beträge werden gespeichert · Summe rechnet live · leere Felder zählen als 0</small></h2></div>
     <div class="pcat">
       <table class="ctbl">
         <tr><th>Position</th><th class="det">Detail</th><th class="r">Betrag €</th><th>Status</th></tr>
@@ -442,7 +425,7 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
 
 <section id="countdown">
   <div class="wrap reveal">
-    <div class="sec-head"><div class="sec-num">08</div><h2>Countdown –5 kg<small>93 → ~88 kg bis zum Abflug · ~0,7–1 kg/Woche · Ist-Gewicht wird gespeichert</small></h2></div>
+    <div class="sec-head"><div class="sec-num">07</div><h2>Countdown –5 kg<small>93 → ~88 kg bis zum Abflug · ~0,7–1 kg/Woche · Ist-Gewicht wird gespeichert</small></h2></div>
     <?php if (isset($notes['weight_intro'])): ?>
       <div class="pl-note"><?= rich($notes['weight_intro']) ?></div>
     <?php endif; ?>
@@ -569,7 +552,7 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
 
 <section id="tagebuch">
   <div class="wrap reveal">
-    <div class="sec-head"><div class="sec-num">09</div><h2>Tagebuch &amp; Fotos<small>Sprachnotiz oder getippt · Aufnahmen und Bilder werden gemerkt, bis wieder Netz da ist</small></h2></div>
+    <div class="sec-head"><div class="sec-num">08</div><h2>Tagebuch &amp; Fotos<small>Sprachnotiz oder getippt · Aufnahmen und Bilder werden gemerkt, bis wieder Netz da ist</small></h2></div>
 
     <?php
       // Nachschlagewerk für die Anzeige: Etappen-Id → Beschriftung.

@@ -80,13 +80,14 @@ Port geöffnet werden. Details in `docs/DEPLOYMENT.md`.
 |---|---|
 | App (PHP 8, PDO) | **fertig**, live |
 | Datenbankschema + Startdaten | **fertig**, installiert sich beim ersten Seitenaufruf selbst |
-| Zutritt: ein Passwort für die ganze Seite | **fertig**, in der Oberfläche zu setzen |
+| Zutritt: sechsstelliger Code für die ganze Seite | **fertig**, Ziffernblock wie am iPad |
 | Speichern von Häkchen / Beträgen / Gewicht | **fertig**, End-to-End getestet |
 | Etappen abhaken, offen/erledigt als Reiter | **fertig** |
 | Fortschrittsbalken gelaufene km | **fertig**, rechnet aus den abgehakten Tagen |
 | Stempel-Checkliste (ab Spanien zwei/Tag) | **fertig** |
 | Packliste als Reiter | **fertig** |
 | Equipment & Gelenkschutz | **ausgeblendet** auf Wunsch — siehe unten |
+| Ernährung & Supplements | **ausgeblendet** auf Wunsch — siehe unten |
 | Wetter je Etappe (Open-Meteo) | **fertig**, Vorhersage bzw. Vorjahresmittel |
 | Höhenprofil je Etappe | **fertig**, Geländemodell entlang der Küstenlinie |
 | Tagebuch: Sprachnotiz, Text, Fotos | **fertig**, offline-fähig |
@@ -113,8 +114,9 @@ kompletten Neubau des Containers überstehen.
 
 ## Was jetzt als Erstes zu tun ist
 
-**Passwort setzen.** Beim ersten Aufruf zeigt die Seite nichts als die
-Einrichtung: ein Passwort vergeben, fertig. Danach ist die Seite für alle
+**Code setzen.** Beim ersten Aufruf zeigt die Seite nichts als die
+Einrichtung: sechs Ziffern auf dem Ziffernblock, danach zur Bestätigung noch
+einmal — wie die Gerätesperre am Handy. Kein Benutzername, keine Mailadresse. Danach ist die Seite für alle
 anderen zu — samt Tagebuch, Fotos, Kosten und Gewicht. Solange kein Passwort
 gesetzt ist, zeigt die Seite ausschließlich diese Einrichtung; offen steht sie
 nie.
@@ -225,17 +227,27 @@ Rechten keine Voraussetzung — sie wäre es nur bei *restricted* Rechten wie
 Gmail. Ungeprüft veröffentlicht gilt eine Grenze von 100 Nutzern; gebraucht
 wird einer.
 
-## Ausgeblendet: Equipment & Gelenkschutz
+## Ausgeblendete Abschnitte
 
-Der Abschnitt ist auf Wunsch aus der Seite genommen; die folgenden Abschnitte
-sind nachgerückt (Packliste ist jetzt 06). Inhaltlich war er weitgehend eine
-Kurzfassung der Packliste, die dieselben Punkte ausführlicher führt.
+Zwei Abschnitte sind auf Wunsch aus der Seite genommen; die übrigen sind
+nachgerückt. Aktuelle Nummerierung:
 
-**Gelöscht wurde nichts.** Die Tabellen `equipment_cards` und
-`equipment_items` stehen samt gesetzter Häkchen unverändert in der Datenbank,
-und `Repo::equipment()`, `Repo::toggleEquipmentItem()` sowie die API-Aktion
-`equip.toggle` sind noch da. Wieder einblenden heißt: den Commit
-„Equipment-Abschnitt ausblenden" rückgängig machen, mehr nicht.
+```
+01 Profil · 02 Anreise · 03 Ankunft · 04 Etappen
+05 Packliste · 06 Kosten · 07 Countdown · 08 Tagebuch
+```
+
+- **Equipment & Gelenkschutz** — war weitgehend eine Kurzfassung der
+  Packliste, die dieselben Punkte ausführlicher führt.
+- **Ernährung & Supplements** — Tagesprotokoll und Pillen-Zeile.
+
+**Gelöscht wurde nichts.** `equipment_cards`, `equipment_items` (samt
+Häkchen), `nutrition_pills` und `nutrition_slots` stehen unverändert in der
+Datenbank, die Repo-Methoden und die API-Aktion `equip.toggle` ebenfalls.
+Wieder einblenden heißt: den jeweiligen Commit rückgängig machen, mehr nicht.
+
+Die Sprungziele (`#packliste`, `#kosten`, …) haben sich nie geändert — nur die
+Nummern davor.
 
 ## Was bewusst nicht gebaut wurde
 
