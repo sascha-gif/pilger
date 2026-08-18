@@ -517,6 +517,16 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
             $ist = ($w['von_iso'] && $w['bis_iso'])
                 ? $gesundheit->schnitt((string) $w['von_iso'], (string) $w['bis_iso'])
                 : ['schritte' => null, 'tage' => 0, 'ruhepuls' => null, 'kcal' => null];
+
+            // Läuft die Woche noch? Dann ist der Schnitt ein Zwischenstand und
+            // kein Ergebnis. Ohne diesen Hinweis liest sich ein halber Tag wie
+            // ein verfehltes Wochenziel.
+            $laeuft = $w['von_iso'] && $w['bis_iso']
+                && date('Y-m-d') >= (string) $w['von_iso'] && date('Y-m-d') <= (string) $w['bis_iso'];
+
+            $gemessenesGewicht = ($w['von_iso'] && $w['bis_iso'])
+                ? $gesundheit->gewicht((string) $w['von_iso'], (string) $w['bis_iso'])
+                : null;
           ?>
           <tr>
             <td class="i-name"><?= h($w['label']) ?></td>
@@ -526,13 +536,29 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
               <input class="wt" type="number" step="0.1" inputmode="decimal"
                      data-id="<?= (int) $w['id'] ?>"
                      value="<?= h(num_attr($w['actual'])) ?>" placeholder="kg"<?= $locked ? ' disabled' : '' ?>>
+              <?php if ($gemessenesGewicht !== null): ?>
+                <?php $abweichung = $w['actual'] !== null ? abs((float) $w['actual'] - $gemessenesGewicht['kg']) : null; ?>
+                <span class="gewogen">
+                  <?php if ($w['actual'] === null): ?>
+                    <button type="button" class="wtnimm" data-id="<?= (int) $w['id'] ?>"
+                            data-kg="<?= h(num_attr($gemessenesGewicht['kg'])) ?>"
+                            title="Von der Waage übernehmen">
+                      ⌂ <?= h(number_format($gemessenesGewicht['kg'], 1, ',', '.')) ?> übernehmen
+                    </button>
+                  <?php else: ?>
+                    Waage: <?= h(number_format($gemessenesGewicht['kg'], 1, ',', '.')) ?><?php
+                      if ($abweichung !== null && $abweichung >= 0.5): ?> <b>≠</b><?php endif; ?>
+                  <?php endif; ?>
+                </span>
+              <?php endif; ?>
             </td>
             <td><?= h($w['steps']) ?></td>
-            <td class="r gemessen">
+            <td class="r gemessen<?= $laeuft ? ' laeuft' : '' ?>">
               <?php if ($ist['schritte'] !== null): ?>
                 <b><?= number_format($ist['schritte'], 0, ',', '.') ?></b>
-                <span title="Tage mit Daten<?= $ist['ruhepuls'] ? ' · Ruhepuls Ø ' . $ist['ruhepuls'] : '' ?>">
-                  <?= (int) $ist['tage'] ?> T<?= $ist['ruhepuls'] ? ' · ' . (int) $ist['ruhepuls'] . ' bpm' : '' ?>
+                <span title="Durchschnitt pro Tag, gemittelt über die Tage mit Daten<?= $ist['ruhepuls'] ? ' · Ruhepuls Ø ' . $ist['ruhepuls'] : '' ?>">
+                  Ø aus <?= (int) $ist['tage'] ?> <?= $ist['tage'] === 1 ? 'Tag' : 'Tagen' ?><?= $ist['ruhepuls'] ? ' · ' . (int) $ist['ruhepuls'] . ' bpm' : '' ?>
+                  <?php if ($laeuft): ?><em>läuft noch</em><?php endif; ?>
                 </span>
               <?php else: ?>
                 <span class="leerwert">—</span>

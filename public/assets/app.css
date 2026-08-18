@@ -486,3 +486,14 @@ footer a{color:var(--flecha)}
 footer .stand{font-family:"Spline Sans Mono",monospace;font-size:11px;color:#6f6a60}
 footer .stand a{color:#a49c8b;text-decoration:none;border-bottom:1px dotted #6f6a60}
 footer .stand a:hover{color:var(--flecha);border-bottom-color:var(--flecha)}
+
+/* Laufende Woche: Zwischenstand, kein Ergebnis. */
+.ctbl td.gemessen.laeuft b{color:var(--stone)}
+.ctbl td.gemessen em{display:block;font-style:normal;font-size:9.5px;letter-spacing:.08em;
+                     text-transform:uppercase;color:var(--warn);font-weight:600}
+/* Gewicht von der Waage neben dem getippten Wert. */
+.gewogen{display:block;font-family:"Spline Sans Mono",monospace;font-size:10px;color:var(--stone);margin-top:3px}
+.gewogen b{color:#a4341f}
+.wtnimm{font-family:"Spline Sans Mono",monospace;font-size:10px;padding:3px 6px;border:1px solid var(--line);
+        background:#fff;color:var(--atlantic);cursor:pointer;white-space:nowrap}
+.wtnimm:hover{border-color:var(--atlantic);background:var(--paper-2)}

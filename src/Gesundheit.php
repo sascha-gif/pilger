@@ -41,6 +41,7 @@ final class Gesundheit
         'total-calories' => 14,
         'heart-rate'     => 14,
         'active-minutes' => 14,
+        'weight'         => 90,
     ];
 
     /**
@@ -430,6 +431,9 @@ final class Gesundheit
         if (isset($p['restingHeartRatePersonalRange']['beatsPerMinuteMin'])) {
             $w['hr_ruhe'] = (int) round((float) $p['restingHeartRatePersonalRange']['beatsPerMinuteMin']);
         }
+        if (isset($p['weight']['weightGramsAvg'])) {
+            $w['gewicht_kg'] = round(((float) $p['weight']['weightGramsAvg']) / 1000, 1);
+        }
         if (isset($p['activeMinutes']['activeMinutesRollupByActivityLevel'])) {
             $summe = 0;
             foreach ($p['activeMinutes']['activeMinutesRollupByActivityLevel'] as $stufe) {
@@ -503,6 +507,18 @@ final class Gesundheit
             'ruhepuls' => $r && $r['hr'] !== null ? (int) round((float) $r['hr']) : null,
             'tage'     => $r ? (int) $r['n'] : 0,
         ];
+    }
+
+    /** Zuletzt gemessenes Gewicht in einem Zeitraum, mit Datum. */
+    public function gewicht(string $von, string $bis): ?array
+    {
+        $r = $this->db->one(
+            'SELECT day_iso, gewicht_kg FROM health_days
+              WHERE gewicht_kg IS NOT NULL AND day_iso BETWEEN ? AND ?
+              ORDER BY day_iso DESC LIMIT 1',
+            [$von, $bis]
+        );
+        return $r === null ? null : ['kg' => (float) $r['gewicht_kg'], 'tag' => (string) $r['day_iso']];
     }
 
     /* ================= HTTP ============================================== */

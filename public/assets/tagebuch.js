@@ -496,7 +496,7 @@
   var NAMEN = {
     'steps': 'Schritte', 'distance': 'Strecke', 'total-calories': 'Kalorien',
     'heart-rate': 'Puls', 'active-minutes': 'aktive Minuten',
-    'daily-resting-heart-rate': 'Ruhepuls'
+    'daily-resting-heart-rate': 'Ruhepuls', 'weight': 'Gewicht'
   };
 
   function malBericht(bericht) {

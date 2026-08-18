@@ -78,6 +78,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/009_stempelorte.php';
             migration_009($db);
         });
+
+        // Gewicht aus dem Google-Health-Konto.
+        $apply('010_gewicht', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/010_gewicht.php';
+            migration_010($db);
+        });
     }
 
     /** @return array<int,string> */

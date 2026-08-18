@@ -410,6 +410,19 @@
     });
   });
 
+  /* ---------- Gewicht von der Waage übernehmen --------------------------- */
+  /* Der gemessene Wert überschreibt nie still den getippten — übernommen wird
+     er nur auf Klick, und nur solange das Feld leer ist. */
+  document.querySelectorAll('.wtnimm').forEach(function (knopf) {
+    knopf.addEventListener('click', function () {
+      var feld = document.querySelector('.wt[data-id="' + knopf.dataset.id + '"]');
+      if (!feld || readOnly) return;
+      feld.value = knopf.dataset.kg;
+      feld.dispatchEvent(new Event('input', { bubbles: true }));
+      knopf.remove();
+    });
+  });
+
   /* ---------- Wetter und Höhenprofil ------------------------------------- */
   /* Beides holt der Server und legt es in der Datenbank ab. Der Aufruf kommt
      erst nach dem Rendern: die Seite soll nicht darauf warten, dass irgendwo

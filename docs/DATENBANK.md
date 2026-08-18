@@ -99,8 +99,16 @@ derselbe Eintrag ist.
 ### Gesundheitsdaten
 
 `health_days` — ein Datensatz je Tag: `steps`, `kcal`, `hr_avg`, `hr_min`,
-`hr_max`, `hr_ruhe`, `aktiv_min`, `distanz_m`. Fehlende Tage sind fehlende
-Synchronisierungen, keine Nullen.
+`hr_max`, `hr_ruhe`, `aktiv_min`, `distanz_m`, `gewicht_kg`. Fehlende Tage sind
+fehlende Synchronisierungen, keine Nullen.
+
+Die Zahl in der Spalte „gemessen" ist ein **Durchschnitt je Tag**, nicht die
+Wochensumme — gemittelt über die Tage mit Daten. Läuft die Woche noch, steht
+„läuft noch" dabei: ein halber Tag neben einem Wochenziel liest sich sonst wie
+ein Rückstand, der keiner ist.
+
+Das gemessene Gewicht überschreibt `weight_weeks.actual` **nicht**. Es steht
+daneben, und übernommen wird es auf Klick — was getippt wurde, bleibt.
 
 `weight_weeks` hat zusätzlich `von_iso` und `bis_iso`. Bisher stand dort nur
 „11.–17.08." als Text; um Schritte einer Woche zuzuordnen, braucht es Daten,
@@ -157,3 +165,5 @@ Bisher gefahren:
 | `006_aussen` | `ext_cache` für Wetter und Höhen |
 | `007_tagebuch` | `diary_entries`, `photos` |
 | `008_gesundheit` | `health_days`, Datumsgrenzen der Trainingswochen |
+| `009_stempelorte` | `stamp_spots` — Kartensuchen und feste Adressen |
+| `010_gewicht` | `health_days.gewicht_kg` |
