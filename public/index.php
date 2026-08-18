@@ -276,11 +276,26 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
             <span class="wetterfeld"></span>
             <span class="hoehenfeld"></span>
             <?php if ($gTag): ?>
+              <?php
+                // Geplant steht links im Kopf, gelaufen kommt von der Uhr. Auf
+                // dem Camino ist das zweite fast immer größer — Umwege, Suche
+                // nach der Unterkunft, abends noch mal los.
+                $gelaufenKm = $gTag['distanz_m'] !== null ? round(((int) $gTag['distanz_m']) / 1000, 1) : null;
+                $planKm     = $st['km_walk'] !== null ? (float) $st['km_walk'] : null;
+                $teile = [];
+                if ($gTag['steps'] !== null) { $teile[] = number_format((int) $gTag['steps'], 0, ',', '.') . ' Schritte'; }
+                if ($gelaufenKm !== null)    { $teile[] = number_format($gelaufenKm, 1, ',', '.') . ' km'; }
+                if ($gTag['kcal'] !== null)  { $teile[] = number_format((int) $gTag['kcal'], 0, ',', '.') . ' kcal'; }
+                if ($gTag['hr_avg'] !== null){ $teile[] = 'Ø ' . (int) $gTag['hr_avg'] . ' bpm'; }
+              ?>
               <span class="gehfeld da">
-                <b>👣</b> <?= $gTag['steps'] !== null ? number_format((int) $gTag['steps'], 0, ',', '.') . ' Schritte' : '—' ?>
-                <?= $gTag['kcal'] !== null ? ' · ' . number_format((int) $gTag['kcal'], 0, ',', '.') . ' kcal' : '' ?>
-                <?= $gTag['hr_avg'] !== null ? ' · Ø ' . (int) $gTag['hr_avg'] . ' bpm' : '' ?>
-                <em>gemessen</em>
+                <b>👣</b> <?= h(implode(' · ', $teile)) ?: '—' ?>
+                <em>gemessen<?php
+                  if ($gelaufenKm !== null && $planKm !== null && $planKm > 0) {
+                      $delta = round($gelaufenKm - $planKm, 1);
+                      echo ' · ' . ($delta >= 0 ? '+' : '−') . number_format(abs($delta), 1, ',', '.') . ' km gegenüber Plan';
+                  }
+                ?></em>
               </span>
             <?php endif; ?>
           </div>
