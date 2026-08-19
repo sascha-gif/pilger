@@ -17,7 +17,13 @@ function migration_013(Database $db): void
     $kat = $db->one("SELECT id FROM pack_categories WHERE title LIKE '%Abend%' ORDER BY seq LIMIT 1");
     if ($kat !== null) {
         $catId = (int) $kat['id'];
-        $da = (int) $db->value('SELECT COUNT(*) FROM pack_items WHERE category_id = ? AND name = ?', [$catId, 'Schlafsack']);
+        // Beide Schreibweisen prüfen: der Seed legt inzwischen gleich den
+        // Seidenschlafsack an, Migration 014 benennt den alten Eintrag um. Ohne
+        // diese Prüfung stünde er auf einer frischen Datenbank doppelt.
+        $da = (int) $db->value(
+            "SELECT COUNT(*) FROM pack_items WHERE category_id = ? AND name IN ('Schlafsack', 'Seidenschlafsack')",
+            [$catId]
+        );
         if ($da === 0) {
             $seq = (int) $db->value('SELECT COALESCE(MAX(seq), 0) FROM pack_items WHERE category_id = ?', [$catId]) + 1;
             $db->run(

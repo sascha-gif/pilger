@@ -170,3 +170,4 @@ Bisher gefahren:
 | `011_fitbit` | Fitbit und Ladekabel in der Packliste |
 | `012_vorbereitung` | `todos` — Termine vor der Abreise |
 | `013_schlafsack_rezept` | Schlafsack in die Packliste, Rezept und Apotheke in die Erledigungen |
+| `014_seidenschlafsack` | Präzisierung: Seidenschlafsack (Inlett) aus Hygienegründen |

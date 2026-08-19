@@ -102,6 +102,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/013_schlafsack_rezept.php';
             migration_013($db);
         });
+
+        // Praezisierung: Seidenschlafsack aus Hygienegruenden.
+        $apply('014_seidenschlafsack', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/014_seidenschlafsack.php';
+            migration_014($db);
+        });
     }
 
     /** @return array<int,string> */
