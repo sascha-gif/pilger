@@ -167,3 +167,5 @@ Bisher gefahren:
 | `008_gesundheit` | `health_days`, Datumsgrenzen der Trainingswochen |
 | `009_stempelorte` | `stamp_spots` — Kartensuchen und feste Adressen |
 | `010_gewicht` | `health_days.gewicht_kg` |
+| `011_fitbit` | Fitbit und Ladekabel in der Packliste |
+| `012_vorbereitung` | `todos` — Termine vor der Abreise |

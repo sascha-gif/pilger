@@ -111,6 +111,50 @@ final class Repo
         return $out;
     }
 
+    /* ---- Vor der Abreise ------------------------------------------------ */
+
+    public function todos(): array
+    {
+        return $this->db->all('SELECT * FROM todos ORDER BY done, seq, id');
+    }
+
+    /** @return array{done:int,total:int} */
+    public function todoProgress(): array
+    {
+        return [
+            'done'  => (int) $this->db->value('SELECT COUNT(*) FROM todos WHERE done = 1'),
+            'total' => (int) $this->db->value('SELECT COUNT(*) FROM todos'),
+        ];
+    }
+
+    public function toggleTodo(int $id, bool $done): bool
+    {
+        return $this->db->run(
+            'UPDATE todos SET done = ?, done_at = ? WHERE id = ?',
+            [$done ? 1 : 0, $done ? date('c') : null, $id]
+        )->rowCount() > 0;
+    }
+
+    public function setTodoNotiz(int $id, string $notiz): bool
+    {
+        return $this->db->run('UPDATE todos SET notiz = ? WHERE id = ?', [$notiz, $id])->rowCount() > 0;
+    }
+
+    public function addTodo(string $titel): array
+    {
+        $seq = (int) $this->db->value('SELECT COALESCE(MAX(seq), 0) FROM todos') + 1;
+        $this->db->run(
+            'INSERT INTO todos (seq, titel, created_at) VALUES (?,?,?)',
+            [$seq, $titel, date('c')]
+        );
+        return $this->db->one('SELECT * FROM todos WHERE id = ?', [(int) $this->db->pdo()->lastInsertId()]);
+    }
+
+    public function deleteTodo(int $id): bool
+    {
+        return $this->db->run('DELETE FROM todos WHERE id = ?', [$id])->rowCount() > 0;
+    }
+
     /** Schritte für „Ankunft & Heimreise", nach Phase gruppiert. */
     public function planSteps(string $phase): array
     {

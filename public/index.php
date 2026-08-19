@@ -38,6 +38,8 @@ $costs     = $repo->costItems();
 $costTotal = $repo->costTotal();
 $weeks     = $repo->weightWeeks();
 $notes     = $repo->notes();
+$todos     = $repo->todos();
+$todoProg  = $repo->todoProgress();
 
 $mapPayload = [
     'center' => array_map('floatval', explode(',', $s['map_center'] ?? '42.0,-8.72')),
@@ -129,7 +131,8 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
     <a href="#packliste">05 · Packliste</a>
     <a href="#kosten">06 · Kosten</a>
     <a href="#countdown">07 · Countdown</a>
-    <a href="#tagebuch">08 · Tagebuch</a>
+    <a href="#vorher">08 · Vor der Abreise</a>
+    <a href="#tagebuch">09 · Tagebuch</a>
   </div>
 </nav>
 
@@ -591,9 +594,43 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
   </div>
 </section>
 
+<section id="vorher">
+  <div class="wrap reveal">
+    <div class="sec-head"><div class="sec-num">08</div><h2>Vor der Abreise<small>Termine und Erledigungen — abhaken, was steht</small></h2></div>
+
+    <div class="progress">
+      <span>Erledigt</span>
+      <span class="bar"><i id="todoBalken" style="width:<?= $todoProg['total'] ? round($todoProg['done'] / $todoProg['total'] * 100) : 0 ?>%"></i></span>
+      <span class="cnt" id="todoZahl"><?= (int) $todoProg['done'] ?> / <?= (int) $todoProg['total'] ?> erledigt</span>
+    </div>
+
+    <div class="todos" id="todoListe">
+      <?php foreach ($todos as $td): ?>
+        <div class="todo<?= (int) $td['done'] ? ' fertig' : '' ?>" data-id="<?= (int) $td['id'] ?>">
+          <label class="tdhaken">
+            <input type="checkbox" class="todobox" data-id="<?= (int) $td['id'] ?>"<?= (int) $td['done'] ? ' checked' : '' ?><?= $locked ? ' disabled' : '' ?>>
+          </label>
+          <div class="tdtext">
+            <span class="tdtitel"><?= h($td['titel']) ?></span>
+            <?php if ($td['zweck']): ?><span class="tdzweck"><?= h($td['zweck']) ?></span><?php endif; ?>
+          </div>
+          <input type="text" class="tdnotiz" data-id="<?= (int) $td['id'] ?>"
+                 value="<?= h((string) $td['notiz']) ?>" placeholder="Termin / Notiz" maxlength="200"<?= $locked ? ' disabled' : '' ?>>
+          <button type="button" class="tdweg" data-id="<?= (int) $td['id'] ?>" title="Punkt löschen" aria-label="Punkt löschen">×</button>
+        </div>
+      <?php endforeach; ?>
+    </div>
+
+    <form class="todoneu" id="todoNeu" autocomplete="off">
+      <input type="text" id="todoTitel" placeholder="Was noch? — z. B. Apotheke, Impfpass suchen" maxlength="200">
+      <button type="submit" class="tb-knopf">Hinzufügen</button>
+    </form>
+  </div>
+</section>
+
 <section id="tagebuch">
   <div class="wrap reveal">
-    <div class="sec-head"><div class="sec-num">08</div><h2>Tagebuch &amp; Fotos<small>Sprachnotiz oder getippt · Aufnahmen und Bilder werden gemerkt, bis wieder Netz da ist</small></h2></div>
+    <div class="sec-head"><div class="sec-num">09</div><h2>Tagebuch &amp; Fotos<small>Sprachnotiz oder getippt · Aufnahmen und Bilder werden gemerkt, bis wieder Netz da ist</small></h2></div>
 
     <?php
       // Nachschlagewerk für die Anzeige: Etappen-Id → Beschriftung.

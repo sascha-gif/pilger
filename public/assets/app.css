@@ -503,3 +503,31 @@ footer .stand a:hover{color:var(--flecha);border-bottom-color:var(--flecha)}
    Über :has(), damit es beim Abhaken von selbst mitzieht, ohne Javascript. */
 [data-tabgruppe="pack"][data-show="offen"] details.pcat:not(:has(tr[data-done="0"])){display:none}
 [data-tabgruppe="pack"][data-show="erledigt"] details.pcat:not(:has(tr[data-done="1"])){display:none}
+
+/* ---- Vor der Abreise: Termine und Erledigungen -------------------------- */
+.todos{border:1px solid var(--line);border-top:3px solid var(--atlantic);background:var(--paper-2)}
+.todo{display:grid;grid-template-columns:34px 1fr 200px 30px;align-items:center;gap:12px;
+      padding:12px 16px;border-bottom:1px solid var(--line)}
+.todo:last-child{border-bottom:none}
+.todo.fertig{background:#f2eee1;opacity:.7}
+.tdhaken{display:flex;justify-content:center}
+.tdhaken input{width:19px;height:19px;accent-color:var(--ok);cursor:pointer}
+.tdtitel{display:block;font-size:15.5px;font-weight:600}
+.todo.fertig .tdtitel{text-decoration:line-through;text-decoration-thickness:1px;color:var(--stone)}
+.tdzweck{display:block;font-size:12.5px;color:var(--stone);margin-top:2px}
+.tdnotiz{font-family:"Spline Sans Mono",monospace;font-size:12.5px;padding:7px 9px;
+         border:1px solid transparent;border-bottom-color:var(--line);background:transparent;color:var(--ink)}
+.tdnotiz:hover{border-bottom-color:var(--stone)}
+.tdnotiz:focus{outline:none;border-color:var(--flecha);background:#fff}
+.tdweg{width:26px;height:26px;line-height:1;font-size:17px;border:none;border-radius:50%;
+       background:none;color:var(--line);cursor:pointer}
+.todo:hover .tdweg{color:var(--stone)}
+.tdweg:hover{background:#fbeae6;color:#a4341f}
+.todoneu{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.todoneu input{flex:1 1 16rem;font-family:inherit;font-size:15px;padding:11px 12px;
+               border:1px solid var(--line);background:#fff;color:var(--ink)}
+.todoneu input:focus{outline:2px solid var(--flecha);outline-offset:-2px}
+@media (max-width:560px){
+  .todo{grid-template-columns:30px 1fr 26px;row-gap:8px}
+  .tdnotiz{grid-column:2 / 4}
+}

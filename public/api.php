@@ -213,6 +213,38 @@ try {
             $tagebuch = new Tagebuch($db, $repo);
             json_out(['ok' => true, 'pruefe' => $tagebuch->pruefeAlles()]);
 
+        case 'todo.toggle':
+            if ($id <= 0) {
+                json_out(['ok' => false, 'error' => 'Ungültige ID.'], 400);
+            }
+            if (!$repo->toggleTodo($id, !empty($body['done']))) {
+                json_out(['ok' => false, 'error' => 'Punkt nicht gefunden.'], 404);
+            }
+            json_out(['ok' => true] + $repo->todoProgress());
+
+        case 'todo.notiz':
+            if ($id <= 0) {
+                json_out(['ok' => false, 'error' => 'Ungültige ID.'], 400);
+            }
+            $repo->setTodoNotiz($id, mb_substr(trim((string) ($body['notiz'] ?? '')), 0, 200));
+            json_out(['ok' => true]);
+
+        case 'todo.neu':
+            $titel = trim((string) ($body['titel'] ?? ''));
+            if ($titel === '') {
+                json_out(['ok' => false, 'error' => 'Ohne Text geht es nicht.'], 422);
+            }
+            json_out(['ok' => true, 'todo' => $repo->addTodo(mb_substr($titel, 0, 200))] + $repo->todoProgress());
+
+        case 'todo.loeschen':
+            if ($id <= 0) {
+                json_out(['ok' => false, 'error' => 'Ungültige ID.'], 400);
+            }
+            if (!$repo->deleteTodo($id)) {
+                json_out(['ok' => false, 'error' => 'Punkt nicht gefunden.'], 404);
+            }
+            json_out(['ok' => true] + $repo->todoProgress());
+
         case 'gesundheit.zugang':
             $gesundheit = new Gesundheit($db);
             $gesundheit->zugangSetzen(

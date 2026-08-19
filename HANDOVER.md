@@ -86,6 +86,7 @@ Port geöffnet werden. Details in `docs/DEPLOYMENT.md`.
 | Fortschrittsbalken gelaufene km | **fertig**, rechnet aus den abgehakten Tagen |
 | Stempel-Checkliste (ab Spanien zwei/Tag) | **fertig** |
 | Packliste als Reiter | **fertig** |
+| „Vor der Abreise": Termine zum Abhaken | **fertig**, Punkte selbst ergänzbar |
 | Equipment & Gelenkschutz | **ausgeblendet** auf Wunsch — siehe unten |
 | Ernährung & Supplements | **ausgeblendet** auf Wunsch — siehe unten |
 | Wetter je Etappe (Open-Meteo) | **fertig**, Vorhersage bzw. Vorjahresmittel |

@@ -90,6 +90,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/011_fitbit.php';
             migration_011($db);
         });
+
+        // „Vor der Abreise" — Termine und Erledigungen zum Abhaken.
+        $apply('012_vorbereitung', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/012_vorbereitung.php';
+            migration_012($db);
+        });
     }
 
     /** @return array<int,string> */

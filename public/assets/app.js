@@ -410,6 +410,68 @@
     });
   });
 
+  /* ---------- Vor der Abreise -------------------------------------------- */
+  var todoListe = document.getElementById('todoListe');
+
+  function malTodos(d) {
+    var zahl = document.getElementById('todoZahl');
+    var balken = document.getElementById('todoBalken');
+    if (zahl) zahl.textContent = d.done + ' / ' + d.total + ' erledigt';
+    if (balken) balken.style.width = (d.total ? Math.round(d.done / d.total * 100) : 0) + '%';
+  }
+
+  if (todoListe) {
+    todoListe.addEventListener('change', function (e) {
+      var cb = e.target.closest('.todobox');
+      if (!cb) return;
+      var zeile = cb.closest('.todo');
+      var an = cb.checked;
+      zeile.classList.toggle('fertig', an);
+      if (readOnly) { cb.checked = !an; zeile.classList.toggle('fertig', !an); return; }
+      send({ action: 'todo.toggle', id: Number(cb.dataset.id), done: an })
+        .then(function (d) { malTodos(d); flash(an ? 'Erledigt' : 'Häkchen entfernt'); })
+        .catch(function () { cb.checked = !an; zeile.classList.toggle('fertig', !an); });
+    });
+
+    var notizUhren = {};
+    todoListe.addEventListener('input', function (e) {
+      var feld = e.target.closest('.tdnotiz');
+      if (!feld || readOnly) return;
+      var id = Number(feld.dataset.id);
+      clearTimeout(notizUhren[id]);
+      notizUhren[id] = setTimeout(function () {
+        send({ action: 'todo.notiz', id: id, notiz: feld.value }).then(function () { flash('Notiert'); });
+      }, 700);
+    });
+
+    todoListe.addEventListener('click', function (e) {
+      var weg = e.target.closest('.tdweg');
+      if (!weg || readOnly) return;
+      var zeile = weg.closest('.todo');
+      if (!confirm('„' + zeile.querySelector('.tdtitel').textContent.trim() + '" löschen?')) return;
+      send({ action: 'todo.loeschen', id: Number(weg.dataset.id) })
+        .then(function (d) { zeile.remove(); malTodos(d); });
+    });
+  }
+
+  var todoNeu = document.getElementById('todoNeu');
+  if (todoNeu) {
+    todoNeu.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var feld = document.getElementById('todoTitel');
+      var titel = feld.value.trim();
+      if (!titel || readOnly) return;
+      send({ action: 'todo.neu', titel: titel }).then(function (d) {
+        feld.value = '';
+        malTodos(d);
+        flash('Hinzugefügt');
+        // Neu angelegte Punkte sind offen und gehören nach oben zu den offenen.
+        location.hash = '#vorher';
+        location.reload();
+      });
+    });
+  }
+
   /* ---------- Gewicht von der Waage übernehmen --------------------------- */
   /* Der gemessene Wert überschreibt nie still den getippten — übernommen wird
      er nur auf Klick, und nur solange das Feld leer ist. */
