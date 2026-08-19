@@ -102,7 +102,10 @@ Bereits fix: Hinflug 258,00 € · Porto 186,83 € · Credencial 2,00 €.
 - Zweilagige Socken (Wrightsock), morgens Füße mit Hirschtalg fetten
 - ISDIN Fotoprotector Fusion Gel Sport LSF 50
 - Powerbank Nitecore NB10000 (150 g), Ohropax
-- Kein Schlafsack (Hotels/Pensionen mit Bettwäsche & Handtüchern), Waschen alle 2–3 Tage
+- Schlafsack steht auf der Packliste (Stand 19.08.). Ursprünglich war keiner geplant —
+  Hotels und Pensionen haben Bettwäsche. Art und Gewicht sind offen; bei Zielgewicht
+  unter 8 kg ist der Unterschied Hüttenschlafsack/Vollschlafsack erheblich.
+- Waschen alle 2–3 Tage
 - Flug: Messer & Flüssiges > 100 ml ins Aufgabegepäck, Powerbank ins Handgepäck.
   Steckdosen PT/ES = EU Typ F, kein Adapter nötig.
 

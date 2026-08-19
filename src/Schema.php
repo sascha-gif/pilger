@@ -96,6 +96,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/012_vorbereitung.php';
             migration_012($db);
         });
+
+        // Schlafsack in die Packliste, Rezept und Apotheke in die Erledigungen.
+        $apply('013_schlafsack_rezept', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/013_schlafsack_rezept.php';
+            migration_013($db);
+        });
     }
 
     /** @return array<int,string> */

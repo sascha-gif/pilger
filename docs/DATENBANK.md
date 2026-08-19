@@ -169,3 +169,4 @@ Bisher gefahren:
 | `010_gewicht` | `health_days.gewicht_kg` |
 | `011_fitbit` | Fitbit und Ladekabel in der Packliste |
 | `012_vorbereitung` | `todos` — Termine vor der Abreise |
+| `013_schlafsack_rezept` | Schlafsack in die Packliste, Rezept und Apotheke in die Erledigungen |

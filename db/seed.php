@@ -378,6 +378,7 @@ function seed_database(Database $db): void
                 ['Leichte lange Hose / Jogger', '—', '1', 'Abends im Ort'],
                 ['Casual Shirt / Longsleeve', '—', '1', 'Abends, Restaurant'],
                 ['Schlafshirt + Boxer', '—', '1', 'Schlafen'],
+                ['Schlafsack', '—', '1', 'Gewicht im Blick behalten — Ziel bleibt unter 8 kg'],
             ]],
             ['5 · Regen &amp; Wärme', [
                 ['Regenjacke atmungsaktiv / Poncho', 'packbar', '1', 'Atlantik-Regen, windexponiert'],
