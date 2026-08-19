@@ -84,6 +84,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/010_gewicht.php';
             migration_010($db);
         });
+
+        // Fitbit und ihr Ladekabel in die Packliste.
+        $apply('011_fitbit', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/011_fitbit.php';
+            migration_011($db);
+        });
     }
 
     /** @return array<int,string> */

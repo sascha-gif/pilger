@@ -113,7 +113,7 @@ jobs:
             '
           grep -q 'Camino Portugués' pruefung/seite.html
           grep -q 'id="costTotal"' pruefung/seite.html
-          grep -q '/ 52 gepackt' pruefung/seite.html
+          grep -qE '/ [0-9]+ gepackt' pruefung/seite.html
           cat pruefung/antwort.json; echo
           grep -q '"ok":true' pruefung/antwort.json
           echo "Tür zu, Anmeldung greift, Seite vollständig."

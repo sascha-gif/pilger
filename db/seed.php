@@ -415,6 +415,8 @@ function seed_database(Database $db): void
                 ['Ladegerät USB-C + Kabel', '—', '1', 'Über Nacht laden'],
                 ['Ohropax', '—', '1', 'Schlaf'],
                 ['Kopfhörer', 'optional', '1', 'Podcast / Musik'],
+                ['Fitbit', 'am Arm', '1', 'Schritte, Puls, Schlaf — speist die Seite'],
+                ['Ladekabel Fitbit', 'eigener Klemmadapter', '1', 'Passt zu nichts anderem — leicht vergessen'],
             ]],
             ['11 · Dokumente, Geld &amp; Pilger', [
                 ['Reisepass / Personalausweis', '—', '1', 'Flug, Grenze, Credencial'],

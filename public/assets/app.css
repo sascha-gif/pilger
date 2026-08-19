@@ -497,3 +497,9 @@ footer .stand a:hover{color:var(--flecha);border-bottom-color:var(--flecha)}
 .wtnimm{font-family:"Spline Sans Mono",monospace;font-size:10px;padding:3px 6px;border:1px solid var(--line);
         background:#fff;color:var(--atlantic);cursor:pointer;white-space:nowrap}
 .wtnimm:hover{border-color:var(--atlantic);background:var(--paper-2)}
+
+/* Eine Kategorie, in der im gewählten Reiter keine Zeile übrig ist, fällt ganz
+   weg — sonst stand da eine leere Tabelle mit Kopfzeile und 5/5 daneben.
+   Über :has(), damit es beim Abhaken von selbst mitzieht, ohne Javascript. */
+[data-tabgruppe="pack"][data-show="offen"] details.pcat:not(:has(tr[data-done="0"])){display:none}
+[data-tabgruppe="pack"][data-show="erledigt"] details.pcat:not(:has(tr[data-done="1"])){display:none}
