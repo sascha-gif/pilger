@@ -157,7 +157,7 @@ Punkt: eine Vorhersage für in fünf Wochen gibt es nicht.
 |---|---|---|
 | `tagebuch.text` | `stage`, `tag`, `text`, `client_id` | getippten Eintrag anlegen |
 | `tagebuch.aendern` | `id`, `text` | Text eines Eintrags überschreiben |
-| `tagebuch.veredeln` | `id` | Aufnahme transkribieren und glätten |
+| `tagebuch.veredeln` | `id` | Aufnahme transkribieren und den Text ausbauen |
 | `tagebuch.loeschen` | `id` | Eintrag samt Aufnahme und Bildern |
 | `foto.bildtext` | `id`, `text` | Bildunterschrift |
 | `foto.loeschen` | `id` | Bild und Vorschaubild |
@@ -177,6 +177,14 @@ erkennt der Server das daran und legt ihn nicht doppelt an.
 `tagebuch.veredeln` ist zweistufig und jede Stufe darf ausfallen. Fehlt der
 OpenAI-Schlüssel, kommt 422 und die Aufnahme bleibt liegen. Fehlt nur der
 Anthropic-Schlüssel, kommt 200 mit dem Rohtext und einem `hinweis`.
+
+Der zweite Schritt glättet nicht nur, er baut aus: Claude bekommt neben dem
+Rohtext die Etappe, die Tageswerte aus `health_days`, Wetter und Höhenprofil
+aus `ext_cache` und die Vorschaubilder der Fotos dieses Eintrags. Zurück kommt
+JSON — der Text und Vorschläge für Bildunterschriften, die nur dort gesetzt
+werden, wo noch keine steht. `text_raw` bleibt unangetastet; die Aktion ist
+deshalb beliebig oft wiederholbar und baut jedes Mal wieder aus dem Original
+auf. Antwort zusätzlich: `bildtexte` — wie viele Unterschriften gesetzt wurden.
 
 ### `upload.php` — Fotos und Aufnahmen
 

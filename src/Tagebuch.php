@@ -6,7 +6,7 @@ declare(strict_types=1);
  *
  * Der Ablauf ist bewusst zweistufig und jede Stufe darf ausfallen:
  *
- *   Aufnahme  →  Transkription (Whisper)  →  Glättung (Claude)  →  Text
+ *   Aufnahme  →  Transkription (Whisper)  →  Ausbau (Claude)  →  Text
  *
  * Ist kein Schlüssel hinterlegt, bleibt die Aufnahme trotzdem erhalten und
  * abspielbar; getippter Text geht ohnehin immer. Nichts an dieser Funktion
@@ -395,7 +395,7 @@ final class Tagebuch
         return true;
     }
 
-    /* ================= Transkribieren und glätten ======================== */
+    /* ================= Transkribieren und ausbauen ======================= */
 
     /**
      * Aufnahme in Text verwandeln und den Text lesbar machen.
@@ -431,26 +431,50 @@ final class Tagebuch
         }
 
         if (trim($roh) === '') {
-            return ['ok' => false, 'error' => 'Es ist kein Text da, den man glätten könnte.'];
+            return ['ok' => false, 'error' => 'Es ist kein Text da, den man ausbauen könnte.'];
         }
 
         $key = $this->einstellung('anthropic_key');
         if ($key === null) {
-            $this->status($id, 'transkribiert', 'Ohne Claude-Schlüssel bleibt es beim Rohtext.');
-            return ['ok' => true, 'eintrag' => $this->eintrag($id), 'hinweis' => 'Rohtext — kein Schlüssel für die Glättung.'];
+            $this->status($id, 'transkribiert', 'Ohne Claude-Schlüssel bleibt es beim Original.');
+            return ['ok' => true, 'eintrag' => $this->eintrag($id), 'hinweis' => 'Original — kein Schlüssel für den Ausbau.'];
         }
 
-        $sauber = $this->glaette($roh, $key, $e);
-        if ($sauber === null) {
-            $this->status($id, 'transkribiert', 'Glättung hat nicht geantwortet.');
-            return ['ok' => false, 'error' => 'Die Glättung hat nicht geantwortet — der Rohtext steht.'];
+        $ergebnis = $this->glaette($roh, $key, $e);
+        if ($ergebnis === null) {
+            $this->status($id, 'transkribiert', 'Ausbau hat nicht geantwortet.');
+            return ['ok' => false, 'error' => 'Der Ausbau hat nicht geantwortet — das Original steht unverändert.'];
         }
 
+        // text_raw bleibt unangetastet. Das Original ist das, was gesagt wurde;
+        // die ausgebaute Fassung ist eine zweite Ansicht darauf, kein Ersatz.
+        // Deshalb baut auch jeder erneute Lauf wieder aus text_raw auf, nie aus
+        // dem schon ausgebauten Text — sonst driftet er mit jedem Durchgang.
         $this->db->run(
             'UPDATE diary_entries SET text_clean = ?, status = ?, status_note = NULL, updated_at = ? WHERE id = ?',
-            [$sauber, 'fertig', date('c'), $id]
+            [$ergebnis['text'], 'fertig', date('c'), $id]
         );
-        return ['ok' => true, 'eintrag' => $this->eintrag($id)];
+
+        // Bildunterschriften nur dort setzen, wo noch keine steht — was Sascha
+        // selbst geschrieben hat, wird nicht überschrieben.
+        $gesetzt = 0;
+        foreach ($ergebnis['bildtexte'] as $fotoId => $bildtext) {
+            $foto = $this->foto((int) $fotoId);
+            if ($foto === null || (int) $foto['entry_id'] !== $id) {
+                continue;   // fremdes Bild — nicht anfassen
+            }
+            if (trim((string) $foto['caption']) !== '') {
+                continue;
+            }
+            $this->setzeBildtext((int) $fotoId, $bildtext);
+            $gesetzt++;
+        }
+
+        return [
+            'ok'         => true,
+            'eintrag'    => $this->eintrag($id),
+            'bildtexte'  => $gesetzt,
+        ];
     }
 
     private function status(int $id, string $status, ?string $notiz): void
@@ -492,32 +516,128 @@ final class Tagebuch
     }
 
     /**
-     * Diktiertes zu lesbarem Text machen — und sonst nichts. Das Modell darf
-     * kürzen und Versprecher wegräumen, aber nichts dazuerfinden: ein
-     * Reisetagebuch, in dem Dinge stehen, die nicht passiert sind, ist wertlos.
+     * Aus der Notiz einen fertigen Tagebucheintrag machen.
+     *
+     * Der Knopf hieß mal „Text glätten" und hat auch nur das getan. Er tut
+     * jetzt mehr: das Modell bekommt den Tag mitgeliefert, wie er wirklich war,
+     * und baut die Notiz damit aus.
+     *
+     *  1. **Die Etappe** — Code, Titel, Zielort, geplante und gelaufene
+     *     Kilometer, Stand auf der Gesamtstrecke. Damit stimmen die Ortsnamen:
+     *     Whisper schreibt „Kaminja" und „Baiona" mal so, mal so.
+     *  2. **Was die Uhr gemessen hat** — Schritte, Strecke, Kalorien, Puls,
+     *     aktive Minuten aus dem Google-Health-Konto. Echte Zahlen des Tages.
+     *  3. **Wetter und Höhenprofil** dieser Etappe, mit der Quelle dran:
+     *     eine Vorhersage ist etwas anderes als das Mittel der Vorjahre.
+     *  4. **Die Fotos des Eintrags** als Vorschaubilder.
+     *
+     * Ausbauen heißt hier ausdrücklich nicht ausdenken. Ergänzt werden darf
+     * nur, was in dieser Liste steht oder auf den Bildern zu sehen ist.
+     * Gefühle, Begegnungen und Meinungen kommen ausschließlich aus dem, was
+     * gesagt wurde — ein Reisetagebuch, in dem Dinge stehen, die nicht
+     * passiert sind, ist wertlos.
+     *
+     * Zurück kommt JSON: der Text und Vorschläge für Bildunterschriften.
+     * Lässt sich das nicht lesen, wird die Antwort als einfacher Text
+     * genommen — lieber ein Text ohne Bildunterschriften als gar keiner.
+     *
+     * Der Rohtext wird dabei nie angefasst. Er bleibt in `text_raw` stehen,
+     * das Ergebnis landet in `text_clean`.
+     *
+     * @return array{text:string,bildtexte:array<int,string>}|null
      */
-    private function glaette(string $roh, string $key, array $eintrag): ?string
+    private function glaette(string $roh, string $key, array $eintrag): ?array
     {
         if (!function_exists('curl_init')) {
             return null;
         }
 
         $modell = $this->einstellung('claude_model') ?? 'claude-opus-5';
-        $tag    = $eintrag['day_iso'] ? ' (Tag: ' . $eintrag['day_iso'] . ')' : '';
+        $rahmen = $this->tagesfakten($eintrag);
 
-        $system = 'Du machst aus einer diktierten Sprachnotiz einen lesbaren Tagebucheintrag. '
+        /* ---- Die Fotos dieses Eintrags ---------------------------------- */
+        $fotos  = $this->db->all(
+            'SELECT id, file, thumb, caption FROM photos WHERE entry_id = ? ORDER BY id',
+            [(int) $eintrag['id']]
+        );
+        $inhalt = [];
+        $liste  = [];
+
+        foreach ($fotos as $n => $f) {
+            // Bewusst das Vorschaubild: 480 px reichen, um zu erkennen, was
+            // drauf ist, und kosten einen Bruchteil des grossen Bildes.
+            $pfad = data_path('fotos') . '/' . basename((string) ($f['thumb'] ?: $f['file']));
+            if (!is_readable($pfad) || filesize($pfad) > 4 * 1024 * 1024) {
+                continue;
+            }
+            $roh_bild = @file_get_contents($pfad);
+            if ($roh_bild === false) {
+                continue;
+            }
+            $inhalt[] = [
+                'type'   => 'image',
+                'source' => [
+                    'type'       => 'base64',
+                    'media_type' => 'image/jpeg',
+                    'data'       => base64_encode($roh_bild),
+                ],
+            ];
+            $liste[] = 'Bild ' . ($n + 1) . ' (id ' . (int) $f['id'] . ')'
+                . ($f['caption'] ? ' — hat schon die Unterschrift: „' . $f['caption'] . '"' : '');
+        }
+
+        /* ---- Anweisung --------------------------------------------------- */
+        $system = 'Du machst aus einer diktierten oder getippten Notiz einen fertigen Tagebucheintrag. '
             . 'Es geht um eine Pilgerwanderung auf dem Camino Portugués da Costa von Porto nach Santiago. '
-            . 'Regeln: Schreibe in der ersten Person, im Ton des Sprechers, deutsch. '
-            . 'Räume Versprecher, Füllwörter und Wiederholungen weg und setze Absätze. '
-            . 'Erfinde nichts dazu — keine Orte, keine Zahlen, keine Erlebnisse, die nicht gesagt wurden. '
-            . 'Wenn etwas unverständlich ist, lass es weg statt zu raten. '
-            . 'Antworte ausschließlich mit dem fertigen Text, ohne Vorrede und ohne Überschrift.';
+            . 'Der Schreiber heißt Sascha, ist 47 und trägt sein Gepäck selbst.'
+            . "\n\n"
+            . "So arbeitest du:\n"
+            . "- Erste Person, Vergangenheit, im Ton des Sprechers, auf Deutsch. Sein Text, nicht deiner.\n"
+            . "- Versprecher, Füllwörter und Wiederholungen raus, Absätze rein.\n"
+            . "- **Bau den Eintrag aus.** Eine hingeworfene Notiz darf ein Text von zwei bis vier "
+            . "Absätzen werden. Du hast unten den Tag, wie er wirklich war: die Etappe, die Zahlen "
+            . "der Uhr, Wetter und Höhenmeter, dazu die Fotos. Verwebe das in den Text, statt es "
+            . "als Liste anzuhängen — „die 27 Kilometer nach Vigo\" liest sich besser als eine "
+            . "Datenzeile am Ende. Nicht alles muss vorkommen; nimm, was zum Gesagten passt.\n"
+            . "- Die Bilder darfst du beschreiben und in den Text einbauen — was **tatsächlich "
+            . "darauf zu sehen** ist. Sie helfen dir auch beim Einordnen: ob mit „der Kirche\" "
+            . "ein Kloster oder eine Kapelle gemeint war.\n"
+            . "- Orts- und Eigennamen richtig schreiben. Der Etappenrahmen sagt dir, wo er war; "
+            . "eine falsch verstandene Ortsangabe korrigierst du danach.\n\n"
+            . "Wo die Grenze liegt:\n"
+            . "- Ergänzen darfst du **nur** aus dem Etappenrahmen unten und aus dem, was auf den "
+            . "Bildern zu sehen ist. Sonst nichts.\n"
+            . "- **Gefühle, Gedanken, Begegnungen, Gespräche, Meinungen und Bewertungen kommen "
+            . "ausschließlich aus dem, was er gesagt hat.** Du erfindest keine Stimmung, keine "
+            . "müden Beine, keine nette Wirtin, kein Bier am Abend, wenn davon nicht die Rede war.\n"
+            . "- Keine Zahl, die nicht unten steht. Kein Ort, an dem er nicht war. Keine "
+            . "Sehenswürdigkeit, die du kennst, aber die weder er nennt noch auf einem Bild ist.\n"
+            . "- Unverständliches lässt du weg, statt zu raten.\n"
+            . "- Steht unten nichts als das Datum, ist das kein Grund, dürftiger zu werden — dann "
+            . "räumst du eben nur auf.\n\n"
+            . "Antworte ausschließlich mit JSON in genau dieser Form:\n"
+            . '{"text": "der fertige Eintrag", "bildtexte": [{"id": 12, "text": "kurze Unterschrift"}]}'
+            . "\n\n"
+            . 'Die Bildunterschriften beschreiben, was auf dem jeweiligen Bild zu sehen ist — kurz, '
+            . 'höchstens ein Satz. Bilder, die schon eine Unterschrift haben, lässt du aus. '
+            . 'Gibt es keine Bilder, ist "bildtexte" eine leere Liste.';
+
+        /* ---- Anfrage ----------------------------------------------------- */
+        $frage = "Notiz:\n\n" . $roh;
+        if ($rahmen) {
+            $frage .= "\n\n---\nDer Tag in Daten (belegt — daraus darfst du ergänzen):\n· "
+                . implode("\n· ", $rahmen);
+        }
+        if ($liste) {
+            $frage .= "\n\n---\nDazu " . count($liste) . " Bild(er):\n· " . implode("\n· ", $liste);
+        }
+        $inhalt[] = ['type' => 'text', 'text' => $frage];
 
         $ch = curl_init(self::CLAUDE);
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_POST           => true,
-            CURLOPT_TIMEOUT        => 120,
+            CURLOPT_TIMEOUT        => 240,
             CURLOPT_HTTPHEADER     => [
                 'Content-Type: application/json',
                 'x-api-key: ' . $key,
@@ -525,12 +645,9 @@ final class Tagebuch
             ],
             CURLOPT_POSTFIELDS => json_encode([
                 'model'      => $modell,
-                'max_tokens' => 2000,
+                'max_tokens' => 4000,
                 'system'     => $system,
-                'messages'   => [[
-                    'role'    => 'user',
-                    'content' => 'Hier ist die Sprachnotiz' . $tag . ":\n\n" . $roh,
-                ]],
+                'messages'   => [['role' => 'user', 'content' => $inhalt]],
             ], JSON_UNESCAPED_UNICODE),
         ]);
         $body = curl_exec($ch);
@@ -538,7 +655,7 @@ final class Tagebuch
         curl_close($ch);
 
         if ($code !== 200 || !is_string($body)) {
-            error_log('pilger: Glättung HTTP ' . $code . ' — ' . substr((string) $body, 0, 300));
+            error_log('pilger: Ausbau HTTP ' . $code . ' — ' . substr((string) $body, 0, 400));
             return null;
         }
 
@@ -550,7 +667,187 @@ final class Tagebuch
             }
         }
         $text = trim($text);
-        return $text === '' ? null : $text;
+        if ($text === '') {
+            return null;
+        }
+
+        return self::leseAntwort($text);
+    }
+
+    /**
+     * Was an diesem Tag belegbar ist — und nur das.
+     *
+     * Jede Zeile hier ist eine Zahl oder ein Name aus der Datenbank. Was nicht
+     * da ist, wird auch nicht behauptet: fehlt die Uhr an einem Tag, steht dort
+     * eben nichts, statt einer geschätzten Schrittzahl. Beim Wetter steht die
+     * Quelle dabei, weil ein Mittel der Vorjahre keine Vorhersage ist.
+     *
+     * Wetter und Höhen kommen aus dem Zwischenspeicher der Außendaten. Geht
+     * dabei etwas schief, fehlen eben diese Zeilen — der Ausbau darf daran
+     * nicht scheitern.
+     *
+     * @return array<int,string>
+     */
+    private function tagesfakten(array $eintrag): array
+    {
+        $rahmen = [];
+
+        $etappe = null;
+        if ($eintrag['stage_id']) {
+            $etappe = $this->db->one(
+                'SELECT id, code, title, title_suffix, dist, date_iso, km_walk, map_name,
+                        done, stamps_needed, stamps_done
+                   FROM stages WHERE id = ?',
+                [(int) $eintrag['stage_id']]
+            );
+        }
+
+        $tag = (string) ($etappe['date_iso'] ?? $eintrag['day_iso'] ?? '');
+
+        /* ---- Etappe ------------------------------------------------------ */
+        if ($etappe !== null) {
+            $rahmen[] = 'Etappe: ' . trim(($etappe['code'] ?? '') . ' ' . $etappe['title']
+                . ' ' . ($etappe['title_suffix'] ?? ''));
+            if ($etappe['map_name']) { $rahmen[] = 'Zielort: ' . $etappe['map_name']; }
+            if ($etappe['dist'])     { $rahmen[] = 'Geplant: ' . $etappe['dist']; }
+
+            $noetig = (int) $etappe['stamps_needed'];
+            if ($noetig > 0) {
+                $rahmen[] = 'Stempel: ' . (int) $etappe['stamps_done'] . ' von ' . $noetig . ' im Buch';
+            }
+        }
+        if ($tag !== '') {
+            $rahmen[] = 'Datum: ' . self::datumLang($tag);
+        }
+
+        /* ---- Stand auf der Gesamtstrecke --------------------------------- */
+        $weg = $this->repo->wegProgress();
+        if ($weg['gelaufen'] > 0) {
+            $rahmen[] = 'Stand der Reise: ' . self::zahl($weg['gelaufen'], 1) . ' von '
+                . self::zahl($weg['gesamt'], 1) . ' km gelaufen, noch '
+                . self::zahl($weg['rest'], 1) . ' km bis Santiago ('
+                . $weg['etappen'] . ' von ' . $weg['etappen_gesamt'] . ' Etappen)';
+        }
+
+        /* ---- Was die Uhr gemessen hat ------------------------------------ */
+        if ($tag !== '') {
+            $g = $this->db->one('SELECT * FROM health_days WHERE day_iso = ?', [$tag]);
+            if ($g !== null) {
+                $gemessen = [];
+                if ($g['steps'] !== null)     { $gemessen[] = self::zahl((float) $g['steps'], 0) . ' Schritte'; }
+                if ($g['distanz_m'] !== null) { $gemessen[] = self::zahl(((int) $g['distanz_m']) / 1000, 1) . ' km zurückgelegt'; }
+                if ($g['kcal'] !== null)      { $gemessen[] = self::zahl((float) $g['kcal'], 0) . ' kcal verbraucht'; }
+                if ($g['aktiv_min'] !== null) { $gemessen[] = (int) $g['aktiv_min'] . ' aktive Minuten'; }
+                if ($g['hr_avg'] !== null)    { $gemessen[] = 'Puls im Mittel ' . (int) $g['hr_avg'] . ' bpm'; }
+                if ($g['hr_max'] !== null)    { $gemessen[] = 'Spitzenpuls ' . (int) $g['hr_max'] . ' bpm'; }
+                if ($g['hr_ruhe'] !== null)   { $gemessen[] = 'Ruhepuls ' . (int) $g['hr_ruhe'] . ' bpm'; }
+                if ($gemessen) {
+                    $rahmen[] = 'Von der Uhr gemessen: ' . implode(', ', $gemessen);
+                }
+
+                // Der Vergleich ist die interessanteste Zahl des Tages: auf dem
+                // Camino läuft man fast immer mehr als geplant.
+                if ($g['distanz_m'] !== null && $etappe !== null && (float) ($etappe['km_walk'] ?? 0) > 0) {
+                    $delta = round(((int) $g['distanz_m']) / 1000 - (float) $etappe['km_walk'], 1);
+                    if (abs($delta) >= 0.5) {
+                        $rahmen[] = 'Das sind ' . self::zahl(abs($delta), 1) . ' km '
+                            . ($delta > 0 ? 'mehr' : 'weniger') . ' als die geplante Etappe';
+                    }
+                }
+                if ($g['gewicht_kg'] !== null) {
+                    $rahmen[] = 'Gewicht an diesem Tag: ' . self::zahl((float) $g['gewicht_kg'], 1) . ' kg';
+                }
+            }
+        }
+
+        /* ---- Wetter und Höhen -------------------------------------------- */
+        if ($etappe !== null) {
+            try {
+                $aussen = new Aussen($this->db, $this->repo);
+
+                $w = $aussen->wetter()['tage'][(int) $etappe['id']] ?? null;
+                if ($w !== null) {
+                    // Ohne Wettercode gibt wetterText() einen leeren String
+                    // zurück — der darf nicht als Komma im Satz landen.
+                    $teile = array_filter([
+                        Aussen::wetterText(isset($w['code']) ? (int) $w['code'] : null),
+                        $w['max'] !== null
+                            ? 'bis ' . round((float) $w['max']) . ' °C'
+                                . ($w['min'] !== null ? ', nachts ' . round((float) $w['min']) . ' °C' : '')
+                            : '',
+                        !empty($w['regen']) ? self::zahl((float) $w['regen'], 1) . ' mm Regen' : '',
+                        !empty($w['wind'])  ? 'Wind bis ' . round((float) $w['wind']) . ' km/h' : '',
+                    ], static fn ($t) => $t !== '');
+
+                    if ($teile) {
+                        // Ein Mittel der Vorjahre ist keine Messung. Steht das
+                        // nicht dran, schreibt das Modell „es regnete", obwohl
+                        // niemand weiß, ob es das tat.
+                        $quelle = ($w['quelle'] ?? '') === 'vorhersage'
+                            ? 'Vorhersage'
+                            : 'Mittel der letzten ' . (int) ($w['jahre'] ?? 5)
+                                . ' Jahre — kein gemessener Wert für diesen Tag, nur als Anhalt';
+                        $rahmen[] = 'Wetter (' . $quelle . '): ' . implode(', ', $teile);
+                    }
+                }
+
+                $h = $aussen->hoehen()['etappen'][(int) $etappe['id']] ?? null;
+                if ($h !== null && isset($h['auf'])) {
+                    $rahmen[] = 'Höhenprofil der Etappe: ' . (int) $h['auf'] . ' Höhenmeter hinauf, '
+                        . (int) $h['ab'] . ' hinunter, höchster Punkt ' . (int) $h['max'] . ' m';
+                }
+            } catch (Throwable $e) {
+                error_log('pilger: Außendaten für den Ausbau nicht verfügbar — ' . $e->getMessage());
+            }
+        }
+
+        return $rahmen;
+    }
+
+    /** „2026-09-25" wird zu „Freitag, 25. September 2026". */
+    private static function datumLang(string $iso): string
+    {
+        $t = strtotime($iso);
+        if ($t === false) {
+            return $iso;
+        }
+        $tage   = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+        $monate = ['', 'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
+                   'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+
+        return $tage[(int) date('w', $t)] . ', ' . (int) date('j', $t) . '. '
+            . $monate[(int) date('n', $t)] . ' ' . date('Y', $t);
+    }
+
+    private static function zahl(float $wert, int $stellen): string
+    {
+        return number_format($wert, $stellen, ',', '.');
+    }
+
+    /**
+     * Die JSON-Antwort auseinandernehmen. Schreibt das Modell doch Fließtext
+     * oder packt das JSON in einen Codeblock, wird das aufgefangen — ein Text
+     * ohne Bildunterschriften ist immer noch besser als eine Fehlermeldung.
+     *
+     * @return array{text:string,bildtexte:array<int,string>}
+     */
+    private static function leseAntwort(string $roh): array
+    {
+        $sauber = trim(preg_replace('/^```(?:json)?|```$/m', '', $roh) ?? $roh);
+        $daten  = json_decode($sauber, true);
+
+        if (!is_array($daten) || !isset($daten['text'])) {
+            return ['text' => $roh, 'bildtexte' => []];
+        }
+
+        $bildtexte = [];
+        foreach ($daten['bildtexte'] ?? [] as $b) {
+            if (isset($b['id'], $b['text']) && trim((string) $b['text']) !== '') {
+                $bildtexte[(int) $b['id']] = mb_substr(trim((string) $b['text']), 0, 500);
+            }
+        }
+
+        return ['text' => trim((string) $daten['text']), 'bildtexte' => $bildtexte];
     }
 
     /* ================= Bildwerkzeug ====================================== */

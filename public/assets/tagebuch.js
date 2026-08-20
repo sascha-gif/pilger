@@ -294,14 +294,74 @@
   /* ================= Speichern ========================================== */
 
   var fotoEingabe = document.getElementById('tbFotos');
+  var wahlEl = document.getElementById('tbWahl');
   var gewaehlteFotos = [];
+
+  /* Zwei Bilder sind dasselbe, wenn Name, Groesse und Zeitstempel stimmen.
+     Wer die Galerie zweimal oeffnet und dasselbe Foto nochmal antippt, soll es
+     nicht doppelt hochladen. */
+  function schonDrin(datei) {
+    return gewaehlteFotos.some(function (a) {
+      return a.name === datei.name && a.size === datei.size && a.lastModified === datei.lastModified;
+    });
+  }
+
+  function malWahl() {
+    if (!wahlEl) return;
+    if (!gewaehlteFotos.length) {
+      wahlEl.hidden = true;
+      wahlEl.innerHTML = '';
+      return;
+    }
+    wahlEl.hidden = false;
+    wahlEl.innerHTML = '';
+
+    var kopf = document.createElement('p');
+    kopf.className = 'tb-wahl-kopf';
+    kopf.textContent = gewaehlteFotos.length + (gewaehlteFotos.length === 1 ? ' Bild' : ' Bilder') +
+      ' ausgewählt — mit „Eintrag speichern" übernehmen.';
+    wahlEl.appendChild(kopf);
+
+    var strecke = document.createElement('div');
+    strecke.className = 'tb-wahl-bilder';
+    gewaehlteFotos.forEach(function (datei, i) {
+      var kachel = document.createElement('figure');
+      kachel.className = 'bk vorschau';
+      var bild = document.createElement('img');
+      bild.alt = datei.name || 'Bild';
+      // Objekt-URL wieder freigeben, sonst haengen 30 Handyfotos im Speicher.
+      var url = URL.createObjectURL(datei);
+      bild.src = url;
+      bild.onload = function () { URL.revokeObjectURL(url); };
+      var weg = document.createElement('button');
+      weg.type = 'button';
+      weg.className = 'bk-weg';
+      weg.title = 'Aus der Auswahl nehmen';
+      weg.textContent = '\u00d7';
+      weg.addEventListener('click', function () {
+        gewaehlteFotos.splice(i, 1);
+        malWahl();
+      });
+      kachel.appendChild(bild);
+      kachel.appendChild(weg);
+      strecke.appendChild(kachel);
+    });
+    wahlEl.appendChild(strecke);
+  }
 
   if (fotoEingabe) {
     fotoEingabe.addEventListener('change', function () {
-      gewaehlteFotos = Array.prototype.slice.call(fotoEingabe.files || []);
-      sag(gewaehlteFotos.length
-        ? gewaehlteFotos.length + ' Bild(er) ausgewählt — mit „Eintrag speichern" übernehmen.'
-        : '');
+      // Sammeln, nicht ersetzen: am Handy kommt das zweite Bild aus einem
+      // zweiten Griff in die Galerie, und der erste darf davon nicht weg sein.
+      var neu = 0;
+      Array.prototype.slice.call(fotoEingabe.files || []).forEach(function (datei) {
+        if (!schonDrin(datei)) { gewaehlteFotos.push(datei); neu++; }
+      });
+      // Zuruecksetzen, damit dasselbe Bild erneut ausgewaehlt werden koennte
+      // und `change` beim naechsten Mal ueberhaupt wieder feuert.
+      fotoEingabe.value = '';
+      malWahl();
+      if (!neu) sag('Diese Bilder sind schon in der Auswahl.');
     });
   }
 
@@ -336,6 +396,7 @@
         textFeld.value = '';
         gewaehlteFotos = [];
         if (fotoEingabe) fotoEingabe.value = '';
+        malWahl();
         fertigeAufnahme = null;
         if (knopf) {
           knopf.classList.remove('fertig');
@@ -359,6 +420,12 @@
     var id = Number(karte.dataset.id);
 
     if (e.target.classList.contains('veredeln')) {
+      // Der Ausbau ueberschreibt die ausgebaute Fassung — das Original bleibt,
+      // eine von Hand nachgebesserte Fassung nicht. Deshalb hier gefragt.
+      if (e.target.classList.contains('erneut') &&
+          !confirm('Neu ausbauen? Der Text wird wieder aus dem Original erzeugt — eigene Änderungen daran gehen verloren. Das Original selbst bleibt.')) {
+        return;
+      }
       var beschriftung = e.target.textContent;
       e.target.disabled = true;
       e.target.textContent = 'läuft …';
@@ -401,6 +468,43 @@
         .then(function () { karte.remove(); })
         .catch(function (err) { sag(err.message, true); });
     }
+  });
+
+  /* ================= Bilder zu einem bestehenden Eintrag ================ */
+  /* Ein Tagebucheintrag waechst ueber den Abend: erst die Sprachnotiz, dann
+     die Bilder, die man beim Durchsehen noch findet. Der Weg geht durch
+     dieselbe Warteschlange wie alles andere — auch nachgereichte Bilder
+     duerfen bei fehlendem Netz nicht verloren gehen. */
+  listeEl.addEventListener('change', function (e) {
+    var eingabe = e.target.closest('.tbe-fotos');
+    if (!eingabe) return;
+    var karte = eingabe.closest('.tbe');
+    if (!karte) return;
+
+    var dateien = Array.prototype.slice.call(eingabe.files || []);
+    eingabe.value = '';
+    if (!dateien.length) return;
+
+    inDieSchlange({
+      id: kennung(),
+      entryId: Number(karte.dataset.id),
+      stage: karte.dataset.stage || '',
+      etappe: (karte.querySelector('.tbtag') || {}).textContent || '',
+      text: null,
+      audio: null,
+      fotos: dateien,
+      erstellt: new Date().toISOString(),
+      versuche: 0
+    }).then(function () {
+      sag(navigator.onLine
+        ? dateien.length + (dateien.length === 1 ? ' Bild wird hochgeladen.' : ' Bilder werden hochgeladen.')
+        : 'Auf dem Gerät gemerkt — geht raus, sobald Netz da ist.');
+      return malSchlange();
+    }).then(function () {
+      return abarbeiten();
+    }).catch(function () {
+      sag('Die Bilder konnten nicht einmal auf dem Gerät gemerkt werden.', true);
+    });
   });
 
   /* ================= Bilder beschriften und löschen ===================== */
@@ -547,7 +651,7 @@
   function zeigePruefung(p) {
     if (!hinweis || !p) return;
     var zeilen = [
-      ['Claude (Glättung)', p.claude],
+      ['Claude (Ausbau)', p.claude],
       ['Whisper (Transkription)', p.whisper]
     ];
     hinweis.innerHTML = zeilen.map(function (z) {

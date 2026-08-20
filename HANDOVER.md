@@ -262,5 +262,17 @@ Nummern davor.
   entlang der hinterlegten Küstenlinie. Das ist keine GPX-Spur, und auf den
   letzten vier Etappen liegt zwischen zwei Stützpunkten eine Gerade. Der
   Quellenhinweis unter den Etappen sagt das.
-- **Kein Dazuerfinden beim Glätten.** Das Modell darf kürzen und Versprecher
-  wegräumen, aber keine Orte, Zahlen oder Erlebnisse ergänzen.
+- **Das Original bleibt.** `text_raw` wird nie überschrieben — weder beim
+  Ausbauen noch beim Bearbeiten von Hand. Am Eintrag steht es unter „Original
+  ansehen", die Sprachaufnahme liegt ohnehin daneben. Jeder erneute Ausbau
+  setzt wieder auf `text_raw` auf, nie auf der schon ausgebauten Fassung —
+  sonst driftet der Text mit jedem Durchgang weiter vom Gesagten weg.
+- **Ausbauen ist nicht Ausdenken.** Der Knopf am Eintrag baut die Notiz aus,
+  und zwar mit dem, was über den Tag belegt ist: Etappe und Zielort, die
+  Zahlen der Uhr aus `health_days`, Wetter und Höhenmeter, die Fotos des
+  Eintrags. Alles davon steht in der Datenbank. Was das Modell **nicht** darf:
+  Gefühle, Begegnungen, Gespräche und Bewertungen ergänzen, die nicht gesagt
+  wurden, oder Orte und Zahlen nennen, die nirgends stehen. Beim Wetter ist
+  vermerkt, ob es eine Vorhersage war oder das Mittel der Vorjahre — sonst
+  schreibt das Modell „es regnete" über einen Tag, an dem das niemand gemessen
+  hat.

@@ -684,6 +684,10 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
         </label>
       </div>
 
+      <?php /* Was schon ausgewaehlt ist, bleibt sichtbar und bleibt liegen:
+               am Handy holt man die Bilder meist einzeln aus der Galerie. */ ?>
+      <div class="tb-wahl" id="tbWahl" hidden></div>
+
       <textarea id="tbText" rows="3" placeholder="… oder einfach tippen. Speichern geht auch ohne Netz — der Eintrag geht raus, sobald wieder Empfang ist."></textarea>
       <div class="tb-aktion">
         <button type="button" id="tbSpeichern" class="tb-knopf haupt">Eintrag speichern</button>
@@ -701,7 +705,7 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
           $roh    = $e['text_clean'] && $e['text_raw'] ? (string) $e['text_raw'] : null;
           $fotos  = array_values(array_filter($alleFotos, static fn ($f) => (int) $f['entry_id'] === (int) $e['id']));
         ?>
-        <article class="tbe" data-id="<?= (int) $e['id'] ?>">
+        <article class="tbe" data-id="<?= (int) $e['id'] ?>" data-stage="<?= (int) $e['stage_id'] ?>">
           <header>
             <span class="tbtag"><?= h($etappe ?: (string) $e['day_iso']) ?></span>
             <?php if ($e['kind'] === 'audio'): ?>
@@ -724,7 +728,7 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
           <div class="tbtext"<?= $text === '' ? ' hidden' : '' ?>><?= nl2br(h($text)) ?></div>
 
           <?php if ($roh !== null): ?>
-            <details class="tbroh"><summary>Rohtext ansehen</summary><p><?= nl2br(h($roh)) ?></p></details>
+            <details class="tbroh"><summary>Original ansehen — genau so gesagt oder getippt</summary><p><?= nl2br(h($roh)) ?></p></details>
           <?php endif; ?>
 
           <?php if ($fotos): ?>
@@ -741,10 +745,21 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
             <?php if ($e['audio_file'] && $e['status'] !== 'fertig'): ?>
               <button type="button" class="tb-mini veredeln">Text daraus machen</button>
             <?php elseif ($text !== '' && !$e['text_clean']): ?>
-              <?php /* Diktiert oder getippt — hier fehlt nur noch die Glättung. */ ?>
-              <button type="button" class="tb-mini veredeln">Text glätten</button>
+              <?php /* Diktiert oder getippt — der Ausbau fehlt noch. */ ?>
+              <button type="button" class="tb-mini veredeln">Text ausbauen</button>
+            <?php elseif ($e['text_clean']): ?>
+              <?php /* Nochmal: nachgereichte Bilder und die Zahlen der Uhr, die
+                       erst am nächsten Morgen synchronisiert wurden, kommen so
+                       noch in den Text. Gebaut wird immer aus dem Original. */ ?>
+              <button type="button" class="tb-mini veredeln erneut">Neu ausbauen</button>
             <?php endif; ?>
             <button type="button" class="tb-mini bearbeiten">Bearbeiten</button>
+            <?php /* Bilder gehoeren zum Eintrag, nicht nur zum Anlegen: was
+                     abends dazukommt, muss auch spaeter noch dazu koennen. */ ?>
+            <label class="tb-mini datei">
+              Fotos hinzufügen
+              <input type="file" class="tbe-fotos" accept="image/*" multiple hidden>
+            </label>
             <button type="button" class="tb-mini loeschen">Löschen</button>
           </footer>
         </article>
@@ -790,7 +805,7 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
       <div class="tb-eform">
         <p class="kannstand">
           <span class="<?= $kann['glaettung'] ? 'ja' : 'nein' ?>">
-            <?= $kann['glaettung'] ? '✓' : '○' ?> Glättung (Claude)
+            <?= $kann['glaettung'] ? '✓' : '○' ?> Ausbau (Claude)
           </span>
           <span class="<?= $kann['transkription'] ? 'ja' : 'nein' ?>">
             <?= $kann['transkription'] ? '✓' : '○' ?> Transkription (Whisper)
@@ -801,10 +816,16 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
           zweierlei, und sie hängen nicht aneinander:
         </p>
         <p>
-          <b>Claude</b> macht aus rohem Text lesbares Deutsch — Absätze statt „ähm", nichts
-          dazuerfunden. Das reicht schon allein: Diktier oben ins Tippfeld über den
-          Mikrofon-Knopf deiner Handytastatur, speichere, und am Eintrag steht dann
-          <i>„Text glätten"</i>. Rund 2 Cent je Eintrag.
+          <b>Claude</b> macht aus der Notiz einen fertigen Eintrag: lesbares Deutsch, und dazu
+          bekommt es den Tag mitgeliefert, wie er wirklich war — Etappe und Zielort, Schritte,
+          Kilometer, Kalorien und Puls von der Uhr, Wetter, Höhenmeter und die Fotos des
+          Eintrags. Aus drei hingeworfenen Sätzen werden so zwei, drei Absätze. Ergänzt wird
+          nur, was in diesen Daten steht oder auf den Bildern zu sehen ist; Gefühle und
+          Begegnungen kommen ausschließlich aus dem, was du selbst gesagt hast. Das Original
+          bleibt immer erhalten und steht am Eintrag unter <i>„Original ansehen"</i>.
+          Diktier oben ins Tippfeld über den Mikrofon-Knopf deiner Handytastatur, speichere,
+          und am Eintrag steht dann <i>„Text ausbauen"</i>. Rund 2 Cent je Eintrag,
+          mit vielen Bildern etwas mehr.
         </p>
         <p>
           <b>Whisper</b> braucht es nur für <i>aufgenommene</i> Sprachnotizen — Claude nimmt

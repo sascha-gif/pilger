@@ -141,9 +141,22 @@ Sprachnotiz oder getippt, dazu Fotos je Etappe. Alles landet zuerst in der
 IndexedDB des Geräts und geht erst dann raus — auf dem Camino ist streckenweise
 kein Netz, und ein Eintrag, der erst beim Hochladen entsteht, wäre dann weg.
 
-Transkription (Whisper) und Glättung (Claude) sind optional; ohne hinterlegte
-Schlüssel bleibt die Aufnahme trotzdem erhalten und abspielbar. Beim Glätten
-darf gekürzt und aufgeräumt, aber nichts dazuerfunden werden.
+Bilder gehören zum Eintrag, nicht nur zum Anlegen: mehrere auf einmal, in
+mehreren Griffen nacheinander, und auch später noch am fertigen Eintrag.
+
+Transkription (Whisper) und Ausbau (Claude) sind optional; ohne hinterlegte
+Schlüssel bleibt die Aufnahme trotzdem erhalten und abspielbar.
+
+Der Ausbau macht aus der Notiz einen fertigen Eintrag. Claude bekommt dazu den
+Tag mitgeliefert, wie er wirklich war: Etappe und Zielort, Schritte, Strecke,
+Kalorien und Puls aus dem Google-Health-Konto, Wetter, Höhenmeter und die Fotos
+des Eintrags. Ergänzt werden darf nur, was in diesen Daten steht oder auf den
+Bildern zu sehen ist — Gefühle, Begegnungen und Bewertungen ausschließlich aus
+dem, was gesagt wurde.
+
+**Das Original bleibt immer erhalten.** Die Aufnahme sowieso, und der Rohtext
+in `text_raw` — der wird nie überschrieben. Jeder erneute Ausbau setzt wieder
+darauf auf, nicht auf der ausgebauten Fassung.
 
 ## Offene Punkte
 
