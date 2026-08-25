@@ -497,6 +497,19 @@
     return v === null || v === undefined ? '–' : Math.round(v) + '°';
   }
 
+  /* „2026-09-19" wird zu „Fr 19.09.". Bewusst aus den Teilen gebaut und nicht
+     mit new Date(iso): das waere UTC, und westlich von Greenwich stuende dann
+     der Vortag da. */
+  var WOCHENTAG = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+
+  function tagKurz(iso) {
+    var t = String(iso || '').split('-');
+    if (t.length !== 3) return '';
+    var d = new Date(Number(t[0]), Number(t[1]) - 1, Number(t[2]));
+    if (isNaN(d.getTime())) return '';
+    return WOCHENTAG[d.getDay()] + ' ' + t[2] + '.' + t[1] + '.';
+  }
+
   function malWetter(daten) {
     var stand = null;
     Object.keys(daten.tage || {}).forEach(function (id) {
@@ -504,13 +517,21 @@
       var box = document.querySelector('.tagdaten[data-stage="' + id + '"]');
       if (!box) return;
       var feld = box.querySelector('.wetterfeld');
-      var zeichen = w.code === null || w.code === undefined ? '📅' : (ZEICHEN[w.code] || '☁');
+      // Ohne Wettercode gibt es keine Aussage ueber den Himmel, nur Zahlen —
+      // dann ein Thermometer. Frueher stand hier der Kalender 📅, und der
+      // zeigt in den meisten Schriften eine 17 auf dem Blatt: das las sich
+      // wie ein Datum, und zwar wie das falsche.
+      var zeichen = w.code === null || w.code === undefined ? '🌡' : (ZEICHEN[w.code] || '☁');
       var teile = [grad(w.max) + ' / ' + grad(w.min)];
       if (w.regenp !== null && w.regenp !== undefined) teile.push(w.regenp + ' % Regen');
       if (w.wind) teile.push(Math.round(w.wind) + ' km/h Wind');
 
+      // Der Tag gehoert dazu. Es sind die Werte des Etappentages, aber das
+      // muss man sehen koennen, ohne es zu glauben.
+      var wann = tagKurz(w.datum);
       feld.innerHTML = '<b>' + zeichen + '</b> ' + teile.join(' · ') +
-        '<em>' + (w.quelle === 'vorhersage' ? 'Vorhersage' : 'Mittel aus ' + w.jahre + ' Jahren') + '</em>';
+        '<em>' + (wann ? wann + ' · ' : '') +
+        (w.quelle === 'vorhersage' ? 'Vorhersage' : 'Mittel aus ' + w.jahre + ' Jahren') + '</em>';
       feld.classList.add('da');
       box.hidden = false;
       if (w.quelle) stand = w.quelle;
