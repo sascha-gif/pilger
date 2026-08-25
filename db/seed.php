@@ -408,7 +408,7 @@ function seed_database(Database $db): void
                 ['Vitamin B', 'in Tagestütchen', '14 T.', 'Täglich mittags'],
                 ['Magnesium 300–400 mg', 'in Tagestütchen', '14 T.', 'Regeneration (21:30)'],
                 ['Zink 15–25 mg', 'in Tagestütchen', '14 T.', 'Regeneration (21:30)'],
-                ['Papiertütchen (Tagesportionen)', 'klein', '~14', 'Supplements pro Tag vorportionieren — spart Platz'],
+                ['Papiertütchen (Tagesportionen)', 'klein, braun', '~14', 'Supplements und Medikamente pro Tag vorportionieren — spart Platz'],
             ]],
             ['10 · Elektronik', [
                 ['Smartphone', '—', '1', 'Navi, Fotos, Buchungen'],
@@ -468,9 +468,11 @@ function seed_database(Database $db): void
             ['Credencial (Pilgerpass)', 'Sé do Porto', 2.00, 'est', 'fix ~2 €'],
             ['Nahverkehr', 'Metro Porto · Fähre Caminha · Bus SCQ-Flughafen', null, 'est', 'Schätzung'],
             ['Verpflegung', '14 Tage Essen/Kaffee/Pilgermenüs', null, 'est', 'Schätzung'],
-            ['Wandersocken', 'FALKE TK2 · 1 Paar · Amazon 19.08. · inkl. 5,50 € Versand', 28.63, 'ok', 'gekauft'],
-            ['Wandershorts', 'maamgic 2-in-1 · 1 Stück · Amazon 16.08.', 27.99, 'ok', 'gekauft'],
+            ['Wandersocken', 'FALKE TK2 · 2× bestellt · belegt 28,63 € inkl. Versand, 1. Bestellung gleich angesetzt', 57.26, 'ok', 'gekauft'],
+            ['Wandershorts', 'maamgic 2-in-1 · 2× bestellt · belegt 27,99 €, 1. Bestellung gleich angesetzt', 55.98, 'ok', 'gekauft'],
             ['Reiseapotheke & Hygiene', 'Compeed Blasenpflaster, Dr. Bronner\'s Seife, Odol-med3 mini, Deo-Roller · Müller 19.08.', 20.54, 'ok', 'gekauft'],
+            ['Papiertüten', 'PAKNOR 100 Stück · Tagesportionen für Medikamente · Amazon 16.08.', 5.49, 'ok', 'gekauft'],
+            ['USB-C-Ladegerät', 'Tupneuf 60 W, 4 Ports · Amazon 19.08.', 9.99, 'ok', 'gekauft'],
             ['Ausrüstung / Apotheke', 'Was noch fehlt — Powerbank, Trailrunner, Rucksack', null, 'est', 'Schätzung'],
             ['Puffer / Sonstiges', 'Trinkgeld, Souvenirs, Unvorhergesehenes', null, 'est', 'Schätzung'],
         ];

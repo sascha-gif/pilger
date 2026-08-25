@@ -94,9 +94,10 @@ danach läuft sie mit der Costa zusammen.
 Unterkünfte ~70 €/Nacht × 12 ≈ 840 € · Verpflegung ~25–35 €/Tag ·
 Gesamtbudget realistisch **1.400–1.900 €**.
 Bereits fix: Hinflug 258,00 € · Porto 186,83 € · Credencial 2,00 €.
-Gekauft: Wandersocken FALKE TK2 28,63 € · Wandershorts maamgic 27,99 € ·
-Reiseapotheke & Hygiene 20,54 € (Compeed, Dr. Bronner's, Zahncreme, Deo).
-Erfasst damit 523,99 €.
+Gekauft: Wandersocken FALKE TK2 2× 57,26 € · Wandershorts maamgic 2× 55,98 € ·
+Reiseapotheke & Hygiene 20,54 € (Compeed, Dr. Bronner's, Zahncreme, Deo) ·
+Papiertüten 5,49 € (Tagesportionen Medikamente) · USB-C-Ladegerät 9,99 €.
+Erfasst damit 596,09 €.
 
 ## Equipment-Kernpunkte
 

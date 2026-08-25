@@ -114,6 +114,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/015_gekauft.php';
             migration_015($db);
         });
+
+        // Nachtrag: Papiertueten, Ladegeraet, Socken und Shorts doppelt.
+        $apply('016_nachtrag_kaeufe', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/016_nachtrag_kaeufe.php';
+            migration_016($db);
+        });
     }
 
     /** @return array<int,string> */
