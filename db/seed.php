@@ -468,7 +468,10 @@ function seed_database(Database $db): void
             ['Credencial (Pilgerpass)', 'Sé do Porto', 2.00, 'est', 'fix ~2 €'],
             ['Nahverkehr', 'Metro Porto · Fähre Caminha · Bus SCQ-Flughafen', null, 'est', 'Schätzung'],
             ['Verpflegung', '14 Tage Essen/Kaffee/Pilgermenüs', null, 'est', 'Schätzung'],
-            ['Ausrüstung / Apotheke', 'Restkäufe (Seife, Powerbank, Pflaster …)', null, 'est', 'Schätzung'],
+            ['Wandersocken', 'FALKE TK2 · 1 Paar · Amazon 19.08. · inkl. 5,50 € Versand', 28.63, 'ok', 'gekauft'],
+            ['Wandershorts', 'maamgic 2-in-1 · 1 Stück · Amazon 16.08.', 27.99, 'ok', 'gekauft'],
+            ['Reiseapotheke & Hygiene', 'Compeed Blasenpflaster, Dr. Bronner\'s Seife, Odol-med3 mini, Deo-Roller · Müller 19.08.', 20.54, 'ok', 'gekauft'],
+            ['Ausrüstung / Apotheke', 'Was noch fehlt — Powerbank, Trailrunner, Rucksack', null, 'est', 'Schätzung'],
             ['Puffer / Sonstiges', 'Trinkgeld, Souvenirs, Unvorhergesehenes', null, 'est', 'Schätzung'],
         ];
         $i = 0;

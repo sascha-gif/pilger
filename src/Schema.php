@@ -108,6 +108,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/014_seidenschlafsack.php';
             migration_014($db);
         });
+
+        // Erste echte Ausruestungskaeufe in der Kostenliste.
+        $apply('015_gekauft', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/015_gekauft.php';
+            migration_015($db);
+        });
     }
 
     /** @return array<int,string> */
