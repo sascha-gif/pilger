@@ -111,11 +111,32 @@ jobs:
                 -H "Content-Type: application/json" \
                 -d "{\"action\":\"cost.set\",\"id\":2,\"amount\":249.90}"
             '
-          grep -q 'Camino Portugués' pruefung/seite.html
-          grep -q 'id="costTotal"' pruefung/seite.html
-          grep -qE '/ [0-9]+ gepackt' pruefung/seite.html
+          # Jede Zusicherung sagt selbst, was ihr fehlt. Ein nacktes `grep -q`
+          # beendet den Lauf stumm — dann steht im Protokoll nur "exit code 1",
+          # und man raet, welche der drei Zeilen es war.
+          zeige_seite() {
+            echo "--- Seite: $(wc -c < pruefung/seite.html) Bytes ---"
+            head -c 600 pruefung/seite.html; echo
+            echo "--- letzte 600 Zeichen ---"
+            tail -c 600 pruefung/seite.html; echo
+            echo "--- Protokoll der App ---"
+            docker compose logs --tail 40 app || true
+          }
+          pruefe() {
+            grep -qE "$1" pruefung/seite.html \
+              || { echo "::error::Auf der Seite fehlt: $2"; zeige_seite; exit 1; }
+            echo "  ok — $2"
+          }
+
+          pruefe 'Camino Portugués'  'die Überschrift'
+          pruefe 'id="costTotal"'    'die Kostensumme'
+          pruefe '/ [0-9]+ gepackt'  'der Packlisten-Zähler'
+          pruefe 'Flug Rückflug'     'der Rückflug in den Kosten'
+          pruefe 'Linie 6A'          'der Flughafenbus in der Heimreise'
+
           cat pruefung/antwort.json; echo
-          grep -q '"ok":true' pruefung/antwort.json
+          grep -q '"ok":true' pruefung/antwort.json \
+            || { echo "::error::Der Schreibzugriff wurde abgelehnt."; exit 1; }
           echo "Tür zu, Anmeldung greift, Seite vollständig."
 
           # Gegen MariaDB, nicht gegen SQLite — der Rückfall darf hier nicht greifen.
