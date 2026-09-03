@@ -103,8 +103,17 @@ jobs:
           # genau einen Aufruf lang. Deshalb bekommt der Prüf-Container einen
           # gepunkteten Namen auf dieselbe Adresse gelegt. Die App merkt davon
           # nichts, curl hat wieder einen gewöhnlichen Wirt vor sich.
-          ziel=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' pilger-app)
-          echo "pilger-app hat die Adresse $ziel"
+          # Gezielt die Adresse im Pruefnetz: der Container haengt in zweien
+          # (intern und dem Netz des Reverse-Proxy), und `range` ueber alle
+          # klebt beide aneinander.
+          ziel=$(docker inspect \
+            -f '{{ (index .NetworkSettings.Networks "pruef-netz").IPAddress }}' pilger-app)
+          echo "pilger-app hat im Pruefnetz die Adresse $ziel"
+          case "$ziel" in
+            *.*.*.*) ;;
+            *) echo "::error::Keine brauchbare Adresse für pilger-app: '$ziel'"
+               docker inspect -f '{{json .NetworkSettings.Networks}}' pilger-app; exit 1 ;;
+          esac
 
           # Alles in einem Container, damit der Sitzungs-Cookie erhalten bleibt.
           docker run --rm --network pruef-netz --entrypoint sh \
