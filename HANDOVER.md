@@ -228,6 +228,36 @@ Rechten keine Voraussetzung — sie wäre es nur bei *restricted* Rechten wie
 Gmail. Ungeprüft veröffentlicht gilt eine Grenze von 100 Nutzern; gebraucht
 wird einer.
 
+## Wenn die Prüfung rot wird, ohne dass sich Code geändert hat
+
+Am 03.09.2026 war die CI dreimal rot, obwohl an der Anwendung nichts fehlte —
+die Seite lief, alle Migrationen griffen. Der Grund lag außerhalb des Repos:
+`curlimages/curl:latest` ist ein **gleitender Tag**, und in curl 8.22.0 steht
+
+> `cookie: refuse to load cookies set against a PSL domain`
+
+Der Container heißt im Prüfnetz `pilger-app` — ein Name **ohne Punkt**. Den
+behandelt curl seither wie eine öffentliche Endung und lädt das Sitzungs-Cookie
+nicht mehr aus der Datei. Die Anmeldung hielt dadurch genau einen Aufruf lang,
+und die Prüfung sah statt der Seite die Anmeldemaske. Behoben, indem der
+Prüf-Container `pilger-app.example.com` per `--add-host` auf dieselbe Adresse
+gelegt bekommt. An `docker-compose.yml` ändert das nichts — dort steht die
+Produktion, nicht die Prüfung.
+
+Zwei Lehren, die über diesen Fall hinausgehen:
+
+- **Ein rot gewordener Lauf ohne Codeänderung heißt: draußen hat sich etwas
+  bewegt.** Erst die Umgebung prüfen, dann den eigenen Code verdächtigen.
+- **Nackte `grep -q` in einem Prüfschritt sind eine Falle.** Schlägt eines
+  fehl, endet der Lauf stumm mit „exit code 1", und niemand weiß, welches.
+  Jede Zusicherung sagt jetzt ihren Namen, und bei einem Fehlschlag kommen
+  Größe, Anfang und Ende der Seite sowie das Apache-Protokoll dazu. Genau das
+  hat den Fall dann in einem einzigen Lauf aufgeklärt.
+
+Der Deploy hängt **nicht** an der CI: der Server holt sich `main` alle fünf
+Minuten selbst. Eine rote Prüfung hält also nichts auf — sie ist ein Warnlicht,
+keine Schranke.
+
 ## Ausgeblendete Abschnitte
 
 Zwei Abschnitte sind auf Wunsch aus der Seite genommen; die übrigen sind
