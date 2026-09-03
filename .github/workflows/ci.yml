@@ -96,18 +96,34 @@ jobs:
           # er trotzdem beschreiben können.
           mkdir -p pruefung && chmod 777 pruefung
 
+          # Der Container heißt im Netz `pilger-app` — ein Name ohne Punkt.
+          # Seit curl 8.22 gilt so einer als öffentliche Endung: „refuse to load
+          # cookies set against a PSL domain". Das Sitzungs-Cookie wird dann
+          # zwar gespeichert, aber nicht mehr geladen, und die Anmeldung hält
+          # genau einen Aufruf lang. Deshalb bekommt der Prüf-Container einen
+          # gepunkteten Namen auf dieselbe Adresse gelegt. Die App merkt davon
+          # nichts, curl hat wieder einen gewöhnlichen Wirt vor sich.
+          ziel=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' pilger-app)
+          echo "pilger-app hat die Adresse $ziel"
+
           # Alles in einem Container, damit der Sitzungs-Cookie erhalten bleibt.
           docker run --rm --network pruef-netz --entrypoint sh \
+            --add-host "pilger-app.example.com:$ziel" \
             -v "$PWD/pruefung:/out" curlimages/curl:latest -c '
               set -e
-              code=$(curl -sS -o /out/tuer.html -w "%{http_code}" http://pilger-app/)
+              wirt=http://pilger-app.example.com
+              code=$(curl -sS -o /out/tuer.html -w "%{http_code}" $wirt/)
               [ "$code" = "401" ] || { echo "Seite steht offen: HTTP $code"; exit 1; }
               grep -q "costTotal" /out/tuer.html && { echo "Inhalt vor Anmeldung sichtbar"; exit 1; }
 
-              curl -sS -o /dev/null -c /tmp/cj -X POST -d "anmelden=pruefzutritt123" http://pilger-app/
-              curl -sS -b /tmp/cj -o /out/seite.html http://pilger-app/
+              anmeldung=$(curl -sS -o /dev/null -c /tmp/cj -w "%{http_code}" \
+                -X POST -d "anmelden=pruefzutritt123" $wirt/)
+              [ "$anmeldung" = "302" ] || { echo "Anmeldung abgelehnt: HTTP $anmeldung"; exit 1; }
+              grep -q PHPSESSID /tmp/cj || { echo "Kein Sitzungs-Cookie im Topf"; cat /tmp/cj; exit 1; }
 
-              curl -sS -b /tmp/cj -o /out/antwort.json -X POST http://pilger-app/api.php \
+              curl -sS -b /tmp/cj -o /out/seite.html $wirt/
+
+              curl -sS -b /tmp/cj -o /out/antwort.json -X POST $wirt/api.php \
                 -H "Content-Type: application/json" \
                 -d "{\"action\":\"cost.set\",\"id\":2,\"amount\":249.90}"
             '
