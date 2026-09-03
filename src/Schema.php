@@ -120,6 +120,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/016_nachtrag_kaeufe.php';
             migration_016($db);
         });
+
+        // Rueckflug gebucht: Zeiten, Kosten, Weg zum Flughafen SCQ.
+        $apply('017_rueckflug', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/017_rueckflug.php';
+            migration_017($db);
+        });
     }
 
     /** @return array<int,string> */

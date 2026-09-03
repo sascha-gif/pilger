@@ -56,7 +56,14 @@ Gewicht 93 kg (Start 12.01.) → Ziel ~88 kg bis Abflug
 
 - Hinflug **gebucht**: 17.09.2026, TAP TP6682 (LH), FRA→OPO 13:50→15:40, direkt 2 h 50,
   danach Metro E (violett) bis Trindade
-- Rückflug **gebucht**: 01.10.2026 SCQ→FRA, Zeiten lt. Buchung, nachmittags Bus zum Flughafen
+- Rückflug **gebucht** über Kiwi.com (Booking-ID 838426721), 235,00 € bezahlt,
+  01.10.2026 in zwei Etappen: **SCQ 12:30 → Palma 14:25** (Vueling VY3981) und
+  **Palma 16:20 → FRA 18:50** (TUI fly X32433). **Zwei getrennte Tickets** —
+  in Palma wird selbst umgestiegen, 1 h 55 Zeit, „Connection protection" ist
+  mitgebucht (bei Verspätung Kiwi anrufen, nicht die Airline).
+  Zum Flughafen: **Stadtlinie 6A** ab Praza de Galicia, alle 20–30 Min,
+  ~35 Min, bar beim Fahrer (~1 €); Taxi als Rückfall ~23 €. Losgehen 09:20,
+  am Flughafen 10:30.
 - 18.09. Orga-Tag: Credencial an der Sé-Kathedrale Porto (~2 €, Reisepass mitnehmen),
   Terreiro da Sé, 4050-573 Porto, offen bis ~18:30, 1. Stempel
 
@@ -93,11 +100,11 @@ danach läuft sie mit der Costa zusammen.
 
 Unterkünfte ~70 €/Nacht × 12 ≈ 840 € · Verpflegung ~25–35 €/Tag ·
 Gesamtbudget realistisch **1.400–1.900 €**.
-Bereits fix: Hinflug 258,00 € · Porto 186,83 € · Credencial 2,00 €.
+Bereits fix: Hinflug 258,00 € · Rückflug 235,00 € · Porto 186,83 € · Credencial 2,00 €.
 Gekauft: Wandersocken FALKE TK2 2× 57,26 € · Wandershorts maamgic 2× 55,98 € ·
 Reiseapotheke & Hygiene 20,54 € (Compeed, Dr. Bronner's, Zahncreme, Deo) ·
 Papiertüten 5,49 € (Tagesportionen Medikamente) · USB-C-Ladegerät 9,99 €.
-Erfasst damit 596,09 €.
+Erfasst damit 831,09 €.
 
 ## Equipment-Kernpunkte
 
@@ -167,6 +174,12 @@ darauf auf, nicht auf der ausgebauten Fassung.
 - **Passwort auf der Seite setzen** — beim nächsten Aufruf
 - 12 Unterkünfte buchen (Oia und Santiago zuerst)
 - Fährfahrplan Caminha → A Guarda/Spanien prüfen
-- Rückflugzeiten SCQ→FRA aus der Buchung nachtragen (Kostenfeld noch leer)
-- Compostela-Urkunde: Pilgerbüro Rúa de Carretas 33, Pilgermesse 12:00
+- **Rückflug-Gepäck klären.** Im Tarif steckt nur ein persönliches Gepäckstück
+  40 × 30 × 20 cm — da passt der Rucksack nicht hinein. Kabinengepäck
+  (55 × 40 × 20 cm, 10 kg) oder Aufgabegepäck bei **Vueling und TUI fly
+  einzeln** dazubuchen; am Gate kostet es 60–140 €. Dazu: Messer und
+  Flüssiges > 100 ml brauchen auf dem Rückweg ohnehin Aufgabegepäck.
+- Compostela-Urkunde am **30.09.** holen, nicht am Abreisetag — Pilgerbüro
+  Rúa das Carretas 33, 9:00–19:00. Pilgermesse 12:00 ebenfalls am 30.09.;
+  am 01.10. sitzt du zu der Zeit im Flieger.
 - Tagebuch-Schlüssel hinterlegen, falls aus Sprachnotizen Text werden soll

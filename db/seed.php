@@ -451,7 +451,7 @@ function seed_database(Database $db): void
         /* ---------- 07 Kosten --------------------------------------------- */
         $costs = [
             ['Flug Hinflug', 'FRA→OPO · TAP TP6682', 258.00, 'ok', 'gebucht'],
-            ['Flug Rückflug', 'SCQ→FRA', null, 'open', 'offen'],
+            ['Flug Rückflug', 'SCQ → Palma → FRA · Vueling + TUI fly · Kiwi.com 838426721', 235.00, 'ok', 'gebucht'],
             ['Porto (2 N)', 'Carpe Diem by Dualgroup', 186.83, 'ok', 'gebucht'],
             ['Vila do Conde (E1)', '~ Pension', null, 'open', 'offen'],
             ['Esposende (E2)', '~ Guesthouse', null, 'open', 'offen'],
@@ -506,7 +506,7 @@ function seed_database(Database $db): void
 
         /* ---------- Hinweisboxen ------------------------------------------ */
         $notes = [
-            ['pack_intro', '<b>Zielgewicht: unter 8 kg</b> (max. 10 % Körpergewicht) — du trägst alles selbst über Ø 22 km. <b>Kein Schlafsack nötig</b> (Hotels/Pensionen mit Bettwäsche &amp; Handtüchern). Waschen alle 2–3 Tage → wenig Kleidung. <b>Flug:</b> Messer &amp; Flüssiges &gt;100 ml ins Aufgabegepäck. Powerbank ins Handgepäck. Steckdosen PT/ES = EU Typ F → kein Adapter nötig.'],
+            ['pack_intro', '<b>Zielgewicht: unter 8 kg</b> (max. 10 % Körpergewicht) — du trägst alles selbst über Ø 22 km. <b>Seidenschlafsack</b> statt Schlafsack: Bettwäsche stellen die Häuser, das Inlett ist nur für die Hygiene. Waschen alle 2–3 Tage → wenig Kleidung. <b>Hinflug:</b> Messer &amp; Flüssiges &gt;100 ml ins Aufgabegepäck, Powerbank ins Handgepäck. <b>Rückflug — hier aufpassen:</b> im gebuchten Tarif steckt nur <b>ein persönliches Gepäckstück, 40 × 30 × 20 cm</b>. Da passt kein 30–40-Liter-Rucksack hinein. Kabinengepäck (55 × 40 × 20 cm, 10 kg) oder Aufgabegepäck muss <b>bei Vueling und bei TUI fly getrennt</b> dazugebucht werden — es sind zwei Tickets. Am Gate kostet ein zu großes Stück 60 bis 140 €. Steckdosen PT/ES = EU Typ F → kein Adapter nötig.'],
             ['cost_outro', '<b>Orientierung:</b> Unterkünfte grob ~70 €/Nacht × 12 ≈ 840 €. Mit Rückflug, Verpflegung (~25–35 €/Tag) und Transport landet das realistische Gesamtbudget bei etwa <b>1.400–1.900 €</b>. Trag echte Beträge ein — die Summe rechnet live und wird gespeichert.'],
             ['weight_intro', '<b>Bewusst moderat, nicht Crash:</b> ~500–700 kcal Defizit, <b>Protein 140–150 g</b>, Kraft Mo/Mi/Fr weiter — so verlierst du Fett, nicht Muskeln/Kraft, die du für 266 km brauchst. Woche 1 fällt durch weniger Salz/verarbeitete KH schnell Wasser (Bonus auf der Waage). <b>Kein Alkohol</b> in den 6 Wochen. Letzte Woche <b>Taper</b>: Beine frisch, nicht weiter hart abnehmen.'],
             ['weight_outro', '<b>Realistisch:</b> 1–2 kg „schnell" über Wasser in Woche 1, danach ~0,7–0,9 kg/Woche echtes Fett → die 5 kg sind bis Mitte September drin — und du stehst <b>fit</b> am Start, nicht ausgezehrt. Wöchentlich montags früh wiegen (nüchtern) und Ist eintragen.'],
