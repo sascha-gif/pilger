@@ -288,6 +288,28 @@ desselben Tages sahen identisch aus. Sie tragen jetzt **Nummer und Uhrzeit**
 ist. Die Nummer zählt in der Reihenfolge des Anlegens, die Liste zeigt die
 neueste zuerst.
 
+## Das Tagebuch ist ein Zeitstrahl, kein Formular
+
+Es liest ja jemand: Sascha später, und die Familie während der Reise. Deshalb
+sind die Einträge nach Tagen gebündelt — eine Schiene mit einem Punkt je Tag,
+Kopfzeile aus Wochentag, Datum und Ort, darunter die Notizen dieses Tages von
+früh nach spät. Dieselbe Formensprache wie die Foto-Zeitleiste darunter.
+
+**Lesen ist der Normalzustand.** Löschkreuze, Bildunterschrift-Felder und die
+Knopfleisten unter den Einträgen erscheinen erst über „Bearbeiten" oben rechts
+(setzt `data-edit="1"` auf `#tagebuch`). Nicht gemerkt: nach jedem Neuladen ist
+wieder Tagebuch, nicht Werkstatt. Das löst zugleich ein echtes Problem — das
+Löschkreuz war vorher nur bei Mausberührung sichtbar und am Rechner schlicht
+nicht zu finden.
+
+Zwei Fallen, die dabei aufgefallen sind:
+
+- **`nl2br()` und `white-space:pre-wrap` zusammen** zählten jeden Absatz
+  doppelt; zwischen zwei Sätzen klaffte ein halber Bildschirm. Der Text kommt
+  jetzt über `absaetze()` in `helpers.php` als echte `<p>`.
+- **`.tagblock` ist ein `<section>`** und erbte damit `section{padding:56px 0}`.
+  Der Tagespunkt hing 56 px über seiner Überschrift. Padding ausgeschrieben.
+
 ## Sprachnotizen — was daran schon kaputt war
 
 Zwei Fehler, die zusammen dafür gesorgt haben, dass **keine einzige Aufnahme

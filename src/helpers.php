@@ -75,9 +75,39 @@ function app_fail(string $message, ?Throwable $e = null, bool $debug = false): n
 }
 
 /**
- * Ein Foto mit allem, was man damit tun können muss: ansehen, beschriften,
- * löschen. Ein Bild ohne Bedienelemente ist eine Sackgasse — es liegt dann für
- * immer da, auch wenn es aus Versehen hochgeladen wurde.
+ * Diktierter oder getippter Text als echte Absätze.
+ *
+ * Vorher stand hier `nl2br()` und im CSS `white-space:pre-wrap` — beides
+ * zusammen. Jeder Absatzwechsel zählte dadurch doppelt, und zwischen zwei
+ * Sätzen klaffte ein halber Bildschirm. Leerzeilen trennen jetzt Absätze,
+ * einzelne Umbrüche bleiben Umbrüche.
+ */
+function absaetze(string $text): string
+{
+    $roh = preg_split('/\R{2,}/u', trim($text)) ?: [];
+    $out = '';
+    foreach ($roh as $stueck) {
+        $stueck = trim($stueck);
+        if ($stueck === '') {
+            continue;
+        }
+        $out .= '<p>' . nl2br(h($stueck)) . '</p>';
+    }
+    return $out;
+}
+
+/**
+ * Ein Foto im Tagebuch.
+ *
+ * Zwei Zustände, und der Unterschied ist der ganze Punkt: **beim Lesen** steht
+ * unter dem Bild nur die Unterschrift, sofern es eine gibt — sonst nichts.
+ * **Beim Bearbeiten** kommen Eingabefeld und Löschknopf dazu. Vorher war das
+ * Löschkreuz unsichtbar, bis die Maus genau über der Kachel stand; wer ein
+ * Bild loswerden wollte, fand den Knopf schlicht nicht. Und leere Felder mit
+ * „Bildunterschrift" unter jedem Bild sehen für Mitlesende nach Formular aus,
+ * nicht nach Reisetagebuch.
+ *
+ * Was sichtbar ist, entscheidet `data-edit` am Tagebuch — siehe app.css.
  *
  * @param array<string,mixed> $f Zeile aus `photos`
  * @param bool $gross Zeitleiste (größer) oder Eintragskarte (kleiner)
@@ -92,8 +122,11 @@ function bild_kachel(array $f, bool $gross): string
         . '<img src="media.php?art=klein&amp;id=' . $id . '" alt="' . h($text) . '" loading="lazy">'
         . '</a>'
         . '<button type="button" class="bk-weg" title="Bild löschen" aria-label="Bild löschen">×</button>'
-        . '<figcaption><input type="text" class="bk-text" value="' . h($text) . '"'
-        . ' placeholder="Bildunterschrift" maxlength="500"></figcaption>'
+        . '<figcaption>'
+        . ($text !== '' ? '<span class="bk-schau">' . h($text) . '</span>' : '')
+        . '<input type="text" class="bk-text" value="' . h($text) . '"'
+        . ' placeholder="Bildunterschrift" maxlength="500">'
+        . '</figcaption>'
         . '</figure>';
 }
 

@@ -476,6 +476,24 @@
       });
   }
 
+  /* ================= Lesen oder bearbeiten =============================== */
+  /* Der Normalzustand ist Lesen — die Seite zeigt Sascha auch seiner Familie.
+     Erst dieser Knopf holt Löschkreuze, Eingabefelder und Knopfleisten hervor.
+     Bewusst nicht gemerkt: nach jedem Neuladen ist wieder Tagebuch, nicht
+     Werkstatt. */
+  var abschnitt = document.getElementById('tagebuch');
+  var editKnopf = document.getElementById('tbEdit');
+
+  if (abschnitt && editKnopf) {
+    editKnopf.addEventListener('click', function () {
+      var an = abschnitt.getAttribute('data-edit') !== '1';
+      if (an) { abschnitt.setAttribute('data-edit', '1'); }
+      else { abschnitt.removeAttribute('data-edit'); }
+      editKnopf.setAttribute('aria-pressed', an ? 'true' : 'false');
+      editKnopf.textContent = an ? 'Fertig' : 'Bearbeiten';
+    });
+  }
+
   /* ================= Einträge bearbeiten ================================ */
 
   listeEl.addEventListener('click', function (e) {

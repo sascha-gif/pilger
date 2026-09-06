@@ -388,22 +388,59 @@ footer a{color:var(--flecha)}
 .tb-queue ul{margin:6px 0 0 18px}
 .tb-queue li{font-family:"Spline Sans Mono",monospace;font-size:12px;color:var(--stone)}
 
+/* ---- Der Zeitstrahl -------------------------------------------------------
+   Das Tagebuch ist kein Formular mit Datensaetzen, sondern etwas, das jemand
+   liest — Sascha selbst spaeter, und die Familie waehrend der Reise. Also eine
+   Schiene mit einem Punkt je Tag, darunter die Notizen dieses Tages von frueh
+   nach spaet. Dieselbe Formensprache wie die Foto-Zeitleiste weiter unten. */
+.tb-leiste{display:flex;align-items:baseline;gap:14px;margin:34px 0 18px}
+.tb-ueber{font-family:"Fraunces",serif;font-size:21px;font-weight:600}
+.tb-leiste .tb-mini{margin-left:auto}
+#tagebuch[data-edit="1"] #tbEdit{border-color:var(--flecha);color:var(--granite);font-weight:600}
+
+.tb-liste{border-left:2px solid var(--line);padding-left:22px;margin-left:7px}
+/* padding ausgeschrieben: `section{padding:56px 0}` weiter oben gilt auch
+   hier, und der Tagespunkt haengt sonst 56 px ueber seiner Ueberschrift. */
+.tagblock{position:relative;padding:0 0 26px}
+.tagblock::before{content:"";position:absolute;left:-29px;top:6px;width:11px;height:11px;
+                  border-radius:50%;background:var(--flecha);border:2px solid var(--paper)}
+.tagkopf{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin-bottom:10px}
+.tagwotag{font-family:"Spline Sans Mono",monospace;font-size:11px;font-weight:600;
+          letter-spacing:.08em;text-transform:uppercase;color:var(--flecha)}
+.tagdatum{font-family:"Fraunces",serif;font-size:19px;font-weight:600}
+.tagort{font-family:"Fraunces",serif;font-size:19px;font-weight:600;color:var(--granite)}
+.tagcode{font-family:"Spline Sans Mono",monospace;font-size:10.5px;color:var(--stone)}
+.tagzahl{font-family:"Spline Sans Mono",monospace;font-size:10.5px;color:var(--stone);margin-left:auto}
+
 .tbe{background:var(--paper-2);border:1px solid var(--line);padding:18px;margin-bottom:12px}
 .tbe > header{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
-.tbtag{font-family:"Spline Sans Mono",monospace;font-size:11px;font-weight:600;color:var(--flecha);
-       letter-spacing:.06em;text-transform:uppercase}
 .tbart{font-family:"Spline Sans Mono",monospace;font-size:11px;color:var(--stone)}
-/* Mehrere Notizen am selben Tag: Nummer und Uhrzeit halten sie auseinander. */
-.tbnr{font-family:"Spline Sans Mono",monospace;font-size:10.5px;font-weight:600;color:var(--granite);
-      background:var(--line);padding:2px 7px;border-radius:9px}
-.tbuhr{font-family:"Spline Sans Mono",monospace;font-size:11px;color:var(--stone)}
+.tbuhr{font-family:"Spline Sans Mono",monospace;font-size:12px;font-weight:600;color:var(--granite)}
 .tb-mehr{font-size:12.5px;color:var(--stone);margin:10px 2px 0;line-height:1.5}
+
+/* ---- Lesen oder bearbeiten -------------------------------------------------
+   Ohne `data-edit` ist die Seite ein Tagebuch: Text, Bilder, Unterschriften.
+   Mit `data-edit` kommen Loeschkreuze, Eingabefelder und die Knopfleisten
+   dazu. Das Loeschkreuz war vorher nur bei Mausberuehrung zu sehen — auf dem
+   Rechner fand man es dadurch nicht, und zwischen den Bildern stand unter
+   jedem ein leeres Feld „Bildunterschrift". */
+#tagebuch:not([data-edit="1"]) .tbe > footer,
+#tagebuch:not([data-edit="1"]) .bk-weg,
+#tagebuch:not([data-edit="1"]) .bk-text{display:none}
+#tagebuch[data-edit="1"] .bk-schau{display:none}
+#tagebuch[data-edit="1"] .bk-weg{opacity:1}
+.bk-schau{display:block;font-size:12.5px;line-height:1.45;color:var(--stone);margin-top:5px}
 .tbstatus{font-family:"Spline Sans Mono",monospace;font-size:10px;letter-spacing:.08em;
           text-transform:uppercase;color:var(--stone);margin-left:auto}
 .tbstatus.st-neu{color:var(--warn);font-weight:600}
 .tbstatus.st-fehler{color:#a4341f;font-weight:600}
-.tbe audio{width:100%;margin-bottom:10px}
-.tbtext{font-size:15px;line-height:1.6;white-space:pre-wrap}
+.tbe audio{width:100%;max-width:340px;height:34px;margin-bottom:12px;display:block}
+/* pre-wrap ist raus: der Text kommt jetzt als echte Absaetze, und beides
+   zusammen liess zwischen zwei Saetzen einen halben Bildschirm frei. */
+.tbtext{font-size:16px;line-height:1.65}
+.tbtext p{margin:0 0 .85em}
+.tbtext p:last-child{margin-bottom:0}
+.tbroh p{margin:0 0 .7em}
 .tbroh{margin-top:8px}
 .tbroh summary{font-family:"Spline Sans Mono",monospace;font-size:11px;color:var(--stone);cursor:pointer}
 .tbroh p{font-size:13.5px;color:var(--stone);margin-top:6px;font-style:italic}

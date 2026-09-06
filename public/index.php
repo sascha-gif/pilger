@@ -686,100 +686,131 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
         <button type="button" id="tbSpeichern" class="tb-knopf haupt">Eintrag speichern</button>
         <span class="tb-hinweis" id="tbHinweis"></span>
       </div>
-      <p class="tb-mehr">Mehrere Notizen am selben Tag sind kein Problem — jede wird
-        ein eigener Eintrag, mit Uhrzeit und Nummer.</p>
+      <p class="tb-mehr">Mehrere Notizen am selben Tag sind kein Problem — sie stehen
+        unten beim selben Tag, nach Uhrzeit sortiert.</p>
 
       <div class="tb-queue" id="tbQueue" hidden></div>
     </div>
 
+    <?php
+      // Der Zeitstrahl: Notizen nach Tagen gebuendelt, neuester Tag zuerst,
+      // innerhalb des Tages von frueh nach spaet. Das ist die Reihenfolge, in
+      // der man ein Tagebuch liest — und die, in der jemand anderes es liest,
+      // der nicht dabei war.
+      $nachTag = [];
+      foreach ($eintraege as $e) {
+          $schluessel = (string) ($e['stage_id'] ?: ($e['day_iso'] ?: '0'));
+          $nachTag[$schluessel][] = $e;
+      }
+      foreach ($nachTag as &$gruppe) {
+          $gruppe = array_reverse($gruppe);   // frueh zuerst
+      }
+      unset($gruppe);
+
+      $monate = ['', 'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
+                 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+      $wochentage = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+    ?>
+
+    <?php if ($eintraege): ?>
+      <div class="tb-leiste">
+        <h3 class="tb-ueber">Das Tagebuch</h3>
+        <?php /* Lesen ist der Normalzustand — auch fuer alle, denen Sascha die
+                 Seite zeigt. Loeschkreuze und Eingabefelder erscheinen erst auf
+                 Knopfdruck. Vorher war das Kreuz unsichtbar, bis die Maus genau
+                 ueber der Kachel stand; wer ein Bild loswerden wollte, fand den
+                 Knopf nicht. */ ?>
+        <button type="button" id="tbEdit" class="tb-mini" aria-pressed="false">Bearbeiten</button>
+      </div>
+    <?php endif; ?>
+
     <div class="tb-liste" id="tbListe">
-      <?php
-        // Ein Tag darf mehrere Notizen haben — abends im Bett faellt einem
-        // noch etwas ein, das mittags an der Kirche passiert ist. Damit man
-        // sie auseinanderhaelt, bekommt jede ihre Nummer und ihre Uhrzeit.
-        $proTag = [];
-        foreach ($eintraege as $e) {
-            $schluessel = (string) ($e['stage_id'] ?: $e['day_iso']);
-            $proTag[$schluessel][] = (int) $e['id'];
-        }
-        foreach ($proTag as &$ids) { $ids = array_reverse($ids); }   // aelteste zuerst
-        unset($ids);
-      ?>
-      <?php foreach ($eintraege as $e): ?>
+      <?php foreach ($nachTag as $gruppe): ?>
         <?php
-          $schluessel = (string) ($e['stage_id'] ?: $e['day_iso']);
-          $geschwister = $proTag[$schluessel] ?? [];
-          $nummer  = array_search((int) $e['id'], $geschwister, true);
-          $nummer  = $nummer === false ? 1 : $nummer + 1;
-          $vonWie  = count($geschwister);
-          $uhrzeit = $e['created_at'] ? date('H:i', strtotime((string) $e['created_at'])) : '';
-          $etappe = $e['stage_id'] ? ($stageLabel[(int) $e['stage_id']] ?? '') : '';
-          $text   = (string) ($e['text_clean'] ?: $e['text_raw']);
-          $roh    = $e['text_clean'] && $e['text_raw'] ? (string) $e['text_raw'] : null;
-          $fotos  = array_values(array_filter($alleFotos, static fn ($f) => (int) $f['entry_id'] === (int) $e['id']));
+          $erste  = $gruppe[0];
+          $st     = $erste['stage_id'] ? ($stages[array_search((int) $erste['stage_id'], array_column($stages, 'id'))] ?? null) : null;
+          $datum  = (string) ($st['date_iso'] ?? $erste['day_iso'] ?? '');
+          $zeit   = $datum ? strtotime($datum) : false;
+          $titel  = $st ? trim((string) $st['title']) : '';
+          $code   = $st ? trim((string) $st['code']) : '';
         ?>
-        <article class="tbe" data-id="<?= (int) $e['id'] ?>" data-stage="<?= (int) $e['stage_id'] ?>">
-          <header>
-            <span class="tbtag"><?= h($etappe ?: (string) $e['day_iso']) ?></span>
-            <?php if ($vonWie > 1): ?>
-              <span class="tbnr"><?= $nummer ?>. von <?= $vonWie ?></span>
+        <section class="tagblock">
+          <header class="tagkopf">
+            <?php if ($zeit): ?>
+              <span class="tagwotag"><?= h($wochentage[(int) date('w', $zeit)]) ?></span>
+              <span class="tagdatum"><?= (int) date('j', $zeit) ?>. <?= h($monate[(int) date('n', $zeit)]) ?></span>
             <?php endif; ?>
-            <?php if ($uhrzeit): ?><span class="tbuhr"><?= h($uhrzeit) ?></span><?php endif; ?>
-            <?php if ($e['kind'] === 'audio'): ?>
-              <span class="tbart">Sprachnotiz<?= $e['audio_seconds'] ? ' · ' . floor((int) $e['audio_seconds'] / 60) . ':' . str_pad((string) ((int) $e['audio_seconds'] % 60), 2, '0', STR_PAD_LEFT) : '' ?></span>
+            <?php if ($titel): ?><h4 class="tagort"><?= h($titel) ?></h4><?php endif; ?>
+            <?php if ($code): ?><span class="tagcode"><?= h($code) ?></span><?php endif; ?>
+            <?php if (count($gruppe) > 1): ?>
+              <span class="tagzahl"><?= count($gruppe) ?> Notizen</span>
             <?php endif; ?>
-            <span class="tbstatus st-<?= h($e['status']) ?>">
-              <?= h(match ($e['status']) {
-                  'neu'           => 'noch nicht verschriftlicht',
-                  'transkribiert' => 'Rohtext',
-                  'fehler'        => 'Fehler',
-                  default         => '',
-              }) ?>
-            </span>
           </header>
 
-          <?php if ($e['audio_file']): ?>
-            <audio controls preload="none" src="media.php?art=audio&amp;id=<?= (int) $e['id'] ?>"></audio>
-          <?php endif; ?>
+          <?php foreach ($gruppe as $e): ?>
+            <?php
+              $text   = (string) ($e['text_clean'] ?: $e['text_raw']);
+              $roh    = $e['text_clean'] && $e['text_raw'] ? (string) $e['text_raw'] : null;
+              $fotos  = array_values(array_filter($alleFotos, static fn ($f) => (int) $f['entry_id'] === (int) $e['id']));
+              $uhr    = $e['created_at'] ? date('H:i', strtotime((string) $e['created_at'])) : '';
+              $dauer  = $e['audio_seconds']
+                  ? floor((int) $e['audio_seconds'] / 60) . ':' . str_pad((string) ((int) $e['audio_seconds'] % 60), 2, '0', STR_PAD_LEFT)
+                  : '';
+            ?>
+            <article class="tbe" data-id="<?= (int) $e['id'] ?>" data-stage="<?= (int) $e['stage_id'] ?>">
+              <header>
+                <?php if ($uhr): ?><span class="tbuhr"><?= h($uhr) ?></span><?php endif; ?>
+                <?php if ($e['kind'] === 'audio'): ?>
+                  <span class="tbart">Sprachnotiz<?= $dauer ? ' · ' . $dauer : '' ?></span>
+                <?php endif; ?>
+                <span class="tbstatus st-<?= h($e['status']) ?>">
+                  <?= h(match ($e['status']) {
+                      'neu'           => 'noch nicht verschriftlicht',
+                      'transkribiert' => 'Rohtext',
+                      'fehler'        => 'Fehler',
+                      default         => '',
+                  }) ?>
+                </span>
+              </header>
 
-          <div class="tbtext"<?= $text === '' ? ' hidden' : '' ?>><?= nl2br(h($text)) ?></div>
+              <?php if ($e['audio_file']): ?>
+                <audio controls preload="none" src="media.php?art=audio&amp;id=<?= (int) $e['id'] ?>"></audio>
+              <?php endif; ?>
 
-          <?php if ($roh !== null): ?>
-            <details class="tbroh"><summary>Original ansehen — genau so gesagt oder getippt</summary><p><?= nl2br(h($roh)) ?></p></details>
-          <?php endif; ?>
+              <div class="tbtext"<?= $text === '' ? ' hidden' : '' ?>><?= absaetze($text) ?></div>
 
-          <?php if ($fotos): ?>
-            <div class="tbfotos">
-              <?php foreach ($fotos as $f): ?>
-                <?= bild_kachel($f, false) ?>
-              <?php endforeach; ?>
-            </div>
-          <?php endif; ?>
+              <?php if ($roh !== null): ?>
+                <details class="tbroh"><summary>Original ansehen — genau so gesagt oder getippt</summary><?= absaetze($roh) ?></details>
+              <?php endif; ?>
 
-          <?php if ($e['status_note']): ?><p class="tbnotiz"><?= h((string) $e['status_note']) ?></p><?php endif; ?>
+              <?php if ($fotos): ?>
+                <div class="tbfotos">
+                  <?php foreach ($fotos as $f): ?>
+                    <?= bild_kachel($f, false) ?>
+                  <?php endforeach; ?>
+                </div>
+              <?php endif; ?>
 
-          <footer>
-            <?php if ($e['audio_file'] && $e['status'] !== 'fertig'): ?>
-              <button type="button" class="tb-mini veredeln">Text daraus machen</button>
-            <?php elseif ($text !== '' && !$e['text_clean']): ?>
-              <?php /* Diktiert oder getippt — der Ausbau fehlt noch. */ ?>
-              <button type="button" class="tb-mini veredeln">Text ausbauen</button>
-            <?php elseif ($e['text_clean']): ?>
-              <?php /* Nochmal: nachgereichte Bilder und die Zahlen der Uhr, die
-                       erst am nächsten Morgen synchronisiert wurden, kommen so
-                       noch in den Text. Gebaut wird immer aus dem Original. */ ?>
-              <button type="button" class="tb-mini veredeln erneut">Neu ausbauen</button>
-            <?php endif; ?>
-            <button type="button" class="tb-mini bearbeiten">Bearbeiten</button>
-            <?php /* Bilder gehoeren zum Eintrag, nicht nur zum Anlegen: was
-                     abends dazukommt, muss auch spaeter noch dazu koennen. */ ?>
-            <label class="tb-mini datei">
-              Fotos hinzufügen
-              <input type="file" class="tbe-fotos" accept="image/*" multiple hidden>
-            </label>
-            <button type="button" class="tb-mini loeschen">Löschen</button>
-          </footer>
-        </article>
+              <?php if ($e['status_note']): ?><p class="tbnotiz"><?= h((string) $e['status_note']) ?></p><?php endif; ?>
+
+              <footer>
+                <?php if ($e['audio_file'] && $e['status'] !== 'fertig'): ?>
+                  <button type="button" class="tb-mini veredeln">Text daraus machen</button>
+                <?php elseif ($text !== '' && !$e['text_clean']): ?>
+                  <button type="button" class="tb-mini veredeln">Text ausbauen</button>
+                <?php elseif ($e['text_clean']): ?>
+                  <button type="button" class="tb-mini veredeln erneut">Neu ausbauen</button>
+                <?php endif; ?>
+                <button type="button" class="tb-mini bearbeiten">Bearbeiten</button>
+                <label class="tb-mini datei">
+                  Fotos hinzufügen
+                  <input type="file" class="tbe-fotos" accept="image/*" multiple hidden>
+                </label>
+                <button type="button" class="tb-mini loeschen">Löschen</button>
+              </footer>
+            </article>
+          <?php endforeach; ?>
+        </section>
       <?php endforeach; ?>
 
       <?php if (!$eintraege): ?>
