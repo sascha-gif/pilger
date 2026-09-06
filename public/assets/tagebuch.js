@@ -127,6 +127,11 @@
      Verbindung mitten in einem Paket mit fünf Fotos ab, fängt der nächste
      Versuch nicht wieder bei null an. */
   function schickePaket(p) {
+    // Der Zwischenstand ist eine Bequemlichkeit, keine Bedingung: er sorgt nur
+    // dafuer, dass ein abgebrochener Upload nicht wieder bei null anfaengt.
+    // Faellt die Warteschlange aus, laeuft der Upload trotzdem weiter.
+    var merke = function (paket) { return inDieSchlange(paket).catch(function () {}); };
+
     var kette = Promise.resolve(p.entryId || null);
 
     if (p.audio && !p.audioFertig) {
@@ -136,7 +141,7 @@
         }, p.audio, 'notiz.' + (p.audioEndung || 'webm')).then(function (d) {
           p.audioFertig = true;
           p.entryId = d.eintrag && d.eintrag.id;
-          return inDieSchlange(p).then(function () { return p.entryId; });
+          return merke(p).then(function () { return p.entryId; });
         });
       });
     }
@@ -149,7 +154,7 @@
         }).then(function (d) {
           p.textFertig = true;
           if (!entryId) p.entryId = d.eintrag && d.eintrag.id;
-          return inDieSchlange(p).then(function () { return p.entryId; });
+          return merke(p).then(function () { return p.entryId; });
         });
       });
     }
@@ -164,12 +169,12 @@
           aufgenommen: datei.lastModified ? new Date(datei.lastModified).toISOString() : ''
         }, datei, datei.name || ('bild' + i + '.jpg')).then(function () {
           p.fotosFertig[i] = true;
-          return inDieSchlange(p).then(function () { return entryId; });
+          return merke(p).then(function () { return entryId; });
         });
       });
     });
 
-    return kette.then(function () { return ausDerSchlange(p.id); });
+    return kette.then(function () { return ausDerSchlange(p.id).catch(function () {}); });
   }
 
   var laeuft = false;
@@ -217,6 +222,19 @@
   var startZeit = 0;
   var uhrTimer = null;
   var fertigeAufnahme = null;
+  var stopWarter = [];
+
+  /* Die Aufnahme beenden und warten, bis der Brocken wirklich da ist. Ohne das
+     ginge ein Tippen auf „Eintrag speichern" bei laufender Aufnahme ins Leere:
+     `fertigeAufnahme` entsteht erst in `onstop`, und das kommt spaeter. */
+  function beendeAufnahme() {
+    if (!recorder || recorder.state !== 'recording') return Promise.resolve();
+    return new Promise(function (ok) {
+      stopWarter.push(ok);
+      recorder.stop();
+      recorder = null;
+    });
+  }
 
   function formatZeit(s) {
     return Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
@@ -243,12 +261,17 @@
     }
     navigator.mediaDevices.getUserMedia({ audio: true }).then(function (spur) {
       var typ = typWaehlen();
-      recorder = new MediaRecorder(spur, typ ? { mimeType: typ } : undefined);
+      // Eigene Referenz. Frueher stand hier `recorder.mimeType` — und weil das
+      // Beenden `recorder = null` setzt, bevor `onstop` an der Reihe ist, warf
+      // der Handler jedes Mal und `fertigeAufnahme` blieb leer. Jede Aufnahme
+      // war damit weg, sobald man sie beendete.
+      var rec = new MediaRecorder(spur, typ ? { mimeType: typ } : undefined);
+      recorder = rec;
       brocken = [];
-      recorder.ondataavailable = function (e) { if (e.data && e.data.size) brocken.push(e.data); };
-      recorder.onstop = function () {
+      rec.ondataavailable = function (e) { if (e.data && e.data.size) brocken.push(e.data); };
+      rec.onstop = function () {
         spur.getTracks().forEach(function (t) { t.stop(); });
-        var typJetzt = recorder.mimeType || typ || 'audio/webm';
+        var typJetzt = rec.mimeType || typ || 'audio/webm';
         fertigeAufnahme = {
           blob: new Blob(brocken, { type: typJetzt }),
           sekunden: Math.round((Date.now() - startZeit) / 1000),
@@ -260,8 +283,13 @@
         knopf.classList.add('fertig');
         clearInterval(uhrTimer);
         uhr.hidden = true;
+
+        // Wer waehrend der Aufnahme auf „Eintrag speichern" tippt, wartet hier.
+        var warter = stopWarter;
+        stopWarter = [];
+        warter.forEach(function (f) { f(); });
       };
-      recorder.start();
+      rec.start();
       startZeit = Date.now();
       knopf.classList.add('an');
       knopf.classList.remove('fertig');
@@ -371,6 +399,23 @@
 
   if (speichern) {
     speichern.addEventListener('click', function () {
+      // Laeuft die Aufnahme noch, wird sie erst beendet — sonst waere sie beim
+      // Packen des Pakets schlicht nicht da und stillschweigend verloren.
+      var laeuftNoch = recorder && recorder.state === 'recording';
+      if (laeuftNoch) sag('Aufnahme wird beendet …');
+      speichern.disabled = true;
+      // Getrennte Faenger, und zwar mit Absicht: ein `.catch` hinter
+      // `.then(packUndSpeichere)` wuerde auch dessen eigene Fehler fangen und
+      // den Eintrag ein zweites Mal abschicken.
+      beendeAufnahme()
+        .catch(function () { /* dann eben ohne Ton */ })
+        .then(packUndSpeichere)
+        .catch(function () { /* gemeldet ist es schon */ })
+        .then(function () { speichern.disabled = false; });
+    });
+  }
+
+  function packUndSpeichere() {
       var text = (textFeld.value || '').trim();
       if (!text && !fertigeAufnahme && !gewaehlteFotos.length) {
         sag('Da ist noch nichts zum Speichern.', true);
@@ -392,7 +437,7 @@
         versuche: 0
       };
 
-      inDieSchlange(paket).then(function () {
+      var aufraeumen = function () {
         textFeld.value = '';
         gewaehlteFotos = [];
         if (fotoEingabe) fotoEingabe.value = '';
@@ -402,14 +447,33 @@
           knopf.classList.remove('fertig');
           knopf.querySelector('.beschriftung').textContent = 'Sprachnotiz aufnehmen';
         }
+      };
+
+      return inDieSchlange(paket).then(function () {
+        aufraeumen();
         sag(navigator.onLine ? 'Gespeichert — wird hochgeladen.' : 'Auf dem Gerät gemerkt — geht raus, sobald Netz da ist.');
-        return malSchlange();
-      }).then(function () {
-        return abarbeiten();
-      }).catch(function () {
-        sag('Konnte nicht einmal auf dem Gerät gespeichert werden. Bitte den Text kopieren!', true);
+        return malSchlange().then(abarbeiten);
+      }).catch(function (err) {
+        // Die Warteschlange ist ausgefallen — im privaten Fenster gibt Safari
+        // der IndexedDB keinen Platz, und ein volles Gerät kann es auch. Das
+        // ist kein Grund, den Eintrag wegzuwerfen: solange Netz da ist, geht
+        // er eben direkt raus. Nur ohne Netz ist wirklich Schluss.
+        if (!navigator.onLine) {
+          sag('Kein Netz, und dieses Gerät lässt nichts zwischenspeichern (privates Fenster?). '
+            + 'Bitte den Text kopieren, bevor du die Seite verlässt!', true);
+          throw err;
+        }
+        sag('Zwischenspeicher streikt — wird direkt hochgeladen …');
+        return schickePaket(paket).then(function () {
+          aufraeumen();
+          sag('Hochgeladen. Die Seite lädt gleich neu.');
+          setTimeout(function () { location.reload(); }, 900);
+        }).catch(function (zweiter) {
+          sag('Hochladen fehlgeschlagen und Zwischenspeichern geht auf diesem Gerät nicht. '
+            + 'Bitte den Text kopieren! (' + (zweiter && zweiter.message ? zweiter.message : 'unbekannt') + ')', true);
+          throw zweiter;
+        });
       });
-    });
   }
 
   /* ================= Einträge bearbeiten ================================ */

@@ -258,6 +258,28 @@ Der Deploy hängt **nicht** an der CI: der Server holt sich `main` alle fünf
 Minuten selbst. Eine rote Prüfung hält also nichts auf — sie ist ein Warnlicht,
 keine Schranke.
 
+## Sprachnotizen — was daran schon kaputt war
+
+Zwei Fehler, die zusammen dafür gesorgt haben, dass **keine einzige Aufnahme
+ankam**. Wer daran etwas ändert, sollte beide kennen.
+
+1. **`onstop` hing an der äußeren Variablen.** Das Beenden setzte
+   `recorder = null`, und `onstop` läuft danach — im Handler stand aber
+   `recorder.mimeType`. Das warf jedes Mal, `fertigeAufnahme` blieb leer, der
+   Knopf blieb auf „Aufnahme läuft", und der Ton war weg. Der Recorder wird
+   jetzt in einer eigenen Variablen festgehalten.
+2. **Speichern bei laufender Aufnahme lief ins Leere.** `fertigeAufnahme`
+   entsteht erst in `onstop`; wer vorher auf „Eintrag speichern" tippte,
+   bekam einen Eintrag ohne Ton. Jetzt wird die Aufnahme erst beendet, und
+   das Speichern wartet darauf.
+
+Dazu eine Härtung: **ein Ausfall der IndexedDB wirft den Eintrag nicht mehr
+weg.** In Safaris privatem Fenster bekommt sie keinen Platz, auf einem vollen
+Gerät auch nicht. Vorher endete das mit „Bitte den Text kopieren!" und der
+Eintrag war verloren. Jetzt geht er direkt hoch, solange Netz da ist; die
+Warteschlange ist dabei nur noch eine Bequemlichkeit für den Fall ohne Netz,
+und ihre Schreibfehler sind innerhalb von `schickePaket` folgenlos.
+
 ## Die Seite ist ein Akkordeon
 
 Alle acht Abschnitte sind zugeklappt, bis man sie antippt. Zugeklappt ist die
