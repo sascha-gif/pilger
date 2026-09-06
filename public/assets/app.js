@@ -62,6 +62,56 @@
     document.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('in'); });
   }
 
+  /* ---------- Abschnitte auf- und zuklappen ------------------------------ */
+  /* Welche Bloecke offen sind, gehoert dem Geraet und nicht der Datenbank:
+     am Kuechentisch will man die Kosten sehen, unterwegs die Etappe. Deshalb
+     localStorage und nicht der Server. Faellt der Speicher aus — privates
+     Fenster, geloeschte Seitendaten —, startet die Seite eben zugeklappt;
+     kaputt geht dabei nichts. */
+  var BLOCK_SPEICHER = 'pilger-bloecke';
+
+  function offeneBloecke() {
+    try {
+      var roh = localStorage.getItem(BLOCK_SPEICHER);
+      return roh ? JSON.parse(roh) : [];
+    } catch (e) { return []; }
+  }
+
+  function merkeBloecke(namen) {
+    try { localStorage.setItem(BLOCK_SPEICHER, JSON.stringify(namen)); } catch (e) { /* dann eben nicht */ }
+  }
+
+  var bloecke = document.querySelectorAll('details.block');
+
+  if (bloecke.length) {
+    var gemerkt = offeneBloecke();
+    bloecke.forEach(function (b) {
+      if (gemerkt.indexOf(b.dataset.block) !== -1) b.open = true;
+      b.addEventListener('toggle', function () {
+        var offen = [];
+        bloecke.forEach(function (x) { if (x.open) offen.push(x.dataset.block); });
+        merkeBloecke(offen);
+      });
+    });
+
+    // Ein Sprungziel muss auch aufklappen, sonst landet man auf einer
+    // Ueberschrift und fragt sich, wo der Inhalt geblieben ist. Gilt fuer die
+    // Navigation oben genauso wie fuer eine Adresse mit #kosten dahinter.
+    var oeffneZiel = function (id) {
+      if (!id) return;
+      var abschnitt = document.getElementById(id.replace(/^#/, ''));
+      var block = abschnitt && abschnitt.querySelector('details.block');
+      if (block) block.open = true;
+    };
+
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest('a[href^="#"]');
+      if (a) oeffneZiel(a.getAttribute('href'));
+    });
+    window.addEventListener('hashchange', function () { oeffneZiel(location.hash); });
+    oeffneZiel(location.hash);
+  }
+
   /* ---------- Packliste -------------------------------------------------- */
   var progressBar = document.querySelector('.progress .bar i');
   var progressCnt = document.querySelector('.progress .cnt');
@@ -726,8 +776,24 @@
     if (!bounds.length) {
       bounds = stops.map(function (s) { return [s.lat, s.lng]; });
     }
-    if (bounds.length) {
-      map.fitBounds(L.latLngBounds(bounds).pad(0.12));
+    var rahmen = bounds.length ? L.latLngBounds(bounds).pad(0.12) : null;
+    if (rahmen) {
+      map.fitBounds(rahmen);
+    }
+
+    // Die Karte steckt in einem Abschnitt, der zugeklappt sein kann. Leaflet
+    // misst dort 0 x 0 und laedt Kacheln fuer ein Fenster, das es nicht gibt —
+    // aufgeklappt bliebe die Karte grau. Beim ersten Aufklappen also neu
+    // vermessen und den Ausschnitt noch einmal setzen.
+    var kartenBlock = mapEl.closest('details.block');
+    if (kartenBlock) {
+      var vermessen = false;
+      kartenBlock.addEventListener('toggle', function () {
+        if (!kartenBlock.open || vermessen) return;
+        vermessen = true;
+        map.invalidateSize();
+        if (rahmen) { map.fitBounds(rahmen); }
+      });
     }
   } catch (err) {
     mapEl.innerHTML = '<div style="padding:28px;font-family:monospace;color:#857c6c">Karte nicht verfügbar. Etappen siehe Liste unten.</div>';

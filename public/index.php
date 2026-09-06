@@ -135,7 +135,9 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
 
 <section id="profil">
   <div class="wrap reveal">
-    <div class="sec-head"><div class="sec-num">01</div><h2>Profil &amp; Basis<small>Ausgangslage und Trainingsrahmen</small></h2></div>
+    <details class="block" data-block="profil">
+      <summary><div class="sec-head"><div class="sec-num">01</div><h2>Profil &amp; Basis<small>Ausgangslage und Trainingsrahmen</small></h2></div></summary>
+      <div class="block-inhalt">
     <div class="grid">
       <?php foreach ($profile as $p): ?>
         <div class="cell">
@@ -144,12 +146,16 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
         </div>
       <?php endforeach; ?>
     </div>
+      </div>
+    </details>
   </div>
 </section>
 
 <section id="anreise">
   <div class="wrap reveal">
-    <div class="sec-head"><div class="sec-num">02</div><h2>Anreise &amp; Logistik<small>17.09. – 01.10.2026 · ab/an Frankfurt Main (FRA)</small></h2></div>
+    <details class="block" data-block="anreise">
+      <summary><div class="sec-head"><div class="sec-num">02</div><h2>Anreise &amp; Logistik<small>17.09. – 01.10.2026 · ab/an Frankfurt Main (FRA)</small></h2></div></summary>
+      <div class="block-inhalt">
     <div class="flight">
       <?php foreach ($travel as $t): ?>
         <div class="fcard">
@@ -161,12 +167,16 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
         </div>
       <?php endforeach; ?>
     </div>
+      </div>
+    </details>
   </div>
 </section>
 
 <section id="ankunft">
   <div class="wrap reveal">
-    <div class="sec-head"><div class="sec-num">03</div><h2>Ankunft &amp; Heimreise<small>Was an den beiden Enden konkret zu tun ist — Schritt für Schritt</small></h2></div>
+    <details class="block" data-block="ankunft">
+      <summary><div class="sec-head"><div class="sec-num">03</div><h2>Ankunft &amp; Heimreise<small>Was an den beiden Enden konkret zu tun ist — Schritt für Schritt</small></h2></div></summary>
+      <div class="block-inhalt">
 
     <h3 class="phase-head">Porto — ankommen und startklar werden</h3>
     <div class="day">
@@ -200,12 +210,16 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
       <b>Stand August 2026.</b> Fahrpreise und Fahrpläne ändern sich — Metro-Ticket und Flughafenbus
       kurz vor dem Abflug noch einmal prüfen. Die Wege und Adressen bleiben.
     </div>
+      </div>
+    </details>
   </div>
 </section>
 
 <section id="etappen">
   <div class="wrap reveal">
-    <div class="sec-head"><div class="sec-num">04</div><h2>Etappen &amp; Unterkünfte<small>Budget-Ausrichtung · ohne Gepäcktransport · Booking-Links nach Preis sortiert (live prüfen, Sept. schwankt)</small></h2></div>
+    <details class="block" data-block="etappen">
+      <summary><div class="sec-head"><div class="sec-num">04</div><h2>Etappen &amp; Unterkünfte<small>Budget-Ausrichtung · ohne Gepäcktransport · Booking-Links nach Preis sortiert (live prüfen, Sept. schwankt)</small></h2></div></summary>
+      <div class="block-inhalt">
 
     <div class="mapwrap reveal">
       <div id="map"></div>
@@ -352,12 +366,16 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
 
     <p class="quelle" id="datenQuelle" hidden></p>
 
+      </div>
+    </details>
   </div>
 </section>
 
 <section id="packliste">
   <div class="wrap reveal">
-    <div class="sec-head"><div class="sec-num">05</div><h2>Packliste<small>Häkchen werden gespeichert — Stand gilt auf allen Geräten</small></h2></div>
+    <details class="block" data-block="packliste">
+      <summary><div class="sec-head"><div class="sec-num">05</div><h2>Packliste<small>Häkchen werden gespeichert — Stand gilt auf allen Geräten</small></h2></div></summary>
+      <div class="block-inhalt">
     <?php if (isset($notes['pack_intro'])): ?>
       <div class="pl-note"><?= rich($notes['pack_intro']) ?></div>
     <?php endif; ?>
@@ -405,12 +423,16 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
         </details>
       <?php endforeach; ?>
     </div>
+      </div>
+    </details>
   </div>
 </section>
 
 <section id="kosten">
   <div class="wrap reveal">
-    <div class="sec-head"><div class="sec-num">06</div><h2>Kosten<small>Beträge werden gespeichert · Summe rechnet live · leere Felder zählen als 0</small></h2></div>
+    <details class="block" data-block="kosten">
+      <summary><div class="sec-head"><div class="sec-num">06</div><h2>Kosten<small>Beträge werden gespeichert · Summe rechnet live · leere Felder zählen als 0</small></h2></div></summary>
+      <div class="block-inhalt">
     <div class="pcat">
       <table class="ctbl">
         <tr><th>Position</th><th class="det">Detail</th><th class="r">Betrag €</th><th>Status</th></tr>
@@ -435,12 +457,16 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
     <?php if (isset($notes['cost_outro'])): ?>
       <div class="pl-note" style="margin-top:22px;margin-bottom:0"><?= rich($notes['cost_outro']) ?></div>
     <?php endif; ?>
+      </div>
+    </details>
   </div>
 </section>
 
 <section id="countdown">
   <div class="wrap reveal">
-    <div class="sec-head"><div class="sec-num">07</div><h2>Countdown –5 kg<small>93 → ~88 kg bis zum Abflug · ~0,7–1 kg/Woche · Ist-Gewicht wird gespeichert</small></h2></div>
+    <details class="block" data-block="countdown">
+      <summary><div class="sec-head"><div class="sec-num">07</div><h2>Countdown –5 kg<small>93 → ~88 kg bis zum Abflug · ~0,7–1 kg/Woche · Ist-Gewicht wird gespeichert</small></h2></div></summary>
+      <div class="block-inhalt">
     <?php if (isset($notes['weight_intro'])): ?>
       <div class="pl-note"><?= rich($notes['weight_intro']) ?></div>
     <?php endif; ?>
@@ -588,12 +614,16 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
     <?php if (isset($notes['weight_outro'])): ?>
       <div class="pl-note" style="margin-top:22px;margin-bottom:0"><?= rich($notes['weight_outro']) ?></div>
     <?php endif; ?>
+      </div>
+    </details>
   </div>
 </section>
 
 <section id="tagebuch">
   <div class="wrap reveal">
-    <div class="sec-head"><div class="sec-num">08</div><h2>Tagebuch &amp; Fotos<small>Sprachnotiz oder getippt · Aufnahmen und Bilder werden gemerkt, bis wieder Netz da ist</small></h2></div>
+    <details class="block" data-block="tagebuch">
+      <summary><div class="sec-head"><div class="sec-num">08</div><h2>Tagebuch &amp; Fotos<small>Sprachnotiz oder getippt · Aufnahmen und Bilder werden gemerkt, bis wieder Netz da ist</small></h2></div></summary>
+      <div class="block-inhalt">
 
     <?php
       // Nachschlagewerk für die Anzeige: Etappen-Id → Beschriftung.
@@ -815,6 +845,8 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
           <button type="button" id="keyPruefen" class="tb-knopf">Nur ausprobieren</button>
         </div>
         <p class="tb-hinweis" id="keyHinweis"></p>
+      </div>
+    </details>
       </div>
     </details>
   </div>

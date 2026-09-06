@@ -258,6 +258,30 @@ Der Deploy hängt **nicht** an der CI: der Server holt sich `main` alle fünf
 Minuten selbst. Eine rote Prüfung hält also nichts auf — sie ist ein Warnlicht,
 keine Schranke.
 
+## Die Seite ist ein Akkordeon
+
+Alle acht Abschnitte sind zugeklappt, bis man sie antippt. Zugeklappt ist die
+Seite ein Inhaltsverzeichnis aus acht Zeilen — auf dem Handy scrollte man
+sonst durch den halben Plan, nur um zu den Kosten zu kommen.
+
+Gebaut mit `<details>`/`<summary>`, nicht mit JavaScript: das klappt auch ohne
+Skript auf, lässt sich mit der Tastatur bedienen, und die Suchfunktion des
+Browsers findet Text in geschlossenen Blöcken. Mehrere dürfen gleichzeitig
+offen sein — beim Buchen will man Etappen und Kosten nebeneinander.
+
+Drei Dinge kommen vom JavaScript dazu:
+
+- **Der Zustand wird gemerkt**, im `localStorage` des Geräts unter
+  `pilger-bloecke`. Nicht in der Datenbank: welche Blöcke offen sind, ist eine
+  Sache des Geräts, nicht des Plans. Fällt der Speicher aus, startet die Seite
+  eben zugeklappt.
+- **Sprungmarken klappen auf.** Ein Klick auf „06 · Kosten" oder eine Adresse
+  mit `#kosten` würde sonst auf einer Überschrift landen.
+- **Die Karte wird neu vermessen.** Leaflet misst in einem zugeklappten
+  Abschnitt 0 × 0 und lädt Kacheln für ein Fenster, das es nicht gibt. Beim
+  ersten Aufklappen also `invalidateSize()` und der Ausschnitt noch einmal —
+  ohne das bliebe die Karte grau.
+
 ## Ausgeblendete Abschnitte
 
 Drei Abschnitte sind auf Wunsch aus der Seite genommen; die übrigen sind
