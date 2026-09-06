@@ -393,6 +393,11 @@ footer a{color:var(--flecha)}
 .tbtag{font-family:"Spline Sans Mono",monospace;font-size:11px;font-weight:600;color:var(--flecha);
        letter-spacing:.06em;text-transform:uppercase}
 .tbart{font-family:"Spline Sans Mono",monospace;font-size:11px;color:var(--stone)}
+/* Mehrere Notizen am selben Tag: Nummer und Uhrzeit halten sie auseinander. */
+.tbnr{font-family:"Spline Sans Mono",monospace;font-size:10.5px;font-weight:600;color:var(--granite);
+      background:var(--line);padding:2px 7px;border-radius:9px}
+.tbuhr{font-family:"Spline Sans Mono",monospace;font-size:11px;color:var(--stone)}
+.tb-mehr{font-size:12.5px;color:var(--stone);margin:10px 2px 0;line-height:1.5}
 .tbstatus{font-family:"Spline Sans Mono",monospace;font-size:10px;letter-spacing:.08em;
           text-transform:uppercase;color:var(--stone);margin-left:auto}
 .tbstatus.st-neu{color:var(--warn);font-weight:600}
@@ -503,6 +508,38 @@ footer a{color:var(--flecha)}
   .stage{grid-template-columns:70px 1fr;gap:14px;padding:16px}
   .mojon{padding-right:12px}.mojon .km{font-size:26px}
   .fact{padding-right:18px;margin-right:18px}
+
+  /* --- Unterwegs bedienbar ---------------------------------------------
+     Diese Seite wird mit einer Hand bedient, oft im Gehen, manchmal mit
+     klammen Fingern. Zwei Dinge zaehlen dann mehr als alles andere. */
+
+  /* 1. Keine Textzeile unter 16 px. iOS zoomt beim Antippen in jedes
+        kleinere Feld hinein — und von selbst nicht wieder heraus. Man
+        steht dann mit einer verrutschten Seite da und muss sie
+        zurechtschieben, nur weil man einen Betrag eintragen wollte. */
+  input[type=text],input[type=number],input[type=password],input[type=search],
+  input[type=tel],input[type=email],input[type=url],input[type=date],
+  textarea,select{font-size:16px}
+  /* Diese fuenf haben eigene, spezifischere Regeln und muessen einzeln
+     nachgezogen werden — sonst gewinnt die Regel von weiter oben. */
+  .ctbl input.cost,.tb-kopf select,.tb-neu textarea,
+  .gsd label input,.tb-eform input{font-size:16px}
+  .ctbl input.cost{width:96px}
+
+  /* 2. Haekchen sind die haeufigste Geste hier — abhaken, was gepackt,
+        gelaufen und gestempelt ist. 16 px trifft man im Gehen nicht. */
+  /* flex:none, sonst quetscht der Flex-Kasten das Kaestchen wieder schmal. */
+  .ptbl input[type=checkbox],.tagab input[type=checkbox]{width:22px;height:22px;flex:none}
+  .ptbl td:first-child{padding-top:10px;padding-bottom:10px}
+  .tagab{padding-top:14px;padding-bottom:6px}
+  .stempel .sbox{padding:10px 6px;margin:-10px -6px}
+
+  /* Aufklapper und Links in den Stempelorten waren 17 px hoch. */
+  .sorte summary{padding:10px 0}
+  .sorte li{padding-top:11px;padding-bottom:11px}
+  .sorte li a{display:inline-block;padding:4px 0}
+  .tab{padding:13px 14px}
+  .lockbar .ab button{padding:9px 14px}
 }
 @media (prefers-reduced-motion:reduce){
   .reveal{opacity:1;transform:none;transition:none}.stage{transition:none}html{scroll-behavior:auto}

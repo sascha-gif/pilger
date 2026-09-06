@@ -258,6 +258,36 @@ Der Deploy hängt **nicht** an der CI: der Server holt sich `main` alle fünf
 Minuten selbst. Eine rote Prüfung hält also nichts auf — sie ist ein Warnlicht,
 keine Schranke.
 
+## Unterwegs bedienbar — was am Telefon zählt
+
+Die Seite wird auf dem Camino mit einer Hand bedient, oft im Gehen. Zwei
+Regeln, die dabei mehr zählen als alles andere; beide stehen im
+`@media (max-width:560px)`-Block:
+
+- **Keine Texteingabe unter 16 px.** iOS zoomt beim Antippen in jedes kleinere
+  Feld hinein und von selbst nicht wieder heraus. Fünf Felder hatten eigene,
+  spezifischere Regeln (`.ctbl input.cost`, `.tb-kopf select`,
+  `.tb-neu textarea`, `.gsd label input`, `.tb-eform input`) und mussten
+  einzeln nachgezogen werden.
+- **Häkchen sind die häufigste Geste** — abhaken, was gepackt, gelaufen und
+  gestempelt ist. Sie waren 16 bis 17 px groß; jetzt 22 px, und der Flex-Kasten
+  darf sie nicht mehr schmalquetschen (`flex:none`). Aufklapper und Links in
+  den Stempelorten waren 17 px hoch und haben Polsterung bekommen.
+
+Nachgemessen wird mit einem Skript, das bei 390 × 844 nach drei Dingen sucht:
+Elemente, die über den Rand ragen (ohne die, die in einem Scrollkasten sitzen),
+Texteingaben unter 16 px, und Tippflächen unter 40 px. Querscrollen gibt es
+nicht.
+
+## Mehrere Notizen pro Tag
+
+Das ging von Anfang an — jedes Speichern legt einen eigenen Eintrag an, eine
+Beschränkung pro Tag gab es nie. Zu sehen war es nur nicht: mehrere Einträge
+desselben Tages sahen identisch aus. Sie tragen jetzt **Nummer und Uhrzeit**
+(„2. von 3 · 19:42"), und unter dem Speichern-Knopf steht, dass das so gedacht
+ist. Die Nummer zählt in der Reihenfolge des Anlegens, die Liste zeigt die
+neueste zuerst.
+
 ## Sprachnotizen — was daran schon kaputt war
 
 Zwei Fehler, die zusammen dafür gesorgt haben, dass **keine einzige Aufnahme

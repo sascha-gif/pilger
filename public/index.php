@@ -686,13 +686,33 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
         <button type="button" id="tbSpeichern" class="tb-knopf haupt">Eintrag speichern</button>
         <span class="tb-hinweis" id="tbHinweis"></span>
       </div>
+      <p class="tb-mehr">Mehrere Notizen am selben Tag sind kein Problem — jede wird
+        ein eigener Eintrag, mit Uhrzeit und Nummer.</p>
 
       <div class="tb-queue" id="tbQueue" hidden></div>
     </div>
 
     <div class="tb-liste" id="tbListe">
+      <?php
+        // Ein Tag darf mehrere Notizen haben — abends im Bett faellt einem
+        // noch etwas ein, das mittags an der Kirche passiert ist. Damit man
+        // sie auseinanderhaelt, bekommt jede ihre Nummer und ihre Uhrzeit.
+        $proTag = [];
+        foreach ($eintraege as $e) {
+            $schluessel = (string) ($e['stage_id'] ?: $e['day_iso']);
+            $proTag[$schluessel][] = (int) $e['id'];
+        }
+        foreach ($proTag as &$ids) { $ids = array_reverse($ids); }   // aelteste zuerst
+        unset($ids);
+      ?>
       <?php foreach ($eintraege as $e): ?>
         <?php
+          $schluessel = (string) ($e['stage_id'] ?: $e['day_iso']);
+          $geschwister = $proTag[$schluessel] ?? [];
+          $nummer  = array_search((int) $e['id'], $geschwister, true);
+          $nummer  = $nummer === false ? 1 : $nummer + 1;
+          $vonWie  = count($geschwister);
+          $uhrzeit = $e['created_at'] ? date('H:i', strtotime((string) $e['created_at'])) : '';
           $etappe = $e['stage_id'] ? ($stageLabel[(int) $e['stage_id']] ?? '') : '';
           $text   = (string) ($e['text_clean'] ?: $e['text_raw']);
           $roh    = $e['text_clean'] && $e['text_raw'] ? (string) $e['text_raw'] : null;
@@ -701,6 +721,10 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
         <article class="tbe" data-id="<?= (int) $e['id'] ?>" data-stage="<?= (int) $e['stage_id'] ?>">
           <header>
             <span class="tbtag"><?= h($etappe ?: (string) $e['day_iso']) ?></span>
+            <?php if ($vonWie > 1): ?>
+              <span class="tbnr"><?= $nummer ?>. von <?= $vonWie ?></span>
+            <?php endif; ?>
+            <?php if ($uhrzeit): ?><span class="tbuhr"><?= h($uhrzeit) ?></span><?php endif; ?>
             <?php if ($e['kind'] === 'audio'): ?>
               <span class="tbart">Sprachnotiz<?= $e['audio_seconds'] ? ' · ' . floor((int) $e['audio_seconds'] / 60) . ':' . str_pad((string) ((int) $e['audio_seconds'] % 60), 2, '0', STR_PAD_LEFT) : '' ?></span>
             <?php endif; ?>
