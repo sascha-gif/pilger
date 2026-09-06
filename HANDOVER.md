@@ -86,7 +86,7 @@ Port geöffnet werden. Details in `docs/DEPLOYMENT.md`.
 | Fortschrittsbalken gelaufene km | **fertig**, rechnet aus den abgehakten Tagen |
 | Stempel-Checkliste (ab Spanien zwei/Tag) | **fertig** |
 | Packliste als Reiter | **fertig** |
-| „Vor der Abreise": Termine zum Abhaken | **fertig**, Punkte selbst ergänzbar |
+| „Vor der Abreise": Termine zum Abhaken | gebaut, auf Wunsch **ausgeblendet** |
 | Equipment & Gelenkschutz | **ausgeblendet** auf Wunsch — siehe unten |
 | Ernährung & Supplements | **ausgeblendet** auf Wunsch — siehe unten |
 | Wetter je Etappe (Open-Meteo) | **fertig**, Vorhersage bzw. Vorjahresmittel |
@@ -260,7 +260,7 @@ keine Schranke.
 
 ## Ausgeblendete Abschnitte
 
-Zwei Abschnitte sind auf Wunsch aus der Seite genommen; die übrigen sind
+Drei Abschnitte sind auf Wunsch aus der Seite genommen; die übrigen sind
 nachgerückt. Aktuelle Nummerierung:
 
 ```
@@ -271,10 +271,14 @@ nachgerückt. Aktuelle Nummerierung:
 - **Equipment & Gelenkschutz** — war weitgehend eine Kurzfassung der
   Packliste, die dieselben Punkte ausführlicher führt.
 - **Ernährung & Supplements** — Tagesprotokoll und Pillen-Zeile.
+- **Vor der Abreise** — Termine und Erledigungen zum Abhaken (Zahnarzt,
+  Frisör, Infusion, Osteopath, Decathlon, Rezept, Apotheke).
 
 **Gelöscht wurde nichts.** `equipment_cards`, `equipment_items` (samt
-Häkchen), `nutrition_pills` und `nutrition_slots` stehen unverändert in der
-Datenbank, die Repo-Methoden und die API-Aktion `equip.toggle` ebenfalls.
+Häkchen), `nutrition_pills`, `nutrition_slots` und `todos` (samt Häkchen und
+Notizen) stehen unverändert in der Datenbank, die Repo-Methoden und die
+API-Aktionen `equip.toggle` und `todo.*` ebenfalls. Das JavaScript dazu
+prüft, ob es die Elemente überhaupt gibt, und tut sonst nichts.
 Wieder einblenden heißt: den jeweiligen Commit rückgängig machen, mehr nicht.
 
 Die Sprungziele (`#packliste`, `#kosten`, …) haben sich nie geändert — nur die
