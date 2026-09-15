@@ -126,6 +126,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/017_rueckflug.php';
             migration_017($db);
         });
+
+        // Nur Unterkuenfte mit eigenem Zimmer, kein Schlafsaal.
+        $apply('018_eigenes_zimmer', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/018_eigenes_zimmer.php';
+            migration_018($db);
+        });
     }
 
     /** @return array<int,string> */

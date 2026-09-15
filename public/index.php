@@ -253,6 +253,12 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
       </div>
     </div>
 
+    <?php if (isset($notes['stage_zimmer'])): ?>
+      <?php /* Steht ueber den Etappen, nicht an jedem Knopf: die Regel gilt
+               fuer alle zwoelf, und zwoelfmal derselbe Satz liest niemand. */ ?>
+      <div class="pl-note" style="margin:22px 0 0"><?= rich($notes['stage_zimmer']) ?></div>
+    <?php endif; ?>
+
     <div class="tabs" data-tabs="etappen">
       <button type="button" class="tab is-on" data-tab="offen">Offen <i id="tabEtappenOffen"><?= $stagesOffen ?></i></button>
       <button type="button" class="tab" data-tab="erledigt">Erledigt <i id="tabEtappenErledigt"><?= $stagesErledigt ?></i></button>

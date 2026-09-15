@@ -95,6 +95,15 @@ danach läuft sie mit der Costa zusammen.
 - **Offen:** alle 12 Etappenorte. Booking-Links im HTML, nach Preis sortiert.
   Kritisch früh buchen: **Oia** (dünnes Angebot) und **Santiago** (hohe Nachfrage).
 - Budget-Ausrichtung: Pension/Hostal statt Hotel, ca. 50–110 €/Nacht
+- **Nur Unterkünfte mit eigenem Zimmer** — kein Bett im Schlafsaal. Steht in
+  jedem Budget-Ziel. Die Booking-Links können das nicht erzwingen: den Filter
+  dafür gibt es auf booking.com nur in der Oberfläche (*Bettenart →
+  Privatzimmer*), der URL-Parameter ist nicht öffentlich dokumentiert, und ein
+  geratener Parameter könnte still auf null Ergebnisse filtern. Der Hinweis
+  steht deshalb über den Etappen.
+- **Albergue ≠ Hostal.** Ein *Albergue* ist die Pilgerherberge mit Schlafsaal,
+  ein *Hostal* ein kleines günstiges Hotel mit eigenem Zimmer. Die beiden
+  Wörter sehen sich ähnlich und meinen das Gegenteil.
 
 ## Kosten (Orientierung)
 
