@@ -112,6 +112,43 @@
     oeffneZiel(location.hash);
   }
 
+  /* ---------- Tage im Tagebuch auf- und zuklappen ------------------------- */
+  /* Nach zwoelf Etappen ist der Zeitstrahl sonst eine einzige Bildschirmlaenge.
+     Offen ist der neueste Tag — den sucht man, wenn man die Seite aufmacht.
+     Was danach auf- oder zugeklappt wird, gehoert dem Geraet, genau wie bei den
+     Abschnitten oben.
+
+     Gemerkt wird je Tag ein eigenes Ja oder Nein, keine Liste der offenen. Der
+     Unterschied zaehlt: ein Tag, von dem nichts gespeichert ist, ist ein neuer
+     Tag — und der soll der Vorgabe der Seite folgen und nicht zugeklappt
+     erscheinen, nur weil er beim letzten Besuch noch nicht existierte. Sonst
+     verschwindet die gerade gespeicherte Notiz hinter einer zugeklappten
+     Ueberschrift. */
+  var TAG_SPEICHER = 'pilger-tage';
+  var tagbloecke = document.querySelectorAll('details.tagblock');
+
+  if (tagbloecke.length) {
+    var gemerkteTage = {};
+    try {
+      var rohTage = localStorage.getItem(TAG_SPEICHER);
+      var geparst = rohTage ? JSON.parse(rohTage) : null;
+      if (geparst && typeof geparst === 'object' && !Array.isArray(geparst)) {
+        gemerkteTage = geparst;
+      }
+    } catch (e) { gemerkteTage = {}; }
+
+    tagbloecke.forEach(function (t) {
+      var schluessel = t.dataset.tag;
+      if (Object.prototype.hasOwnProperty.call(gemerkteTage, schluessel)) {
+        t.open = !!gemerkteTage[schluessel];
+      }
+      t.addEventListener('toggle', function () {
+        gemerkteTage[schluessel] = t.open;
+        try { localStorage.setItem(TAG_SPEICHER, JSON.stringify(gemerkteTage)); } catch (e) { /* dann eben nicht */ }
+      });
+    });
+  }
+
   /* ---------- Packliste -------------------------------------------------- */
   var progressBar = document.querySelector('.progress .bar i');
   var progressCnt = document.querySelector('.progress .cnt');

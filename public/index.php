@@ -612,8 +612,10 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
     <?php endif; ?>
 
     <div class="tb-liste" id="tbListe">
-      <?php foreach ($nachTag as $gruppe): ?>
+      <?php $tagNr = 0; ?>
+      <?php foreach ($nachTag as $tagSchluessel => $gruppe): ?>
         <?php
+          $tagNr++;
           $erste  = $gruppe[0];
           $st     = $erste['stage_id'] ? ($stages[array_search((int) $erste['stage_id'], array_column($stages, 'id'))] ?? null) : null;
           // Der Tag des Eintrags gewinnt vor dem Datum der Etappe, aus demselben
@@ -622,19 +624,33 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
           $zeit   = $datum ? strtotime($datum) : false;
           $titel  = $st ? trim((string) $st['title']) : '';
           $code   = $st ? trim((string) $st['code']) : '';
+
+          /* Zugeklappt muss der Kopf sagen, was drinsteckt — sonst klickt man
+             sich durch zwölf Tage, um ein Bild wiederzufinden. */
+          $idsDesTages = array_map(static fn ($e) => (int) $e['id'], $gruppe);
+          $fotoZahl = count(array_filter(
+              $alleFotos,
+              static fn ($f) => in_array((int) $f['entry_id'], $idsDesTages, true)
+          ));
+          $inhalt = [];
+          $inhalt[] = count($gruppe) . (count($gruppe) === 1 ? ' Notiz' : ' Notizen');
+          if ($fotoZahl) { $inhalt[] = $fotoZahl . (($fotoZahl === 1) ? ' Bild' : ' Bilder'); }
         ?>
-        <section class="tagblock">
-          <header class="tagkopf">
+        <?php /* Jeder Tag klappt für sich auf. Nach zwölf Etappen ist der
+                 Zeitstrahl sonst eine einzige Bildschirmlänge ohne Ende, und
+                 wer den dritten Tag sucht, scrollt an allem vorbei. Offen ist
+                 der neueste — das ist der, den man beim Aufmachen sucht;
+                 alles andere merkt sich das Gerät. */ ?>
+        <details class="tagblock" data-tag="<?= h((string) $tagSchluessel) ?>"<?= $tagNr === 1 ? ' open' : '' ?>>
+          <summary class="tagkopf">
             <?php if ($zeit): ?>
               <span class="tagwotag"><?= h($wochentage[(int) date('w', $zeit)]) ?></span>
               <span class="tagdatum"><?= (int) date('j', $zeit) ?>. <?= h($monate[(int) date('n', $zeit)]) ?></span>
             <?php endif; ?>
             <?php if ($titel): ?><h4 class="tagort"><?= h($titel) ?></h4><?php endif; ?>
             <?php if ($code): ?><span class="tagcode"><?= h($code) ?></span><?php endif; ?>
-            <?php if (count($gruppe) > 1): ?>
-              <span class="tagzahl"><?= count($gruppe) ?> Notizen</span>
-            <?php endif; ?>
-          </header>
+            <span class="tagzahl"><?= h(implode(' · ', $inhalt)) ?></span>
+          </summary>
 
           <?php foreach ($gruppe as $e): ?>
             <?php
@@ -704,7 +720,7 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
               </footer>
             </article>
           <?php endforeach; ?>
-        </section>
+        </details>
       <?php endforeach; ?>
 
       <?php if (!$eintraege): ?>

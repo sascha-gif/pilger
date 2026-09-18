@@ -313,6 +313,30 @@ Zwei Fallen, die dabei aufgefallen sind:
 - **`.tagblock` ist ein `<section>`** und erbte damit `section{padding:56px 0}`.
   Der Tagespunkt hing 56 px über seiner Überschrift. Padding ausgeschrieben.
 
+## Jeder Tag im Tagebuch klappt für sich auf
+
+Zwölf Etappen mit Notizen und Fotos sind zugeklappt ein Inhaltsverzeichnis der
+Reise und aufgeklappt eine Bildschirmlänge ohne Ende. Der Tagblock ist deshalb
+ein `<details>` mit dem Tageskopf als `<summary>` — dieselbe Machart wie die
+Abschnitte oben, nur mit kleinerem Haken.
+
+Was zugeklappt trotzdem dasteht: Wochentag, Datum, Zielort, Etappencode und
+**was drinsteckt** — „3 Notizen · 5 Bilder". Ohne die letzte Angabe klickt man
+sich durch zwölf Tage, um ein Bild wiederzufinden.
+
+**Offen ist der neueste Tag.** Den sucht man, wenn man die Seite aufmacht.
+Alles weitere merkt sich das Gerät in `localStorage` unter `pilger-tage` — und
+zwar als **Ja oder Nein je Tag**, nicht als Liste der offenen. Der Unterschied
+ist der Fall, der sonst weh tut: ein Tag, von dem nichts gespeichert ist, ist
+ein *neuer* Tag. Er folgt der Vorgabe der Seite statt zugeklappt zu erscheinen,
+nur weil er beim letzten Besuch noch nicht existierte — sonst verschwände die
+gerade gespeicherte Notiz hinter einer zugeklappten Überschrift.
+
+Der Tagespunkt an der Schiene sitzt weiter am Kopf, auch zugeklappt. Und weil
+der Block kein `<section>` mehr ist, erbt er auch das `section{padding:56px 0}`
+von weiter oben nicht mehr — das ausgeschriebene `padding` in `.tagblock`
+bleibt trotzdem stehen, sonst rutscht der Punkt.
+
 ## Die Warteschlange sagt, warum es klemmt
 
 Der Kasten über dem Tagebuch zeigt, was noch auf dem Gerät liegt. Er zeigt

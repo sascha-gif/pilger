@@ -413,11 +413,30 @@ footer a{color:var(--flecha)}
 #tagebuch[data-edit="1"] #tbEdit{border-color:var(--flecha);color:var(--granite);font-weight:600}
 
 .tb-liste{border-left:2px solid var(--line);padding-left:22px;margin-left:7px}
-/* padding ausgeschrieben: `section{padding:56px 0}` weiter oben gilt auch
-   hier, und der Tagespunkt haengt sonst 56 px ueber seiner Ueberschrift. */
+/* padding ausgeschrieben, damit der Tagespunkt neben seiner Ueberschrift sitzt
+   und nicht darueber — frueher war der Tagblock ein <section> und erbte
+   `section{padding:56px 0}` von weiter oben. */
 .tagblock{position:relative;padding:0 0 26px}
 .tagblock::before{content:"";position:absolute;left:-29px;top:6px;width:11px;height:11px;
                   border-radius:50%;background:var(--flecha);border:2px solid var(--paper)}
+/* Jeder Tag klappt fuer sich auf. Zugeklappt ist der Zeitstrahl ein
+   Inhaltsverzeichnis der Reise — zwoelf Zeilen statt zwoelf Bildschirmlaengen. */
+.tagblock > summary.tagkopf{list-style:none;cursor:pointer;
+  padding:2px 34px 2px 0;position:relative;-webkit-tap-highlight-color:transparent}
+.tagblock > summary::-webkit-details-marker{display:none}
+.tagblock > summary:hover .tagdatum,
+.tagblock > summary:hover .tagort{color:var(--atlantic)}
+.tagblock > summary:focus-visible{outline:2px solid var(--flecha);outline-offset:6px}
+/* Derselbe Haken wie bei den Abschnitten oben, nur kleiner. */
+.tagblock > summary::after{content:"";position:absolute;right:6px;top:50%;
+  width:8px;height:8px;margin-top:-7px;
+  border-right:2px solid var(--flecha);border-bottom:2px solid var(--flecha);
+  transform:rotate(45deg);transition:transform .18s ease,margin-top .18s ease}
+.tagblock[open] > summary::after{transform:rotate(-135deg);margin-top:-2px}
+/* Zugeklappt braucht der Tag nur die Luft seiner Zeile. */
+.tagblock:not([open]){padding-bottom:14px}
+.tagblock[open] > summary.tagkopf{margin-bottom:10px}
+
 .tagkopf{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin-bottom:10px}
 .tagwotag{font-family:"Spline Sans Mono",monospace;font-size:11px;font-weight:600;
           letter-spacing:.08em;text-transform:uppercase;color:var(--flecha)}
