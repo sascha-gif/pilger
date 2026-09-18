@@ -424,6 +424,10 @@ footer a{color:var(--flecha)}
 .tbart{font-family:"Spline Sans Mono",monospace;font-size:11px;color:var(--stone)}
 .tbuhr{font-family:"Spline Sans Mono",monospace;font-size:12px;font-weight:600;color:var(--granite)}
 .tb-mehr{font-size:12.5px;color:var(--stone);margin:10px 2px 0;line-height:1.5}
+/* Warum es klemmt — die Meldung des Servers, wortwoertlich. Ohne sie steht da
+   nur „5 Versuche" und niemand weiss, woran es liegt. */
+.qgrund{display:block;font-family:"Spline Sans Mono",monospace;font-size:11px;
+        color:#a4341f;margin-top:3px;word-break:break-word}
 
 /* ---- Lesen oder bearbeiten -------------------------------------------------
    Ohne `data-edit` ist die Seite ein Tagebuch: Text, Bilder, Unterschriften.

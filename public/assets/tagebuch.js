@@ -68,6 +68,11 @@
     }
   }
 
+  function roh(text) {
+    return String(text === null || text === undefined ? '' : text)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
   function malSchlange() {
     return schlange().then(function (offen) {
       if (!queueEl) return offen;
@@ -76,19 +81,49 @@
         queueEl.innerHTML = '';
         return offen;
       }
+
+      // Haengt etwas fest? Dann ist „wartet auf Netz" die falsche Auskunft.
+      var klemmt = offen.some(function (p) { return (p.versuche || 0) >= 2; });
+
       queueEl.hidden = false;
-      queueEl.innerHTML = '<b>' + offen.length + (offen.length === 1 ? ' Eintrag wartet' : ' Einträge warten') +
-        ' auf Netz.</b> Sie liegen auf diesem Gerät und gehen von selbst raus, sobald wieder Empfang da ist.' +
+      queueEl.innerHTML =
+        '<b>' + offen.length + (offen.length === 1 ? ' Eintrag liegt' : ' Einträge liegen') +
+        ' noch auf diesem Gerät.</b> ' +
+        (klemmt
+          ? 'Das Hochladen hat mehrfach nicht geklappt — der Grund steht dabei. '
+            + 'Bis dahin ist nichts verloren: alles bleibt gespeichert, auch wenn du die Seite schließt.'
+          : 'Sie gehen von selbst raus, sobald wieder Empfang da ist.') +
         '<ul>' + offen.map(function (p) {
           var was = [];
           if (p.audio) was.push('Sprachnotiz');
           if (p.text) was.push('Text');
-          if (p.fotos && p.fotos.length) was.push(p.fotos.length + ' Foto' + (p.fotos.length > 1 ? 's' : ''));
-          return '<li>' + (p.etappe || 'ohne Tag') + ' — ' + was.join(' + ') +
-                 (p.versuche ? ' <em>(' + p.versuche + ' Versuche)</em>' : '') + '</li>';
-        }).join('') + '</ul>';
+          if (p.fotos && p.fotos.length) {
+            // Wie weit ist es gekommen? Ein Paket mit zehn Bildern laedt Stueck
+            // fuer Stueck hoch; ohne diese Zahl sieht ein halb erledigtes Paket
+            // aus wie ein gar nicht begonnenes.
+            var fertig = (p.fotosFertig || []).filter(Boolean).length;
+            was.push(p.fotos.length + ' Foto' + (p.fotos.length > 1 ? 's' : '') +
+                     (fertig ? ' (' + fertig + ' schon oben)' : ''));
+          }
+          return '<li>' + roh(p.etappe || 'ohne Tag') + ' — ' + was.join(' + ') +
+                 (p.versuche ? ' <em>' + p.versuche + '× versucht</em>' : '') +
+                 (p.fehler ? '<span class="qgrund">' + roh(p.fehler) + '</span>' : '') +
+                 '</li>';
+        }).join('') + '</ul>' +
+        '<button type="button" class="tb-mini" id="tbNochmal">Jetzt noch einmal versuchen</button>';
       return offen;
     }).catch(function () { return []; });
+  }
+
+  /* Von Hand anstossen. Der Selbstlauf versucht es alle 45 Sekunden, aber wer
+     gerade sieht, dass wieder Balken da sind, will nicht warten. */
+  if (queueEl) {
+    queueEl.addEventListener('click', function (e) {
+      if (!e.target.closest('#tbNochmal')) return;
+      if (!navigator.onLine) { sag('Immer noch kein Netz.', true); return; }
+      sag('Wird versucht …');
+      abarbeiten();
+    });
   }
 
   function netzstand() {

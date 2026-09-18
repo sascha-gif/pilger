@@ -310,6 +310,24 @@ Zwei Fallen, die dabei aufgefallen sind:
 - **`.tagblock` ist ein `<section>`** und erbte damit `section{padding:56px 0}`.
   Der Tagespunkt hing 56 px über seiner Überschrift. Padding ausgeschrieben.
 
+## Die Warteschlange sagt, warum es klemmt
+
+Der Kasten über dem Tagebuch zeigt, was noch auf dem Gerät liegt. Er zeigt
+jetzt auch **den Grund**: `p.fehler` wird beim fehlgeschlagenen Versuch schon
+seit jeher gespeichert, stand aber nirgends. Man sah nur „5 Versuche" und
+konnte nur raten.
+
+Dazu drei Kleinigkeiten, die beim Festhängen helfen:
+
+- **Wie weit es gekommen ist** — „10 Fotos (3 schon oben)". Ein Paket lädt Bild
+  für Bild hoch; ohne die Zahl sieht ein halb erledigtes Paket aus wie ein gar
+  nicht begonnenes.
+- **Ein Knopf zum sofortigen Wiederholen.** Der Selbstlauf versucht es alle
+  45 Sekunden — wer gerade sieht, dass wieder Balken da sind, will nicht warten.
+- **Anderer Text ab dem zweiten Fehlversuch.** „Wartet auf Netz" ist dann die
+  falsche Auskunft; es steht stattdessen da, dass es klemmt und nichts verloren
+  ist.
+
 ## Ein Paket loswerden — `stelleEin()`
 
 Alles, was ins Tagebuch geht — neuer Eintrag, nachgereichte Bilder —, läuft
