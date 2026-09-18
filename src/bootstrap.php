@@ -85,7 +85,7 @@ if (!empty($config['debug'])) {
 }
 
 mb_internal_encoding('UTF-8');
-date_default_timezone_set('Europe/Berlin');
+date_default_timezone_set(reise_zeitzone());
 
 try {
     $db = new Database($config);

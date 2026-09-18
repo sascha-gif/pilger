@@ -155,6 +155,25 @@ try {
             }
             json_out(['ok' => true, 'eintrag' => $tagebuch->eintrag($id)]);
 
+        case 'tagebuch.tag':
+            if ($id <= 0) {
+                json_out(['ok' => false, 'error' => 'Ungültige ID.'], 400);
+            }
+            $tagebuch = new Tagebuch($db, $repo);
+            try {
+                $geaendert = $tagebuch->aendereTag(
+                    $id,
+                    isset($body['tag']) && $body['tag'] !== '' ? substr((string) $body['tag'], 0, 10) : null,
+                    isset($body['stage']) && $body['stage'] !== '' ? (int) $body['stage'] : null
+                );
+            } catch (InvalidArgumentException $e) {
+                json_out(['ok' => false, 'error' => $e->getMessage()], 422);
+            }
+            if (!$geaendert) {
+                json_out(['ok' => false, 'error' => 'Eintrag nicht gefunden.'], 404);
+            }
+            json_out(['ok' => true, 'eintrag' => $tagebuch->eintrag($id)]);
+
         case 'tagebuch.loeschen':
             if ($id <= 0) {
                 json_out(['ok' => false, 'error' => 'Ungültige ID.'], 400);

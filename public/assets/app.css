@@ -488,6 +488,11 @@ footer a{color:var(--flecha)}
 /* Das Dateifeld ist ein <label> — ohne das hier steht es neben den Knoepfen
    wie ein Fremdkoerper. */
 .tb-mini.datei{display:inline-block;line-height:normal}
+/* Der Tag entscheidet, welche Zahlen der Uhr beim Ausbau mitkommen — das Feld
+   steht deshalb bei den Knoepfen und nicht versteckt in einem Untermenue. */
+.tb-mini.tbe-tag-feld{display:inline-flex;align-items:center;gap:7px;line-height:normal}
+.tbe-tag{font-family:"Spline Sans Mono",monospace;font-size:11px;border:0;background:none;
+         color:var(--granite);padding:0;min-width:104px}
 
 /* Ausgewaehlte, noch nicht hochgeladene Bilder */
 .tb-wahl{border:1px dashed var(--line);padding:12px;margin-bottom:12px;background:#fff}

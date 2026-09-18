@@ -659,6 +659,32 @@
     });
   }
 
+  /* Das Datum, das auf diesem Gerät gerade gilt — nicht das der Serveruhr,
+     und ohne Umweg über UTC (toISOString() wirft einen abends geschriebenen
+     Eintrag sonst auf den nächsten Tag). */
+  function ortsDatum() {
+    var d = new Date();
+    var m = String(d.getMonth() + 1);
+    var t = String(d.getDate());
+    return d.getFullYear() + '-' + (m.length < 2 ? '0' + m : m) + '-' + (t.length < 2 ? '0' + t : t);
+  }
+
+  /* Welcher Tag gehoert zum Eintrag?
+
+     Normalerweise der, an dem geschrieben wird. Das Datum aus der Etappe zu
+     nehmen geht schief, sobald eine Etappe mehr als einen Tag abdeckt: das
+     Basislager Porto steht auf den 18.09., eine Notiz vom 17. bekaeme damit
+     die Zahlen des falschen Tages.
+
+     Liegt der Tag der gewaehlten Etappe dagegen in der Vergangenheit, hat er
+     ihn bewusst ausgesucht — dann gilt der. Genau dafuer gibt es die Gruppe
+     „Gerade abgehakt". */
+  function tagDesEintrags(option) {
+    var heute = ortsDatum();
+    var ausEtappe = option && option.dataset ? (option.dataset.tag || '') : '';
+    return (ausEtappe && ausEtappe < heute) ? ausEtappe : heute;
+  }
+
   function packUndSpeichere() {
       var text = (textFeld.value || '').trim();
       if (!text && !fertigeAufnahme && !gewaehlteFotos.length) {
@@ -670,7 +696,7 @@
       var paket = {
         id: kennung(),
         stage: tagWahl.value,
-        tag: gewaehlt ? gewaehlt.dataset.tag : '',
+        tag: tagDesEintrags(gewaehlt),
         etappe: gewaehlt ? gewaehlt.textContent.trim() : '',
         text: text || null,
         audio: fertigeAufnahme ? fertigeAufnahme.blob : null,
@@ -817,6 +843,25 @@
         : 'Auf dem Gerät gemerkt — geht raus, sobald Netz da ist.');
     }).catch(function () { /* gemeldet ist es schon */ });
   }
+
+  /* ================= Tag eines Eintrags berichtigen ===================== */
+  /* Der Tag entscheidet, welche Zahlen der Uhr beim Ausbau mitkommen. Eine
+     Notiz, die morgens über gestern gesprochen wird, gehoert auf gestern —
+     sonst rechnet der Ausbau mit einem Tag, der gerade erst angefangen hat. */
+  listeEl.addEventListener('change', function (e) {
+    var feld = e.target.closest('.tbe-tag');
+    if (!feld) return;
+    var karte = feld.closest('.tbe');
+    if (!karte || !feld.value) return;
+
+    feld.disabled = true;
+    sendeJson({ action: 'tagebuch.tag', id: Number(karte.dataset.id), tag: feld.value })
+      .then(function () {
+        sag('Tag geändert. Zum Neuausbauen „Neu ausbauen" drücken.');
+        setTimeout(function () { location.reload(); }, 1200);
+      })
+      .catch(function (err) { feld.disabled = false; sag(err.message, true); });
+  });
 
   /* ================= Bilder beschriften und löschen ===================== */
   /* Die Kacheln stehen an zwei Stellen — an den Einträgen und in der

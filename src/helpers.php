@@ -170,3 +170,30 @@ function ini_bytes(string $wert): int
         default => $zahl,
     };
 }
+
+/**
+ * Die Zeitzone, in der Sascha gerade steht.
+ *
+ * Die Uhrzeiten auf der Seite sollen die sein, die er am Handgelenk sieht.
+ * Portugal geht der deutschen Zeit im Sommer eine Stunde nach — ein Eintrag
+ * von 9:04 stand deshalb als „10:04" da. Ab der Grenze am Minho (E5,
+ * 23.09.2026) ist es Spanien, und das hat dieselbe Uhr wie Deutschland.
+ * Vor und nach der Reise gilt die heimische Zeit.
+ *
+ * Welcher Tag gerade ist, wird in UTC bestimmt — sonst müsste man die Zone
+ * schon kennen, um die Zone zu wählen. Auf den Wechseltag genau geht es
+ * damit um höchstens eine Stunde daneben, und beide Zonen liegen ohnehin
+ * nur eine Stunde auseinander.
+ */
+function reise_zeitzone(?string $heute = null): string
+{
+    $heute ??= gmdate('Y-m-d');
+
+    if ($heute >= '2026-09-17' && $heute <= '2026-09-22') {
+        return 'Europe/Lisbon';   // Porto bis Caminha
+    }
+    if ($heute >= '2026-09-23' && $heute <= '2026-10-01') {
+        return 'Europe/Madrid';   // ab dem Minho
+    }
+    return 'Europe/Berlin';
+}

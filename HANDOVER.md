@@ -427,6 +427,72 @@ Fehlversuchen in derselben Warteschlange und war am Morgen durch. Das Problem
 war also von Anfang an nur bei den Bildern, bei der Größe — nicht bei der
 Anmeldung und nicht beim Weg an sich.
 
+## Der Tag eines Eintrags — und warum er nicht aus der Etappe kommt
+
+Bis zum 18.09.2026 hing der Tag eines Tagebucheintrags an der **Etappe**. Das
+ging solange gut, wie eine Etappe genau einen Tag bedeutet — und ging schief,
+sobald sie das nicht tut. Das Basislager Porto deckt den 17. und den 18.09. mit
+einem `date_iso` ab (dem 18.). Eine Notiz vom Ankunftstag bekam damit die Zahlen
+des Orga-Tags, und im Zeitstrahl standen beide Tage unter einer Überschrift.
+
+Jetzt gilt überall der **Tag des Eintrags** (`diary_entries.day_iso`), und die
+Etappe ist nur noch der Rückfall:
+
+- `tagebuch.js` schickt beim Speichern das **Datum des Geräts**. Nur wenn die
+  gewählte Etappe ein Datum trägt, das schon vorbei ist, gewinnt dieses — dann
+  hat er bewusst einen früheren Tag ausgesucht, genau dafür gibt es im
+  Tagesfeld die Gruppe „Gerade abgehakt".
+- `Tagebuch::tagesfakten()` liest `day_iso` zuerst.
+- Der Zeitstrahl in `index.php` bündelt nach `day_iso` und nimmt die Überschrift
+  daher.
+- Am Eintrag steht im Bearbeiten-Modus ein **Datumsfeld**. Eine Notiz, die
+  morgens über gestern gesprochen wird, lässt sich damit auf gestern schieben —
+  und ein „Neu ausbauen" rechnet dann mit den richtigen Zahlen.
+  API: `tagebuch.tag` mit `id`, `tag`, optional `stage`.
+
+Überall `?:` statt `??`: ein leeres Feld ist hier kein Wert, und `'' ?? $x` gibt
+den leeren String zurück.
+
+## Ein laufender Tag hat keine Tagessumme
+
+Am Morgen des 18.09. baute der Ausbau eine Notiz von 9:04 Uhr zu „meine Uhr hat
+am Ende ganze 146 Schritte gezählt" aus. Die Zahl stimmte — sie war der Stand um
+kurz nach neun. Als Tagesbilanz gelesen war sie Unsinn.
+
+`tagesfakten()` prüft deshalb, ob der Tag des Eintrags der heutige ist. Wenn ja:
+
+- Die Zahlen der Uhr stehen als **„Zwischenstand, Stand HH:MM — keine
+  Tagessumme"** im Rahmen, nicht als „Von der Uhr gemessen".
+- Ein zusätzlicher Satz sagt, dass der Tag noch läuft und wie spät es ist.
+- Der Vergleich „x km mehr als die geplante Etappe" **entfällt**. Eine halb
+  gelaufene Strecke gegen eine ganze Etappe zu rechnen ergibt nichts.
+
+Dazu zwei Regeln im Systemtext: aus einem Zwischenstand wird keine Bilanz, und
+umgekehrt gehören die Zahlen eines **abgeschlossenen** Tages in den Text — ein
+gelaufener Tag ohne seine Kilometer ist ein halber Eintrag.
+
+## Die Uhrzeit ist die, die er am Handgelenk sieht
+
+`date_default_timezone_set()` stand auf `Europe/Berlin`. Portugal geht dem im
+Sommer eine Stunde nach, also stand über einer Notiz von 9:04 die Zeit „10:04".
+
+`reise_zeitzone()` in `src/helpers.php` entscheidet nach dem Datum:
+
+| Zeitraum | Zone | warum |
+|---|---|---|
+| 17.–22.09.2026 | `Europe/Lisbon` | Porto bis Caminha, UTC+1 |
+| 23.09.–01.10.2026 | `Europe/Madrid` | ab dem Minho, UTC+2 |
+| sonst | `Europe/Berlin` | zu Hause |
+
+Spanien und Deutschland haben dieselbe Uhr — die mittlere Zeile ändert nichts
+und steht trotzdem da, weil sie den Grund festhält. Welcher Tag gerade ist,
+wird in UTC bestimmt: sonst müsste man die Zone kennen, um die Zone zu wählen.
+Am Wechseltag geht das um höchstens eine Stunde daneben.
+
+Die Zeitstempel in der Datenbank tragen ihren Versatz mit (`date('c')`), die
+Anzeige rechnet also richtig um — auch für Einträge, die vor der Umstellung
+entstanden sind.
+
 ## Ein Paket loswerden — `stelleEin()`
 
 Alles, was ins Tagebuch geht — neuer Eintrag, nachgereichte Bilder —, läuft

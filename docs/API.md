@@ -203,6 +203,13 @@ verbindliche Grenze, weil ein Upload von einem anderen Gerät sie sonst
 umgehen könnte. Kann der Browser ein Format nicht lesen, geht die
 Originaldatei raus.
 
+### `tagebuch.tag` — den Tag eines Eintrags berichtigen
+
+`{"action":"tagebuch.tag","id":12,"tag":"2026-09-17"}`, `stage` optional. Der
+Tag entscheidet, welche Zahlen der Uhr beim Ausbau mitkommen — eine Notiz, die
+morgens über gestern gesprochen wird, gehört auf gestern. Das Datum muss als
+`JJJJ-MM-TT` kommen, sonst **422**.
+
 ### `media.php` — Auslieferung
 
 `GET media.php?art=foto|klein|audio&id=…`. Ohne Anmeldung **403**. Die Dateien

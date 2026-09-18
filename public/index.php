@@ -557,9 +557,12 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
       // innerhalb des Tages von frueh nach spaet. Das ist die Reihenfolge, in
       // der man ein Tagebuch liest — und die, in der jemand anderes es liest,
       // der nicht dabei war.
+      // Gebuendelt wird nach dem **Tag**, nicht nach der Etappe. Das Basislager
+      // Porto deckt zwei Tage mit einer Etappe ab — nach Etappe gruppiert
+      // stuenden der Ankunftstag und der Orga-Tag unter einer Ueberschrift.
       $nachTag = [];
       foreach ($eintraege as $e) {
-          $schluessel = (string) ($e['stage_id'] ?: ($e['day_iso'] ?: '0'));
+          $schluessel = (string) ($e['day_iso'] ?: ($e['stage_id'] ? 'e' . $e['stage_id'] : '0'));
           $nachTag[$schluessel][] = $e;
       }
       foreach ($nachTag as &$gruppe) {
@@ -589,7 +592,9 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
         <?php
           $erste  = $gruppe[0];
           $st     = $erste['stage_id'] ? ($stages[array_search((int) $erste['stage_id'], array_column($stages, 'id'))] ?? null) : null;
-          $datum  = (string) ($st['date_iso'] ?? $erste['day_iso'] ?? '');
+          // Der Tag des Eintrags gewinnt vor dem Datum der Etappe, aus demselben
+          // Grund. `?:` statt `??`: ein leeres Feld ist hier kein Wert.
+          $datum  = (string) ($erste['day_iso'] ?: ($st['date_iso'] ?? ''));
           $zeit   = $datum ? strtotime($datum) : false;
           $titel  = $st ? trim((string) $st['title']) : '';
           $code   = $st ? trim((string) $st['code']) : '';
@@ -662,6 +667,11 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
                   <button type="button" class="tb-mini veredeln erneut">Neu ausbauen</button>
                 <?php endif; ?>
                 <button type="button" class="tb-mini bearbeiten">Bearbeiten</button>
+                <label class="tb-mini tbe-tag-feld" title="An welchem Tag war das?">
+                  Tag
+                  <input type="date" class="tbe-tag" value="<?= h((string) ($e['day_iso'] ?? '')) ?>"
+                         min="2026-09-17" max="2026-10-01">
+                </label>
                 <label class="tb-mini datei">
                   Fotos hinzufügen
                   <input type="file" class="tbe-fotos" accept="image/*" multiple hidden>

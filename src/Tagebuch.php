@@ -253,6 +253,34 @@ final class Tagebuch
         return $stmt->rowCount() > 0;
     }
 
+    /**
+     * Den Tag eines Eintrags berichtigen.
+     *
+     * Notizen entstehen nicht immer an dem Tag, von dem sie handeln — die
+     * Aufnahme vom Ankunftstag wird am Morgen danach gesprochen. Und der Tag
+     * entscheidet, welche Zahlen der Uhr beim Ausbau mitkommen. Er muss
+     * deshalb nachträglich zu ändern sein.
+     */
+    public function aendereTag(int $id, ?string $tag, ?int $stageId): bool
+    {
+        if ($tag !== null && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $tag)) {
+            throw new InvalidArgumentException('Das Datum muss als JJJJ-MM-TT kommen.');
+        }
+
+        $felder = ['day_iso = ?'];
+        $werte  = [$tag];
+        if ($stageId !== null) {
+            $felder[] = 'stage_id = ?';
+            $werte[]  = $stageId;
+        }
+        $felder[] = 'updated_at = ?';
+        $werte[]  = date('c');
+        $werte[]  = $id;
+
+        $stmt = $this->db->run('UPDATE diary_entries SET ' . implode(', ', $felder) . ' WHERE id = ?', $werte);
+        return $stmt->rowCount() > 0;
+    }
+
     public function loescheEintrag(int $id): bool
     {
         $e = $this->eintrag($id);
@@ -592,7 +620,9 @@ final class Tagebuch
             . 'Der Schreiber heißt Sascha, ist 47 und trägt sein Gepäck selbst.'
             . "\n\n"
             . "So arbeitest du:\n"
-            . "- Erste Person, Vergangenheit, im Ton des Sprechers, auf Deutsch. Sein Text, nicht deiner.\n"
+            . "- Erste Person, im Ton des Sprechers, auf Deutsch. Sein Text, nicht deiner. "
+            . "Meist Vergangenheit — aber einen Tag, der noch läuft, erzählst du nicht, als "
+            . "wäre er schon vorbei.\n"
             . "- Versprecher, Füllwörter und Wiederholungen raus, Absätze rein.\n"
             . "- **Bau den Eintrag aus.** Eine hingeworfene Notiz darf ein Text von zwei bis vier "
             . "Absätzen werden. Du hast unten den Tag, wie er wirklich war: die Etappe, die Zahlen "
@@ -613,6 +643,13 @@ final class Tagebuch
             . "- Keine Zahl, die nicht unten steht. Kein Ort, an dem er nicht war. Keine "
             . "Sehenswürdigkeit, die du kennst, aber die weder er nennt noch auf einem Bild ist.\n"
             . "- Unverständliches lässt du weg, statt zu raten.\n"
+            . "- **Zahlen vom laufenden Tag sind keine Bilanz.** Steht bei den Zahlen der Uhr "
+            . "„Zwischenstand\", ist der Tag noch nicht vorbei: 146 Schritte um 9 Uhr sind "
+            . "kein Ergebnis. Dann lässt du sie weg — oder du sagst dazu, dass der Tag gerade "
+            . "erst anfängt. „Am Ende ganze 146 Schritte\" wäre schlicht falsch.\n"
+            . "- Umgekehrt gilt für einen abgeschlossenen Tag: **stehen unten Zahlen der Uhr, "
+            . "gehören sie in den Text.** Ein gelaufener Tag ohne seine Kilometer ist ein "
+            . "halber Eintrag.\n"
             . "- Steht unten nichts als das Datum, ist das kein Grund, dürftiger zu werden — dann "
             . "räumst du eben nur auf.\n\n"
             . "Antworte ausschließlich mit JSON in genau dieser Form:\n"
@@ -702,7 +739,16 @@ final class Tagebuch
             );
         }
 
-        $tag = (string) ($etappe['date_iso'] ?? $eintrag['day_iso'] ?? '');
+        /* Der Tag, an dem wirklich geschrieben wurde, gewinnt vor dem Datum der
+           Etappe. Das Basislager Porto deckt zwei Tage mit einem Datum ab —
+           käme das Datum aus der Etappe, bekäme der Eintrag vom 17. die Zahlen
+           des 18. `?:` statt `??`, weil ein leeres Feld hier kein Wert ist. */
+        $tag = (string) ($eintrag['day_iso'] ?: ($etappe['date_iso'] ?? ''));
+
+        /* Ein Tag, der gerade erst angefangen hat, hat keine Tagessumme. 146
+           Schritte um 9 Uhr sind kein Ergebnis, sondern ein Zwischenstand —
+           und als Ergebnis gelesen wird daraus „am Ende ganze 146 Schritte". */
+        $laufend = ($tag !== '' && $tag === date('Y-m-d'));
 
         /* ---- Etappe ------------------------------------------------------ */
         if ($etappe !== null) {
@@ -718,6 +764,10 @@ final class Tagebuch
         }
         if ($tag !== '') {
             $rahmen[] = 'Datum: ' . self::datumLang($tag);
+        }
+        if ($laufend) {
+            $rahmen[] = 'Dieser Eintrag entsteht am laufenden Tag — es ist erst '
+                . date('H:i') . ' Uhr, der Tag ist noch nicht vorbei.';
         }
 
         /* ---- Stand auf der Gesamtstrecke --------------------------------- */
@@ -742,12 +792,16 @@ final class Tagebuch
                 if ($g['hr_max'] !== null)    { $gemessen[] = 'Spitzenpuls ' . (int) $g['hr_max'] . ' bpm'; }
                 if ($g['hr_ruhe'] !== null)   { $gemessen[] = 'Ruhepuls ' . (int) $g['hr_ruhe'] . ' bpm'; }
                 if ($gemessen) {
-                    $rahmen[] = 'Von der Uhr gemessen: ' . implode(', ', $gemessen);
+                    $rahmen[] = $laufend
+                        ? 'Von der Uhr bisher gemessen (Zwischenstand, Stand ' . date('H:i')
+                            . ' Uhr — keine Tagessumme): ' . implode(', ', $gemessen)
+                        : 'Von der Uhr gemessen: ' . implode(', ', $gemessen);
                 }
 
                 // Der Vergleich ist die interessanteste Zahl des Tages: auf dem
                 // Camino läuft man fast immer mehr als geplant.
-                if ($g['distanz_m'] !== null && $etappe !== null && (float) ($etappe['km_walk'] ?? 0) > 0) {
+                if (!$laufend && $g['distanz_m'] !== null && $etappe !== null
+                    && (float) ($etappe['km_walk'] ?? 0) > 0) {
                     $delta = round(((int) $g['distanz_m']) / 1000 - (float) $etappe['km_walk'], 1);
                     if (abs($delta) >= 0.5) {
                         $rahmen[] = 'Das sind ' . self::zahl(abs($delta), 1) . ' km '
