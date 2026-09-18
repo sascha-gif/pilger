@@ -130,6 +130,106 @@
     if (netzEl) netzEl.hidden = navigator.onLine;
   }
 
+  /* ================= Bilder vor dem Hochladen verkleinern =============== */
+  /* Ein Handyfoto hat heute 12 bis 48 Megapixel und 3 bis 6 MB. Gespeichert
+     wird davon ohnehin nur die 1600-px-Fassung — die vollen Megabyte durchs
+     portugiesische Mobilnetz zu schieben kostet also nichts als Zeit, und auf
+     halber Strecke bricht die Verbindung ab. Deshalb wird schon auf dem Gerät
+     verkleinert: aus 5 MB werden ungefähr 400 KB.
+
+     Zwei Nebenwirkungen, beide erwünscht:
+     - Was hier herauskommt, ist ein frischer Blob im Speicher. Der iOS-Fall,
+       dass ein in der Warteschlange liegender Verweis auf die Galerie später
+       nur noch 0 Bytes liefert, kann damit gar nicht mehr auftreten.
+     - HEIC wird zu JPEG. Das kann der Server dann auch verkleinern, statt es
+       unverändert durchzureichen, weil GD das Format nicht kennt. */
+
+  var MAX_SENDE   = 2000;          // Serverseitig bleiben 1600 — etwas Reserve.
+  var SENDE_GUETE = 0.85;
+  var KLEIN_GENUG = 600 * 1024;    // Darunter lohnt das Umrechnen nicht.
+
+  function ueberBildElement(datei) {
+    return new Promise(function (ok, nein) {
+      var url = URL.createObjectURL(datei);
+      var bild = new Image();
+      bild.onload  = function () { URL.revokeObjectURL(url); ok(bild); };
+      bild.onerror = function () { URL.revokeObjectURL(url); nein(new Error('Bild nicht lesbar')); };
+      bild.src = url;
+    });
+  }
+
+  /* createImageBitmap ist der sparsame Weg, kann aber je nach Browser die
+     Optionen nicht oder das Format nicht. Dann eben über ein <img>. */
+  function entpacke(datei) {
+    if (!window.createImageBitmap) return ueberBildElement(datei);
+    try {
+      return createImageBitmap(datei, { imageOrientation: 'from-image' })
+        .catch(function () { return createImageBitmap(datei); })
+        .catch(function () { return ueberBildElement(datei); });
+    } catch (e) {
+      return ueberBildElement(datei);
+    }
+  }
+
+  function verkleinere(datei) {
+    var istBild = /^image\//.test((datei && datei.type) || '');
+    if (!datei || !istBild || datei.size <= KLEIN_GENUG) {
+      return Promise.resolve(datei);
+    }
+    return entpacke(datei).then(function (quelle) {
+      // Schon fertig? Dann nicht noch einmal. Ein JPEG, das die lange Kante
+      // einhaelt, ist entweder aus diesem Rechenweg gekommen oder war von
+      // vornherein klein genug. Es erneut zu kodieren kostet bei jedem
+      // Wiederholversuch ein Stueck Bildqualitaet — und gewinnt nichts.
+      if ((datei.type || '') === 'image/jpeg'
+          && Math.max(quelle.width, quelle.height) <= MAX_SENDE) {
+        if (quelle.close) quelle.close();
+        return null;
+      }
+      var faktor = Math.min(1, MAX_SENDE / Math.max(quelle.width, quelle.height));
+      var nb = Math.max(1, Math.round(quelle.width * faktor));
+      var nh = Math.max(1, Math.round(quelle.height * faktor));
+      var leinwand = document.createElement('canvas');
+      leinwand.width = nb;
+      leinwand.height = nh;
+      leinwand.getContext('2d').drawImage(quelle, 0, 0, nb, nh);
+      if (quelle.close) quelle.close();
+      return new Promise(function (ok) {
+        leinwand.toBlob(function (blob) { ok(blob); }, 'image/jpeg', SENDE_GUETE);
+      });
+    }).then(function (blob) {
+      // Nichts gewonnen — dann bleibt das Original, es ist ja schon klein.
+      if (!blob || blob.size >= datei.size) return datei;
+      var name = (datei.name || 'bild').replace(/\.[^.]+$/, '') + '.jpg';
+      try {
+        return new File([blob], name, {
+          type: 'image/jpeg',
+          lastModified: datei.lastModified || Date.now()
+        });
+      } catch (e) {
+        // Ohne File-Konstruktor tut es der Blob auch; der Name geht beim
+        // Hochladen ohnehin als eigenes Feld mit.
+        return blob;
+      }
+    }).catch(function () {
+      // Kann der Browser das Format nicht lesen (HEIC unter Android), geht
+      // das Original raus. Langsam hochladen ist besser als gar nicht.
+      return datei;
+    });
+  }
+
+  /* Eins nach dem anderen: 15 Handyfotos gleichzeitig zu dekodieren bringt
+     Safari auf dem iPhone zuverlässig um. */
+  function verkleinereAlle(dateien, melde) {
+    var fertig = [];
+    return dateien.reduce(function (kette, datei, i) {
+      return kette.then(function () {
+        if (melde) melde(i + 1, dateien.length);
+        return verkleinere(datei).then(function (f) { fertig.push(f); });
+      });
+    }, Promise.resolve()).then(function () { return fertig; });
+  }
+
   /* ================= Hochladen ========================================== */
 
   /* Was schiefging, so genau wie möglich — dieser Text landet in der
@@ -230,11 +330,18 @@
       kette = kette.then(function (entryId) {
         p.fotosFertig = p.fotosFertig || [];
         if (p.fotosFertig[i]) return entryId;
-        return sendeDatei({
-          art: 'foto', stage: p.stage, entry: entryId || '',
-          client_id: p.id + '-f' + i,
-          aufgenommen: datei.lastModified ? new Date(datei.lastModified).toISOString() : ''
-        }, datei, datei.name || ('bild' + i + '.jpg')).then(function () {
+        // Auch hier noch einmal verkleinern. Normalerweise ist das Bild schon
+        // bei der Auswahl kleingerechnet und faellt sofort durch — aber Pakete,
+        // die vom Gerät noch aus der Zeit davor stammen, liegen mit dem vollen
+        // Handyfoto in der Warteschlange. Die sollen nicht ewig weiterscheitern.
+        return verkleinere(datei).then(function (klein) {
+          p.fotos[i] = klein;
+          return sendeDatei({
+            art: 'foto', stage: p.stage, entry: entryId || '',
+            client_id: p.id + '-f' + i,
+            aufgenommen: klein.lastModified ? new Date(klein.lastModified).toISOString() : ''
+          }, klein, klein.name || ('bild' + i + '.jpg'));
+        }).then(function () {
           p.fotosFertig[i] = true;
           return merke(p).then(function () { return entryId; });
         });
@@ -420,97 +527,6 @@
         starteAufnahme();
       }
     });
-  }
-
-  /* ================= Bilder vor dem Hochladen verkleinern =============== */
-  /* Ein Handyfoto hat heute 12 bis 48 Megapixel und 3 bis 6 MB. Gespeichert
-     wird davon ohnehin nur die 1600-px-Fassung — die vollen Megabyte durchs
-     portugiesische Mobilnetz zu schieben kostet also nichts als Zeit, und auf
-     halber Strecke bricht die Verbindung ab. Deshalb wird schon auf dem Gerät
-     verkleinert: aus 5 MB werden ungefähr 400 KB.
-
-     Zwei Nebenwirkungen, beide erwünscht:
-     - Was hier herauskommt, ist ein frischer Blob im Speicher. Der iOS-Fall,
-       dass ein in der Warteschlange liegender Verweis auf die Galerie später
-       nur noch 0 Bytes liefert, kann damit gar nicht mehr auftreten.
-     - HEIC wird zu JPEG. Das kann der Server dann auch verkleinern, statt es
-       unverändert durchzureichen, weil GD das Format nicht kennt. */
-
-  var MAX_SENDE   = 2000;          // Serverseitig bleiben 1600 — etwas Reserve.
-  var SENDE_GUETE = 0.85;
-  var KLEIN_GENUG = 600 * 1024;    // Darunter lohnt das Umrechnen nicht.
-
-  function ueberBildElement(datei) {
-    return new Promise(function (ok, nein) {
-      var url = URL.createObjectURL(datei);
-      var bild = new Image();
-      bild.onload  = function () { URL.revokeObjectURL(url); ok(bild); };
-      bild.onerror = function () { URL.revokeObjectURL(url); nein(new Error('Bild nicht lesbar')); };
-      bild.src = url;
-    });
-  }
-
-  /* createImageBitmap ist der sparsame Weg, kann aber je nach Browser die
-     Optionen nicht oder das Format nicht. Dann eben über ein <img>. */
-  function entpacke(datei) {
-    if (!window.createImageBitmap) return ueberBildElement(datei);
-    try {
-      return createImageBitmap(datei, { imageOrientation: 'from-image' })
-        .catch(function () { return createImageBitmap(datei); })
-        .catch(function () { return ueberBildElement(datei); });
-    } catch (e) {
-      return ueberBildElement(datei);
-    }
-  }
-
-  function verkleinere(datei) {
-    var istBild = /^image\//.test((datei && datei.type) || '');
-    if (!datei || !istBild || datei.size <= KLEIN_GENUG) {
-      return Promise.resolve(datei);
-    }
-    return entpacke(datei).then(function (quelle) {
-      var faktor = Math.min(1, MAX_SENDE / Math.max(quelle.width, quelle.height));
-      var nb = Math.max(1, Math.round(quelle.width * faktor));
-      var nh = Math.max(1, Math.round(quelle.height * faktor));
-      var leinwand = document.createElement('canvas');
-      leinwand.width = nb;
-      leinwand.height = nh;
-      leinwand.getContext('2d').drawImage(quelle, 0, 0, nb, nh);
-      if (quelle.close) quelle.close();
-      return new Promise(function (ok) {
-        leinwand.toBlob(function (blob) { ok(blob); }, 'image/jpeg', SENDE_GUETE);
-      });
-    }).then(function (blob) {
-      // Nichts gewonnen — dann bleibt das Original, es ist ja schon klein.
-      if (!blob || blob.size >= datei.size) return datei;
-      var name = (datei.name || 'bild').replace(/\.[^.]+$/, '') + '.jpg';
-      try {
-        return new File([blob], name, {
-          type: 'image/jpeg',
-          lastModified: datei.lastModified || Date.now()
-        });
-      } catch (e) {
-        // Ohne File-Konstruktor tut es der Blob auch; der Name geht beim
-        // Hochladen ohnehin als eigenes Feld mit.
-        return blob;
-      }
-    }).catch(function () {
-      // Kann der Browser das Format nicht lesen (HEIC unter Android), geht
-      // das Original raus. Langsam hochladen ist besser als gar nicht.
-      return datei;
-    });
-  }
-
-  /* Eins nach dem anderen: 15 Handyfotos gleichzeitig zu dekodieren bringt
-     Safari auf dem iPhone zuverlässig um. */
-  function verkleinereAlle(dateien, melde) {
-    var fertig = [];
-    return dateien.reduce(function (kette, datei, i) {
-      return kette.then(function () {
-        if (melde) melde(i + 1, dateien.length);
-        return verkleinere(datei).then(function (f) { fertig.push(f); });
-      });
-    }, Promise.resolve()).then(function () { return fertig; });
   }
 
   /* ================= Speichern ========================================== */

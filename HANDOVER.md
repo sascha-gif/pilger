@@ -378,6 +378,13 @@ Vier Wege gehen bewusst am Verkleinern vorbei, jeder mit Grund:
 Gerechnet wird **eins nach dem anderen**. Fünfzehn Handyfotos gleichzeitig zu
 dekodieren bringt Safari auf dem iPhone zuverlässig um.
 
+`schickePaket()` ruft `verkleinere()` vor jedem Foto noch einmal auf. Pakete,
+die schon vor dieser Änderung in der Warteschlange lagen, enthalten nämlich
+noch das volle Handyfoto und würden sonst ewig weiterscheitern. Damit das nicht
+bei jedem Wiederholversuch ein Stück Bildqualität kostet, steigt `verkleinere()`
+bei einem JPEG innerhalb der langen Kante sofort wieder aus — der zweite und
+dritte Aufruf geben dasselbe Objekt zurück, unverändert.
+
 Beide Wege ins Tagebuch gehen darüber: der neue Eintrag und das Nachreichen an
 einem bestehenden (`.tbe-fotos`). Für die Doppelt-Erkennung reicht deshalb ein
 Blick auf die fertige Datei nicht mehr — `wahlQuellen` merkt sich Name, Größe
