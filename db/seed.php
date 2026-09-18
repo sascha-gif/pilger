@@ -124,13 +124,24 @@ function seed_database(Database $db): void
                 'seq' => 1, 'code' => 'E1 · 19.09.', 'date_label' => '19.09.2026',
                 'title' => 'Matosinhos → Vila do Conde', 'title_suffix' => null,
                 'dist' => '20 km · Start: Metro A bis Matosinhos Sul',
-                'target' => '<b>Budget-Ziel:</b> Pension/3★ am Ortskern · <b>eigenes Zimmer</b> · ca. 55–75 €',
-                'note' => null,
+                'target' => '<b style="color:#2e7d32">Gebucht:</b> Residencial Princesa do Ave · '
+                    . 'Einzelzimmer · <b>78,00 €</b> gesamt · Buchungsnr. 5656009787',
+                'note' => '<b>Weg dorthin:</b> Der Küstenweg kommt von Süden, quert den <b>Rio Ave</b> '
+                    . 'und endet im Ortskern. Von dort rund <b>400 m</b> zur Pension: '
+                    . '<b>Rua Dr. António José Sousa Pereira 261, 4480-807</b> — keine 5 Minuten. '
+                    . '<a href="https://www.google.com/maps/search/?api=1&amp;query='
+                    . 'Residencial%20Princesa%20do%20Ave%2C%20Vila%20do%20Conde" '
+                    . 'target="_blank" rel="noopener">Karte</a> · '
+                    . '<a href="tel:+351252642065">+351 252 642 065</a><br>'
+                    . '<small>Die Hausnummer steht in den Verzeichnissen mal als 261, mal als 395 — '
+                    . 'verbindlich ist die Buchungsbestätigung, der Kartenlink sucht nach dem Namen. '
+                    . 'Die Check-in-Zeit vorher kurz durchgeben: kleine Häuser sind nicht rund um die '
+                    . 'Uhr besetzt. PIN-Code steht in der Booking-Mail.</small>',
                 'alt_note' => '<b>Senda Litoral:</b> komplett an der Küste, flach &amp; gelenkschonend.',
-                'booking_url' => sprintf($bk, 'Vila%20do%20Conde%2C%20Portugal', '2026-09-19', '2026-09-20'),
-                'booking_label' => 'Booking Vila do Conde',
+                'booking_url' => null, 'booking_label' => null,
                 'km_big' => '246', 'km_sub' => 'noch bis SCQ', 'variant' => 'normal',
-                'lat' => 41.333336, 'lng' => -8.682063,
+                // Stimmt mit dem Stuetzpunkt in db/kuestenroute.php ueberein.
+                'lat' => 41.3533, 'lng' => -8.7425,
                 'map_eyebrow' => 'Etappe 1 · 19.09.', 'map_meta' => '20 km · noch 246 km',
                 'map_hub' => 0, 'map_name' => 'Vila do Conde',
             ],
@@ -453,7 +464,7 @@ function seed_database(Database $db): void
             ['Flug Hinflug', 'FRA→OPO · TAP TP6682', 258.00, 'ok', 'gebucht'],
             ['Flug Rückflug', 'SCQ → Palma → FRA · Vueling + TUI fly · Kiwi.com 838426721', 235.00, 'ok', 'gebucht'],
             ['Porto (2 N)', 'Carpe Diem by Dualgroup', 186.83, 'ok', 'gebucht'],
-            ['Vila do Conde (E1)', '~ Pension', null, 'open', 'offen'],
+            ['Vila do Conde (E1)', 'Residencial Princesa do Ave · Einzelzimmer · Buchungsnr. 5656009787', 78.00, 'ok', 'gebucht'],
             ['Esposende (E2)', '~ Guesthouse', null, 'open', 'offen'],
             ['Viana do Castelo (E3)', '~ Pension', null, 'open', 'offen'],
             ['Caminha (E4)', '~ Pension', null, 'open', 'offen'],

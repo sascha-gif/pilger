@@ -132,6 +132,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/018_eigenes_zimmer.php';
             migration_018($db);
         });
+
+        // Vila do Conde gebucht, Weg zur Tuer, Kartenpunkt der Etappe berichtigt.
+        $apply('019_vila_do_conde', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/019_vila_do_conde.php';
+            migration_019($db);
+        });
     }
 
     /** @return array<int,string> */

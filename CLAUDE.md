@@ -92,7 +92,12 @@ danach läuft sie mit der Costa zusammen.
 
 - **Gebucht:** Porto, Carpe Diem Porto by Dualgroup, Deluxe Doppelzimmer,
   186,83 € gesamt (2 Nächte), zentral bei São Bento, Buchungsnr. 5888925188
-- **Offen:** alle 12 Etappenorte. Booking-Links im HTML, nach Preis sortiert.
+- **Gebucht:** Vila do Conde (E1), Residencial Princesa do Ave, Einzelzimmer,
+  19.–20.09., 78,00 € gesamt, Buchungsnr. 5656009787. Rua Dr. António José
+  Sousa Pereira 261, 4480-807, Tel. +351 252 642 065 — rund 400 m vom Ortskern.
+  Die Hausnummer steht in den Verzeichnissen mal als 261, mal als 395;
+  verbindlich ist die Buchungsbestätigung.
+- **Offen:** 11 Etappenorte. Booking-Links im HTML, nach Preis sortiert.
   Kritisch früh buchen: **Oia** (dünnes Angebot) und **Santiago** (hohe Nachfrage).
 - Budget-Ausrichtung: Pension/Hostal statt Hotel, ca. 50–110 €/Nacht
 - **Nur Unterkünfte mit eigenem Zimmer** — kein Bett im Schlafsaal. Steht in
@@ -109,11 +114,12 @@ danach läuft sie mit der Costa zusammen.
 
 Unterkünfte ~70 €/Nacht × 12 ≈ 840 € · Verpflegung ~25–35 €/Tag ·
 Gesamtbudget realistisch **1.400–1.900 €**.
-Bereits fix: Hinflug 258,00 € · Rückflug 235,00 € · Porto 186,83 € · Credencial 2,00 €.
+Bereits fix: Hinflug 258,00 € · Rückflug 235,00 € · Porto 186,83 € ·
+Vila do Conde 78,00 € · Credencial 2,00 €.
 Gekauft: Wandersocken FALKE TK2 2× 57,26 € · Wandershorts maamgic 2× 55,98 € ·
 Reiseapotheke & Hygiene 20,54 € (Compeed, Dr. Bronner's, Zahncreme, Deo) ·
 Papiertüten 5,49 € (Tagesportionen Medikamente) · USB-C-Ladegerät 9,99 €.
-Erfasst damit 831,09 €.
+Erfasst damit 909,09 €.
 
 ## Equipment-Kernpunkte
 
@@ -187,7 +193,7 @@ darauf auf, nicht auf der ausgebauten Fassung.
 ## Offene Punkte
 
 - **Passwort auf der Seite setzen** — beim nächsten Aufruf
-- 12 Unterkünfte buchen (Oia und Santiago zuerst)
+- 11 Unterkünfte buchen (Oia und Santiago zuerst) — Vila do Conde ist durch
 - Fährfahrplan Caminha → A Guarda/Spanien prüfen
 - **Rückflug-Gepäck klären.** Im Tarif steckt nur ein persönliches Gepäckstück
   40 × 30 × 20 cm — da passt der Rucksack nicht hinein. Kabinengepäck

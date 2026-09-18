@@ -193,17 +193,20 @@ Zwei Volumes, beide müssen ins Backup:
 ## Nächste sinnvolle Schritte
 
 1. **Passwort setzen** — beim nächsten Aufruf der Seite, dauert zehn Sekunden.
-2. Die 12 offenen Unterkünfte buchen; Beträge direkt auf der Seite eintragen
-   (Oia und Santiago zuerst — dünnes Angebot bzw. hohe Nachfrage).
-3. Rückflugzeiten SCQ→FRA aus der Buchung nachtragen.
-4. Fährfahrplan Caminha → A Guarda prüfen.
-5. Vor der Abreise die Tagebuch-Schlüssel hinterlegen, wenn aus den
+2. Die **11 offenen Unterkünfte** buchen; Beträge direkt auf der Seite
+   eintragen (Oia und Santiago zuerst — dünnes Angebot bzw. hohe Nachfrage).
+   Vila do Conde (E1) ist seit dem 18.09. gebucht, siehe `CLAUDE.md`.
+   Eine Buchung heißt hier: Kostenzeile **und** Etappe (`target`, `note`,
+   `booking_url` raus) in `db/seed.php` **und** eine Migration — Vorlage dafür
+   ist `db/migrations/019_vila_do_conde.php`.
+3. Fährfahrplan Caminha → A Guarda prüfen.
+4. Vor der Abreise die Tagebuch-Schlüssel hinterlegen, wenn aus den
    Sprachnotizen von selbst Text werden soll. Ohne sie bleiben die Aufnahmen
    erhalten und abspielbar — es wird nur nichts verschriftlicht.
-6. Am ersten Abend in Porto einmal ausprobieren: aufnehmen, speichern,
+5. Am ersten Abend in Porto einmal ausprobieren: aufnehmen, speichern,
    Flugmodus an, noch einen Eintrag, Flugmodus aus. Wenn beides oben landet,
    trägt die Funktion auch die zwölf Tage danach.
-7. Offen geblieben: Etappen direkt auf der Seite bearbeitbar machen
+6. Offen geblieben: Etappen direkt auf der Seite bearbeitbar machen
    (`stage.update` liegt in der API bereit, die Oberfläche dazu fehlt).
 
 ## Google Health — die drei Stolpersteine
