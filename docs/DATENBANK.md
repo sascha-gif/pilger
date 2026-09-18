@@ -61,7 +61,8 @@ Die wichtigste Tabelle, weil sie Etappenliste **und** Karte speist.
 | `on_map` | Marker ein-/ausblenden |
 | `done`, `done_at` | Tag abgehakt |
 | `km_walk` | die Kilometer des Tages als Zahl (Summe 266) — `dist` ist nur Text und lässt sich nicht rechnen |
-| `date_iso` | `2026-09-23`, für Wetter und Tagebuch |
+| `date_iso` | letzter Tag der Etappe, `2026-09-23` — für Wetter und Tagebuch |
+| `date_from` | erster Tag der Etappe. Fast immer derselbe wie `date_iso`; Porto deckt den 17. **und** den 18.09. ab. `etappen_tage()` zählt die Tage dazwischen auf |
 | `stamps_needed`, `stamps_done` | Stempel: in Portugal einer, ab dem Minho zwei |
 
 ### Zutritt

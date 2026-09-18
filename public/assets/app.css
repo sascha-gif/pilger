@@ -340,6 +340,13 @@ footer a{color:var(--flecha)}
 .ctbl td.gemessen span{display:block;font-family:"Spline Sans Mono",monospace;font-size:10px;color:var(--stone)}
 .ctbl td.gemessen .leerwert{color:var(--line);font-size:14px}
 .gehfeld b{font-size:13px;font-weight:400;line-height:1}
+/* Deckt eine Etappe mehrere Tage ab (Porto sind zwei), steht vor jeder Zeile
+   ihr Datum — sonst weiss niemand, welcher Tag da gemessen wurde. */
+.gehfeld .gtag{font-family:"Spline Sans Mono",monospace;font-size:10.5px;letter-spacing:.06em;
+               color:var(--stone);margin-right:2px}
+/* Ein Tag, der noch laeuft, ist keine Bilanz — das soll man auch sehen. */
+.gehfeld.laeuft{border-style:dashed}
+.gehfeld.laeuft em{color:var(--warn)}
 
 /* Fortschritt auf dem Weg */
 .weg{background:var(--granite);color:var(--paper);padding:20px 22px;margin-bottom:18px}
@@ -561,6 +568,13 @@ footer a{color:var(--flecha)}
   .stage{grid-template-columns:70px 1fr;gap:14px;padding:16px}
   .mojon{padding-right:12px}.mojon .km{font-size:26px}
   .fact{padding-right:18px;margin-right:18px}
+
+  /* Die Messwerte bekommen die ganze Breite, und die Beschriftung („gemessen",
+     „Zwischenstand") rutscht darunter. Neben dem Meilenstein bleiben auf dem
+     Handy keine 250 px uebrig — steht die Beschriftung daneben, brechen die
+     Zahlen nach jedem zweiten Wort um. */
+  .tagdaten > span.gehfeld{width:100%;flex-wrap:wrap}
+  .gehfeld em{flex-basis:100%;margin-left:21px}
 
   /* --- Unterwegs bedienbar ---------------------------------------------
      Diese Seite wird mit einer Hand bedient, oft im Gehen, manchmal mit

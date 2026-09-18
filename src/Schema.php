@@ -138,6 +138,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/019_vila_do_conde.php';
             migration_019($db);
         });
+
+        // Eine Etappe kann mehr als einen Tag dauern — Porto sind zwei.
+        $apply('020_tagespanne', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/020_tagespanne.php';
+            migration_020($db);
+        });
     }
 
     /** @return array<int,string> */

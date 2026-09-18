@@ -453,6 +453,30 @@ Etappe ist nur noch der Rückfall:
 Überall `?:` statt `??`: ein leeres Feld ist hier kein Wert, und `'' ?? $x` gibt
 den leeren String zurück.
 
+## Eine Etappe kann mehr als einen Tag dauern
+
+`stages.date_iso` hält genau ein Datum. Für E1 bis E12 stimmt das — ein Tag,
+eine Etappe. Das Basislager Porto steht aber für den 17. **und** den 18.09., und
+weil dort der 18. eingetragen ist, zeigte die Etappenkarte am Morgen des 18. nur
+die 146 Schritte der ersten Stunden dieses Tages. Der 17. — Anreisetag mit Flug,
+Metro und erstem Gang durch Porto — kam nirgends vor.
+
+`date_from` (Migration `020_tagespanne`) sagt jetzt, wo eine Etappe anfängt. Bei
+allen Etappen mit einem Tag ist das dasselbe Datum wie `date_iso`; nur Porto
+fängt früher an. `etappen_tage()` in `src/helpers.php` zählt daraus die Tage auf.
+
+Die Etappenkarte zeigt seitdem **eine Zeile je Tag**, mit dem Datum davor, wenn
+es mehr als einer ist. Nicht summiert: eine Summe aus einem fertigen und einem
+laufenden Tag ist keine Zahl, mit der sich etwas anfangen lässt.
+
+Der laufende Tag ist dabei eigens gekennzeichnet — gestrichelter Rahmen, und
+statt „gemessen" steht „Zwischenstand · Stand 09:48 Uhr". Der Vergleich
+„+3,8 km gegenüber Plan" entfällt dort, aus demselben Grund wie beim Ausbau.
+
+Auf dem Handy nimmt so eine Zeile die volle Breite, und die Beschriftung rutscht
+darunter: neben dem Meilenstein bleiben keine 250 px, und mit der Beschriftung
+daneben brachen die Zahlen nach jedem zweiten Wort um.
+
 ## Ein laufender Tag hat keine Tagessumme
 
 Am Morgen des 18.09. baute der Ausbau eine Notiz von 9:04 Uhr zu „meine Uhr hat

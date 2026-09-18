@@ -197,3 +197,33 @@ function reise_zeitzone(?string $heute = null): string
     }
     return 'Europe/Berlin';
 }
+
+/**
+ * Alle Tage, die zu einer Etappe gehören — von `date_from` bis `date_iso`.
+ *
+ * Fast immer ist das genau ein Tag. Porto sind zwei: Ankunft und Orga-Tag.
+ * Ohne diese Liste zeigt die Etappenkarte nur die Zahlen des letzten Tages,
+ * und der Anreisetag fällt unter den Tisch.
+ *
+ * @return array<int,string> aufsteigend, JJJJ-MM-TT
+ */
+function etappen_tage(array $stage): array
+{
+    $bis = (string) ($stage['date_iso'] ?? '');
+    if ($bis === '') {
+        return [];
+    }
+    $von = (string) ($stage['date_from'] ?? '');
+    if ($von === '' || $von > $bis) {
+        $von = $bis;
+    }
+
+    $tage = [];
+    for ($t = $von; $t <= $bis; $t = date('Y-m-d', strtotime($t . ' +1 day'))) {
+        $tage[] = $t;
+        if (count($tage) >= 14) {
+            break;   // Sicherung gegen ein verrutschtes Datum
+        }
+    }
+    return $tage;
+}

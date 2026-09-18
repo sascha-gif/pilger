@@ -286,14 +286,26 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
           <?php if ($st['dist']): ?><div class="dist"><?= h($st['dist']) ?></div><?php endif; ?>
 
           <?php
-            // Tatsächlich gelaufene Schritte an diesem Tag, sofern die Uhr
-            // synchronisiert hat. Steht neben den geplanten Kilometern.
-            $gTag = $st['date_iso'] ? ($healthTage[(string) $st['date_iso']] ?? null) : null;
+            /* Was die Uhr an den Tagen dieser Etappe gemessen hat.
+
+               Je Tag eine Zeile, nicht nur für den letzten: Porto steht für
+               zwei Tage, und mit nur einer Zeile fehlte ausgerechnet der
+               Anreisetag. Bei einer Etappe mit einem Tag sieht es aus wie
+               vorher, nur ohne Datum davor. */
+            $etappenTage = etappen_tage($st);
+            $gTage = [];
+            foreach ($etappenTage as $tIso) {
+                if (isset($healthTage[$tIso])) {
+                    $gTage[$tIso] = $healthTage[$tIso];
+                }
+            }
+            $mehrtags = count($etappenTage) > 1;
+            $heuteIso = date('Y-m-d');
           ?>
-          <div class="tagdaten" data-stage="<?= (int) $st['id'] ?>"<?= $gTag ? '' : ' hidden' ?>>
+          <div class="tagdaten" data-stage="<?= (int) $st['id'] ?>"<?= $gTage ? '' : ' hidden' ?>>
             <span class="wetterfeld"></span>
             <span class="hoehenfeld"></span>
-            <?php if ($gTag): ?>
+            <?php foreach ($gTage as $tIso => $gTag): ?>
               <?php
                 // Geplant steht links im Kopf, gelaufen kommt von der Uhr. Auf
                 // dem Camino ist das zweite fast immer größer — Umwege, Suche
@@ -305,17 +317,29 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
                 if ($gelaufenKm !== null)    { $teile[] = number_format($gelaufenKm, 1, ',', '.') . ' km'; }
                 if ($gTag['kcal'] !== null)  { $teile[] = number_format((int) $gTag['kcal'], 0, ',', '.') . ' kcal'; }
                 if ($gTag['hr_avg'] !== null){ $teile[] = 'Ø ' . (int) $gTag['hr_avg'] . ' bpm'; }
+
+                /* Der heutige Tag ist noch nicht vorbei. „146 Schritte,
+                   gemessen" liest sich wie eine Tagesbilanz — es ist der
+                   Stand von jetzt, und mehr steht da auch nicht. */
+                $laeuftNoch = ($tIso === $heuteIso);
               ?>
-              <span class="gehfeld da">
-                <b>👣</b> <?= h(implode(' · ', $teile)) ?: '—' ?>
-                <em>gemessen<?php
-                  if ($gelaufenKm !== null && $planKm !== null && $planKm > 0) {
-                      $delta = round($gelaufenKm - $planKm, 1);
-                      echo ' · ' . ($delta >= 0 ? '+' : '−') . number_format(abs($delta), 1, ',', '.') . ' km gegenüber Plan';
+              <span class="gehfeld da<?= $laeuftNoch ? ' laeuft' : '' ?>">
+                <b>👣</b>
+                <?php if ($mehrtags): ?><span class="gtag"><?= h(date('d.m.', strtotime($tIso))) ?></span> <?php endif; ?>
+                <?= h(implode(' · ', $teile)) ?: '—' ?>
+                <em><?php
+                  if ($laeuftNoch) {
+                      echo 'Zwischenstand · Stand ' . date('H:i') . ' Uhr';
+                  } else {
+                      echo 'gemessen';
+                      if ($gelaufenKm !== null && $planKm !== null && $planKm > 0) {
+                          $delta = round($gelaufenKm - $planKm, 1);
+                          echo ' · ' . ($delta >= 0 ? '+' : '−') . number_format(abs($delta), 1, ',', '.') . ' km gegenüber Plan';
+                      }
                   }
                 ?></em>
               </span>
-            <?php endif; ?>
+            <?php endforeach; ?>
           </div>
 
           <?php if ($st['target']): ?><div class="target"><?= rich($st['target']) ?></div><?php endif; ?>
