@@ -132,16 +132,39 @@
 
   /* ================= Hochladen ========================================== */
 
+  /* Was schiefging, so genau wie möglich — dieser Text landet in der
+     Warteschlange und ist oft das Einzige, woran man erkennt, woran es liegt.
+     Deshalb immer mit HTTP-Status, und wenn die Antwort gar kein JSON ist
+     (Fehlerseite vom Reverse-Proxy, Anmeldeseite), auch deren Anfang. */
+  function antwortLesen(r, wo) {
+    return r.text().then(function (text) {
+      var d = null;
+      try { d = JSON.parse(text); } catch (e) { /* kein JSON */ }
+
+      if (r.ok && d && d.ok) return d;
+
+      var grund;
+      if (d && d.error) {
+        grund = d.error;
+      } else if (!text) {
+        grund = 'leere Antwort';
+      } else {
+        grund = text.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 90);
+      }
+      throw new Error(wo + ' HTTP ' + r.status + ' — ' + grund);
+    });
+  }
+
   function sendeJson(nutzlast) {
     return fetch(API, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(nutzlast)
-    }).then(function (r) {
-      return r.json().then(function (d) {
-        if (!r.ok || !d.ok) throw new Error(d && d.error ? d.error : 'HTTP ' + r.status);
-        return d;
+    }).then(function (r) { return antwortLesen(r, 'api'); })
+      .catch(function (err) {
+        // Kein Netz, abgebrochene Verbindung: fetch wirft ohne Antwort.
+        if (err instanceof TypeError) throw new Error('api — keine Verbindung (' + err.message + ')');
+        throw err;
       });
-    });
   }
 
   function sendeDatei(felder, datei, dateiname) {
@@ -150,12 +173,21 @@
       if (felder[k] !== null && felder[k] !== undefined) fd.append(k, felder[k]);
     });
     fd.append('datei', datei, dateiname);
-    return fetch(UPLOAD, { method: 'POST', body: fd }).then(function (r) {
-      return r.json().then(function (d) {
-        if (!r.ok || !d.ok) throw new Error(d && d.error ? d.error : 'HTTP ' + r.status);
-        return d;
+
+    // Eine Datei mit 0 Bytes kommt beim Server als „keine Datei" an und
+    // scheitert dort ewig. Das passiert, wenn iOS den Zugriff auf ein Bild
+    // aus der Galerie verliert, nachdem es in der Warteschlange lag.
+    if (datei && typeof datei.size === 'number' && datei.size === 0) {
+      return Promise.reject(new Error('upload — die Datei ist auf dem Gerät leer (0 Bytes), '
+        + 'iOS hat den Zugriff darauf verloren. Bild noch einmal auswählen.'));
+    }
+
+    return fetch(UPLOAD, { method: 'POST', body: fd })
+      .then(function (r) { return antwortLesen(r, 'upload'); })
+      .catch(function (err) {
+        if (err instanceof TypeError) throw new Error('upload — keine Verbindung (' + err.message + ')');
+        throw err;
       });
-    });
   }
 
   /* Ein Paket abarbeiten. Was durch ist, wird im Paket vermerkt — bricht die
