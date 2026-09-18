@@ -32,6 +32,10 @@ nav.toc a{font-family:"Spline Sans Mono",monospace;font-size:12px;letter-spacing
 nav.toc a:hover,nav.toc a:focus{color:var(--flecha);border-bottom-color:var(--flecha)}
 
 section{padding:56px 0}
+/* Die Navigationsleiste klebt oben und ist 50 px hoch. Ohne diesen Abstand
+   springt „04 · Etappen" zwar an die richtige Stelle, die Ueberschrift liegt
+   danach aber unter der Leiste — es sieht aus, als waere der Abschnitt leer. */
+section[id]{scroll-margin-top:62px}
 section + section{border-top:1px solid var(--line)}
 .sec-head{display:flex;align-items:baseline;gap:16px;margin-bottom:30px}
 .sec-num{font-family:"Spline Sans Mono",monospace;font-size:13px;color:var(--flecha);font-weight:600;padding-top:6px}
@@ -210,8 +214,11 @@ footer{background:var(--granite);color:#a49c8b;padding:30px 0;border-top:1px sol
 footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-family:"Spline Sans Mono",monospace;font-size:12px}
 footer a{color:var(--flecha)}
 
-.reveal{opacity:0;transform:translateY(14px);transition:opacity .6s ease,transform .6s ease}
-.reveal.in{opacity:1;transform:none}
+/* Sichtbar ist der Ausgangszustand — nicht unsichtbar. Sonst bleibt bei
+   abgeschaltetem JavaScript die halbe Seite leer, und genau das ist hier
+   schon einmal passiert: ein aufgeklappter Abschnitt weiter unten stand
+   durchsichtig da und nahm trotzdem seine volle Hoehe ein. */
+.reveal{opacity:1;transform:none}
 
 /* ---- Neu in der dynamischen Version ------------------------------------ */
 

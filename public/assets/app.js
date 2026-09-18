@@ -50,17 +50,17 @@
     });
   }
 
-  /* ---------- Einblenden beim Scrollen ---------------------------------- */
-  if ('IntersectionObserver' in window) {
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) {
-        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
-      });
-    }, { threshold: 0.12 });
-    document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
-  } else {
-    document.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('in'); });
-  }
+  /* ---------- Einblenden beim Scrollen: abgeschafft ---------------------
+     Hier stand ein IntersectionObserver, der jeden Abschnitt erst einblendete,
+     wenn man ihn beim Scrollen erreicht. Das passte zu einer langen Seite —
+     seit die Abschnitte ein Akkordeon sind, passt es nicht mehr und machte
+     die Seite unbenutzbar: ein aufgeklappter Abschnitt weiter unten stand mit
+     `opacity:0` da, nahm aber seine volle Hoehe ein. Auf dem Handy sah das aus
+     wie ein Bildschirm voll Nichts, und die Etappen schienen verschwunden.
+
+     Das Aufklappen ist jetzt die Animation. `.in` kommt sofort, damit die
+     Regel `.reveal.in` im CSS weiter greift und nichts unsichtbar bleibt. */
+  document.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('in'); });
 
   /* ---------- Abschnitte auf- und zuklappen ------------------------------ */
   /* Welche Bloecke offen sind, gehoert dem Geraet und nicht der Datenbank:

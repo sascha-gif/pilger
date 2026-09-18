@@ -343,6 +343,18 @@ Skript auf, lässt sich mit der Tastatur bedienen, und die Suchfunktion des
 Browsers findet Text in geschlossenen Blöcken. Mehrere dürfen gleichzeitig
 offen sein — beim Buchen will man Etappen und Kosten nebeneinander.
 
+**Die Einblend-Animation beim Scrollen ist deshalb abgeschafft.** Sie stammte
+aus der Zeit der langen Seite: ein `IntersectionObserver` setzte `.in`, sobald
+man einen Abschnitt erreichte, vorher stand er auf `opacity:0`. Mit dem
+Akkordeon wurde daraus ein Fehler — ein aufgeklappter Abschnitt weiter unten
+stand durchsichtig da und nahm trotzdem seine volle Höhe ein. Auf dem Handy sah
+das aus wie ein Bildschirm voll Nichts, und die Etappen schienen verschwunden.
+`.reveal` ist jetzt von Haus aus sichtbar; das Aufklappen ist die Animation.
+
+Dazu `section[id]{scroll-margin-top:62px}`: die Navigationsleiste klebt oben
+und ist 50 px hoch. Ohne den Abstand springt „04 · Etappen" zwar richtig, die
+Überschrift liegt danach aber unter der Leiste.
+
 Drei Dinge kommen vom JavaScript dazu:
 
 - **Der Zustand wird gemerkt**, im `localStorage` des Geräts unter
