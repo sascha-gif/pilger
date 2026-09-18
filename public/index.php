@@ -36,7 +36,6 @@ $stagesOffen    = count(array_filter($stages, static fn ($s) => !(int) $s['done'
 $stagesErledigt = count($stages) - $stagesOffen;
 $costs     = $repo->costItems();
 $costTotal = $repo->costTotal();
-$weeks     = $repo->weightWeeks();
 $notes     = $repo->notes();
 
 $mapPayload = [
@@ -128,8 +127,7 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
     <a href="#etappen">04 · Etappen</a>
     <a href="#packliste">05 · Packliste</a>
     <a href="#kosten">06 · Kosten</a>
-    <a href="#countdown">07 · Countdown</a>
-    <a href="#tagebuch">08 · Tagebuch</a>
+    <a href="#tagebuch">07 · Tagebuch</a>
   </div>
 </nav>
 
@@ -468,167 +466,10 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
   </div>
 </section>
 
-<section id="countdown">
-  <div class="wrap reveal">
-    <details class="block" data-block="countdown">
-      <summary><div class="sec-head"><div class="sec-num">07</div><h2>Countdown –5 kg<small>93 → ~88 kg bis zum Abflug · ~0,7–1 kg/Woche · Ist-Gewicht wird gespeichert</small></h2></div></summary>
-      <div class="block-inhalt">
-    <?php if (isset($notes['weight_intro'])): ?>
-      <div class="pl-note"><?= rich($notes['weight_intro']) ?></div>
-    <?php endif; ?>
-    <?php
-      $gesundheit = new Gesundheit($db);
-      $gStand     = $gesundheit->stand();
-    ?>
-    <div class="gsd">
-      <div class="gsd-kopf">
-        <span class="gsd-titel">Google Health</span>
-        <?php if ($gStand['verbunden']): ?>
-          <span class="gsd-lage ja">verbunden<?= $gStand['tage'] ? ' · ' . (int) $gStand['tage'] . ' Tage' : '' ?></span>
-        <?php elseif ($gStand['zugang']): ?>
-          <span class="gsd-lage offen">Zugang hinterlegt, noch nicht verbunden</span>
-        <?php else: ?>
-          <span class="gsd-lage offen">noch nicht eingerichtet</span>
-        <?php endif; ?>
-      </div>
-
-      <?php if ($gStand['fehler']): ?>
-        <p class="gsd-fehler"><?= h((string) $gStand['fehler']) ?></p>
-      <?php endif; ?>
-
-      <?php if ($gStand['verbunden']): ?>
-        <p class="gsd-text">
-          Schritte, Kalorien und Ruhepuls kommen aus deinem Fitbit-Konto.
-          <?php if ($gStand['geholt']): ?>
-            Zuletzt geholt: <b><?= h(date('d.m.Y, H:i', strtotime((string) $gStand['geholt']))) ?></b> Uhr.
-          <?php endif; ?>
-          Fehlt ein Tag, hat die Uhr nicht synchronisiert — das ist nicht dasselbe wie null Schritte,
-          deshalb bleibt die Zeile dann leer statt auf 0 zu springen.
-        </p>
-        <div class="tb-aktion">
-          <button type="button" class="tb-knopf haupt" id="gsdHolen">Jetzt aktualisieren</button>
-          <button type="button" class="tb-knopf" id="gsdTrennen">Verbindung trennen</button>
-          <span class="tb-hinweis" id="gsdHinweis"></span>
-        </div>
-      <?php else: ?>
-        <details class="gsd-einrichten"<?= $gStand['zugang'] ? ' open' : '' ?>>
-          <summary>Einrichten — was in der Google Cloud Console zu tun ist</summary>
-          <ol class="gsd-schritte">
-            <li>Projekt anlegen und die <b>Google Health API</b> aktivieren.</li>
-            <li>Unter <i>Anmeldedaten</i> eine <b>OAuth-Client-ID für Webanwendung</b> erstellen.</li>
-            <li>Dort als <b>autorisierte Weiterleitungs-URI</b> genau eintragen:
-              <code><?= h((new Gesundheit($db))->weiterleitung()) ?></code>
-              — ohne das bricht Google mit <i>redirect_uri_mismatch</i> ab.</li>
-            <li>Beim Zustimmungsbildschirm die Rechte <i>activity_and_fitness.readonly</i> und
-              <i>health_metrics_and_measurements.readonly</i> auswählen.</li>
-            <li><b>Zielgruppe auf „Extern"</b> stellen, wenn die Health-Daten nicht unter einem
-              Konto der eigenen Organisation liegen. Sonst lehnt Google mit
-              <i>Fehler 403: org_internal</i> ab — dann darf nur die eigene Firma die App benutzen.</li>
-            <li><b>Wichtig:</b> Veröffentlichungsstatus auf <b>„In production"</b> stellen. Bleibt die App
-              auf „Testing", läuft die Verbindung nach <b>sieben Tagen</b> ab — und zwar mitten auf dem Camino.
-              Veröffentlicht ist das Dauer-Token unbegrenzt gültig.</li>
-            <li>Eine <b>Freigabe durch Google ist nicht nötig.</b> Die Prüfung entfernt nur den
-              Warnbildschirm. Beim ersten Verbinden kommt <i>„Google hat diese App nicht überprüft"</i> —
-              das ist der erwartete Weg: <b>Erweitert → Weiter zu pilger.milsh.com</b>. Die Daten gehen
-              an den eigenen Server und an niemanden sonst.</li>
-          </ol>
-          <label>Client-ID
-            <input type="text" id="gsdId" value="<?= h((string) ($gStand['client_id'] ?? '')) ?>"
-                   placeholder="…apps.googleusercontent.com" autocomplete="off">
-          </label>
-          <label>Client-Secret
-            <input type="password" id="gsdSecret"
-                   placeholder="<?= $gStand['zugang'] ? '— hinterlegt, zum Ändern neu eingeben —' : 'GOCSPX-…' ?>" autocomplete="off">
-          </label>
-          <div class="tb-aktion">
-            <button type="button" class="tb-knopf haupt" id="gsdSpeichern">Speichern</button>
-            <?php if ($gStand['zugang']): ?>
-              <a class="tb-knopf" id="gsdVerbinden" href="#">Mit Google verbinden</a>
-            <?php endif; ?>
-            <span class="tb-hinweis" id="gsdHinweis"></span>
-          </div>
-        </details>
-      <?php endif; ?>
-    </div>
-
-    <div class="pcat">
-      <table class="ctbl">
-        <tr>
-          <th>Woche</th><th class="det">Zeitraum</th><th class="r">Ziel</th><th class="r">Ist</th>
-          <th>Schritte/Tag</th><th class="r">gemessen</th><th class="det">Lange Wanderung</th><th>Fokus</th>
-        </tr>
-        <?php foreach ($weeks as $w): ?>
-          <?php
-            // Gemessen wird über die Tage gemittelt, an denen es Daten gibt —
-            // ein Tag ohne Synchronisierung soll den Schnitt nicht drücken.
-            $ist = ($w['von_iso'] && $w['bis_iso'])
-                ? $gesundheit->schnitt((string) $w['von_iso'], (string) $w['bis_iso'])
-                : ['schritte' => null, 'tage' => 0, 'ruhepuls' => null, 'kcal' => null];
-
-            // Läuft die Woche noch? Dann ist der Schnitt ein Zwischenstand und
-            // kein Ergebnis. Ohne diesen Hinweis liest sich ein halber Tag wie
-            // ein verfehltes Wochenziel.
-            $laeuft = $w['von_iso'] && $w['bis_iso']
-                && date('Y-m-d') >= (string) $w['von_iso'] && date('Y-m-d') <= (string) $w['bis_iso'];
-
-            $gemessenesGewicht = ($w['von_iso'] && $w['bis_iso'])
-                ? $gesundheit->gewicht((string) $w['von_iso'], (string) $w['bis_iso'])
-                : null;
-          ?>
-          <tr>
-            <td class="i-name"><?= h($w['label']) ?></td>
-            <td class="det"><?= h($w['period']) ?></td>
-            <td class="r"><?= h($w['target']) ?></td>
-            <td class="r">
-              <input class="wt" type="number" step="0.1" inputmode="decimal"
-                     data-id="<?= (int) $w['id'] ?>"
-                     value="<?= h(num_attr($w['actual'])) ?>" placeholder="kg"<?= $locked ? ' disabled' : '' ?>>
-              <?php if ($gemessenesGewicht !== null): ?>
-                <?php $abweichung = $w['actual'] !== null ? abs((float) $w['actual'] - $gemessenesGewicht['kg']) : null; ?>
-                <span class="gewogen">
-                  <?php if ($w['actual'] === null): ?>
-                    <button type="button" class="wtnimm" data-id="<?= (int) $w['id'] ?>"
-                            data-kg="<?= h(num_attr($gemessenesGewicht['kg'])) ?>"
-                            title="Von der Waage übernehmen">
-                      ⌂ <?= h(number_format($gemessenesGewicht['kg'], 1, ',', '.')) ?> übernehmen
-                    </button>
-                  <?php else: ?>
-                    Waage: <?= h(number_format($gemessenesGewicht['kg'], 1, ',', '.')) ?><?php
-                      if ($abweichung !== null && $abweichung >= 0.5): ?> <b>≠</b><?php endif; ?>
-                  <?php endif; ?>
-                </span>
-              <?php endif; ?>
-            </td>
-            <td><?= h($w['steps']) ?></td>
-            <td class="r gemessen<?= $laeuft ? ' laeuft' : '' ?>">
-              <?php if ($ist['schritte'] !== null): ?>
-                <b><?= number_format($ist['schritte'], 0, ',', '.') ?></b>
-                <span title="Durchschnitt pro Tag, gemittelt über die Tage mit Daten<?= $ist['ruhepuls'] ? ' · Ruhepuls Ø ' . $ist['ruhepuls'] : '' ?>">
-                  Ø aus <?= (int) $ist['tage'] ?> <?= $ist['tage'] === 1 ? 'Tag' : 'Tagen' ?><?= $ist['ruhepuls'] ? ' · ' . (int) $ist['ruhepuls'] . ' bpm' : '' ?>
-                  <?php if ($laeuft): ?><em>läuft noch</em><?php endif; ?>
-                </span>
-              <?php else: ?>
-                <span class="leerwert">—</span>
-              <?php endif; ?>
-            </td>
-            <td class="det"><?= h($w['long_walk']) ?></td>
-            <td><?= rich($w['focus']) ?></td>
-          </tr>
-        <?php endforeach; ?>
-      </table>
-    </div>
-    <?php if (isset($notes['weight_outro'])): ?>
-      <div class="pl-note" style="margin-top:22px;margin-bottom:0"><?= rich($notes['weight_outro']) ?></div>
-    <?php endif; ?>
-      </div>
-    </details>
-  </div>
-</section>
-
 <section id="tagebuch">
   <div class="wrap reveal">
     <details class="block" data-block="tagebuch">
-      <summary><div class="sec-head"><div class="sec-num">08</div><h2>Tagebuch &amp; Fotos<small>Sprachnotiz oder getippt · Aufnahmen und Bilder werden gemerkt, bis wieder Netz da ist</small></h2></div></summary>
+      <summary><div class="sec-head"><div class="sec-num">07</div><h2>Tagebuch &amp; Fotos<small>Sprachnotiz oder getippt · Aufnahmen und Bilder werden gemerkt, bis wieder Netz da ist</small></h2></div></summary>
       <div class="block-inhalt">
 
     <?php
@@ -853,6 +694,86 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
         <?php endforeach; ?>
       </div>
     <?php endif; ?>
+
+    <?php /* Google Health stand frueher im Countdown-Abschnitt. Der ist
+             ausgeblendet, die Zahlen daraus aber nicht: Schritte und
+             Kilometer stehen auf den Etappenkarten, und der Tagebuch-Ausbau
+             baut darauf auf. Ohne diesen Block gaebe es kein "Jetzt
+             aktualisieren" mehr. */ ?>
+    <?php
+      $gesundheit = new Gesundheit($db);
+      $gStand     = $gesundheit->stand();
+    ?>
+    <div class="gsd">
+      <div class="gsd-kopf">
+        <span class="gsd-titel">Google Health</span>
+        <?php if ($gStand['verbunden']): ?>
+          <span class="gsd-lage ja">verbunden<?= $gStand['tage'] ? ' · ' . (int) $gStand['tage'] . ' Tage' : '' ?></span>
+        <?php elseif ($gStand['zugang']): ?>
+          <span class="gsd-lage offen">Zugang hinterlegt, noch nicht verbunden</span>
+        <?php else: ?>
+          <span class="gsd-lage offen">noch nicht eingerichtet</span>
+        <?php endif; ?>
+      </div>
+
+      <?php if ($gStand['fehler']): ?>
+        <p class="gsd-fehler"><?= h((string) $gStand['fehler']) ?></p>
+      <?php endif; ?>
+
+      <?php if ($gStand['verbunden']): ?>
+        <p class="gsd-text">
+          Schritte, Kalorien und Ruhepuls kommen aus deinem Fitbit-Konto.
+          <?php if ($gStand['geholt']): ?>
+            Zuletzt geholt: <b><?= h(date('d.m.Y, H:i', strtotime((string) $gStand['geholt']))) ?></b> Uhr.
+          <?php endif; ?>
+          Fehlt ein Tag, hat die Uhr nicht synchronisiert — das ist nicht dasselbe wie null Schritte,
+          deshalb bleibt die Zeile dann leer statt auf 0 zu springen.
+        </p>
+        <div class="tb-aktion">
+          <button type="button" class="tb-knopf haupt" id="gsdHolen">Jetzt aktualisieren</button>
+          <button type="button" class="tb-knopf" id="gsdTrennen">Verbindung trennen</button>
+          <span class="tb-hinweis" id="gsdHinweis"></span>
+        </div>
+      <?php else: ?>
+        <details class="gsd-einrichten"<?= $gStand['zugang'] ? ' open' : '' ?>>
+          <summary>Einrichten — was in der Google Cloud Console zu tun ist</summary>
+          <ol class="gsd-schritte">
+            <li>Projekt anlegen und die <b>Google Health API</b> aktivieren.</li>
+            <li>Unter <i>Anmeldedaten</i> eine <b>OAuth-Client-ID für Webanwendung</b> erstellen.</li>
+            <li>Dort als <b>autorisierte Weiterleitungs-URI</b> genau eintragen:
+              <code><?= h((new Gesundheit($db))->weiterleitung()) ?></code>
+              — ohne das bricht Google mit <i>redirect_uri_mismatch</i> ab.</li>
+            <li>Beim Zustimmungsbildschirm die Rechte <i>activity_and_fitness.readonly</i> und
+              <i>health_metrics_and_measurements.readonly</i> auswählen.</li>
+            <li><b>Zielgruppe auf „Extern"</b> stellen, wenn die Health-Daten nicht unter einem
+              Konto der eigenen Organisation liegen. Sonst lehnt Google mit
+              <i>Fehler 403: org_internal</i> ab — dann darf nur die eigene Firma die App benutzen.</li>
+            <li><b>Wichtig:</b> Veröffentlichungsstatus auf <b>„In production"</b> stellen. Bleibt die App
+              auf „Testing", läuft die Verbindung nach <b>sieben Tagen</b> ab — und zwar mitten auf dem Camino.
+              Veröffentlicht ist das Dauer-Token unbegrenzt gültig.</li>
+            <li>Eine <b>Freigabe durch Google ist nicht nötig.</b> Die Prüfung entfernt nur den
+              Warnbildschirm. Beim ersten Verbinden kommt <i>„Google hat diese App nicht überprüft"</i> —
+              das ist der erwartete Weg: <b>Erweitert → Weiter zu pilger.milsh.com</b>. Die Daten gehen
+              an den eigenen Server und an niemanden sonst.</li>
+          </ol>
+          <label>Client-ID
+            <input type="text" id="gsdId" value="<?= h((string) ($gStand['client_id'] ?? '')) ?>"
+                   placeholder="…apps.googleusercontent.com" autocomplete="off">
+          </label>
+          <label>Client-Secret
+            <input type="password" id="gsdSecret"
+                   placeholder="<?= $gStand['zugang'] ? '— hinterlegt, zum Ändern neu eingeben —' : 'GOCSPX-…' ?>" autocomplete="off">
+          </label>
+          <div class="tb-aktion">
+            <button type="button" class="tb-knopf haupt" id="gsdSpeichern">Speichern</button>
+            <?php if ($gStand['zugang']): ?>
+              <a class="tb-knopf" id="gsdVerbinden" href="#">Mit Google verbinden</a>
+            <?php endif; ?>
+            <span class="tb-hinweis" id="gsdHinweis"></span>
+          </div>
+        </details>
+      <?php endif; ?>
+    </div>
 
     <details class="tb-einstellungen">
       <summary>Sprachnotizen in Text verwandeln — Schlüssel hinterlegen</summary>

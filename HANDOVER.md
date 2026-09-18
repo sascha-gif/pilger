@@ -370,12 +370,12 @@ Drei Dinge kommen vom JavaScript dazu:
 
 ## Ausgeblendete Abschnitte
 
-Drei Abschnitte sind auf Wunsch aus der Seite genommen; die übrigen sind
+Vier Abschnitte sind auf Wunsch aus der Seite genommen; die übrigen sind
 nachgerückt. Aktuelle Nummerierung:
 
 ```
 01 Profil · 02 Anreise · 03 Ankunft · 04 Etappen
-05 Packliste · 06 Kosten · 07 Countdown · 08 Tagebuch
+05 Packliste · 06 Kosten · 07 Tagebuch
 ```
 
 - **Equipment & Gelenkschutz** — war weitgehend eine Kurzfassung der
@@ -383,6 +383,15 @@ nachgerückt. Aktuelle Nummerierung:
 - **Ernährung & Supplements** — Tagesprotokoll und Pillen-Zeile.
 - **Vor der Abreise** — Termine und Erledigungen zum Abhaken (Zahnarzt,
   Frisör, Infusion, Osteopath, Decathlon, Rezept, Apotheke).
+- **Countdown –5 kg** — Wochentabelle mit Zielgewicht. Ab dem Start auf dem
+  Camino erledigt.
+
+**Der Google-Health-Block ist dabei umgezogen**, vom Countdown ins Tagebuch.
+Er musste bleiben: die Schritte und Kilometer daraus stehen auf den
+Etappenkarten (`health_days` über `$healthTage`), und der Tagebuch-Ausbau baut
+darauf auf. Ohne ihn gäbe es kein „Jetzt aktualisieren" mehr, während die
+Zahlen weiter angezeigt würden. Im Tagebuch steht er ohnehin am richtigen
+Platz — direkt über den Schlüsseln für Transkription und Ausbau.
 
 **Gelöscht wurde nichts.** `equipment_cards`, `equipment_items` (samt
 Häkchen), `nutrition_pills`, `nutrition_slots` und `todos` (samt Häkchen und

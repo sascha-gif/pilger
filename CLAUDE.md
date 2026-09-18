@@ -132,7 +132,13 @@ Erfasst damit 831,09 €.
 Packliste im HTML in 12 Kategorien (Rucksack, Füße, Wanderkleidung, Abend, Regen,
 Sonnenschutz, Hygiene, Reiseapotheke, Supplements, Elektronik, Dokumente, Kleinkram).
 
-## Countdown –5 kg (93 → ~88 kg)
+## Countdown –5 kg (93 → ~88 kg) — Abschnitt ausgeblendet
+
+Der Abschnitt ist seit dem Start auf dem Camino aus der Seite genommen; die
+Daten stehen unverändert in `weight_weeks`. Der Google-Health-Block ist dabei
+ins Tagebuch umgezogen, weil die Schritte und Kilometer daraus auf den
+Etappenkarten und beim Tagebuch-Ausbau gebraucht werden.
+
 
 ~500–700 kcal Defizit, Protein hoch, Kraft Mo/Mi/Fr weiter — Fett verlieren, nicht Muskeln.
 Montags nüchtern wiegen, Ist-Wert im HTML eintragen.
