@@ -15,7 +15,11 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 
 # Fotos und Sprachaufnahmen kommen vom Handy — 2 MB Standardgrenze reichen nicht.
-RUN printf 'upload_max_filesize = 32M\npost_max_size = 40M\nmax_file_uploads = 30\n' \
+# memory_limit: GD packt ein Bild unkomprimiert in den Speicher, 4 Byte je Pixel.
+# Ein 24-Megapixel-Handyfoto sind damit schon 97 MB, und beim Drehen nach EXIF
+# liegen kurz zwei Fassungen gleichzeitig da. Mit den voreingestellten 128 MB
+# stirbt PHP dabei mitten im Upload, ohne verwertbare Antwort.
+RUN printf 'upload_max_filesize = 32M\npost_max_size = 40M\nmax_file_uploads = 30\nmemory_limit = 512M\n' \
       > /usr/local/etc/php/conf.d/uploads.ini
 
 # Document-Root auf public/ legen — src/, config/ und db/ liegen dadurch

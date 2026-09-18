@@ -195,6 +195,14 @@ Bilder werden auf 1600 px verkleinert, nach EXIF gedreht und bekommen ein
 Vorschaubild mit 480 px. Kann `gd` das Format nicht lesen (etwa HEIC), wird die
 Datei unverändert abgelegt statt verworfen.
 
+**Verkleinert wird schon auf dem Gerät.** `tagebuch.js` rechnet jedes Bild vor
+dem Hochladen auf 2000 px lange Kante und JPEG-Güte 0,85 herunter — aus 5 MB
+werden rund 400 KB. Der Server bekommt also im Normalfall gar kein
+Handyfoto in voller Größe mehr zu sehen; die 1600 px oben bleiben trotzdem die
+verbindliche Grenze, weil ein Upload von einem anderen Gerät sie sonst
+umgehen könnte. Kann der Browser ein Format nicht lesen, geht die
+Originaldatei raus.
+
 ### `media.php` — Auslieferung
 
 `GET media.php?art=foto|klein|audio&id=…`. Ohne Anmeldung **403**. Die Dateien

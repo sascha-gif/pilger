@@ -328,6 +328,62 @@ Dazu drei Kleinigkeiten, die beim Festhängen helfen:
   falsche Auskunft; es steht stattdessen da, dass es klemmt und nichts verloren
   ist.
 
+## Bilder werden auf dem Handy verkleinert, nicht erst auf dem Server
+
+Bis zum 18.09.2026 ging jedes Foto in voller Größe über die Leitung, und erst
+der Server rechnete es auf 1600 px herunter. Das war an drei Stellen falsch:
+
+1. **Die Datenmenge.** Ein heutiges Handyfoto hat 12 bis 48 Megapixel und 3 bis
+   6 MB. Fünfzehn davon sind 60 bis 90 MB — im portugiesischen Mobilnetz, an
+   einem Tag mit 25 gelaufenen Kilometern. Gespeichert wurde davon am Ende
+   ohnehin nur die 1600-px-Fassung. Die vollen Megabyte zu senden hat also
+   nichts gebracht außer Wartezeit und Gelegenheiten für den Abbruch.
+2. **Der Speicher auf dem Server.** `gd` legt ein Bild unkomprimiert ab, vier
+   Byte je Pixel. 24 Megapixel sind damit 97 MB, und `imagerotate()` für die
+   EXIF-Lage hält kurz zwei Fassungen gleichzeitig. Das PHP-Bild bringt 128 MB
+   `memory_limit` mit — der Prozess starb also mitten im Upload, und was beim
+   Browser ankam, war keine verwertbare Antwort. Das Limit steht jetzt im
+   `Dockerfile` auf 512 MB.
+3. **Der iOS-Fall mit den 0 Bytes.** In der Warteschlange lag bisher der
+   `File`-Verweis aus der Galerie. Verliert iOS den Zugriff darauf — nach einem
+   Neustart, nach Speicherdruck —, liefert derselbe Verweis später 0 Bytes, und
+   das Paket scheitert bis in alle Ewigkeit.
+
+`verkleinere()` in `public/assets/tagebuch.js` rechnet deshalb jedes Bild schon
+bei der Auswahl auf **2000 px lange Kante, JPEG-Güte 0,85** herunter. Aus 5 MB
+werden ungefähr 400 KB. Die 2000 px sind Absicht: der Server macht seine
+1600 px trotzdem, die Reserve kostet nichts und erlaubt später ein höheres
+`MAX_KANTE` ohne Änderung am Client.
+
+Was dabei sonst noch herausfällt:
+
+- Das Ergebnis ist ein **frischer Blob im Speicher**, kein Verweis auf die
+  Galerie. Der 0-Byte-Fall von oben kann damit gar nicht mehr auftreten.
+- **HEIC wird zu JPEG.** Vorher landete HEIC unverändert auf der Platte, weil
+  `gd` das Format nicht kennt — in voller Größe und ohne Vorschaubild.
+- Die **EXIF-Lage wird angewandt**, nicht mitgeschleppt:
+  `createImageBitmap(datei, { imageOrientation: 'from-image' })`. Das fertige
+  JPEG hat kein EXIF mehr, steht aber richtig herum. Geprüft mit einem Bild
+  800 × 400 und Orientation 6 — heraus kommen 400 × 800.
+
+Vier Wege gehen bewusst am Verkleinern vorbei, jeder mit Grund:
+
+| Fall | Was passiert |
+|---|---|
+| Kein Bild (Sprachnotiz) | unverändert |
+| Kleiner als 600 KB | unverändert — das Umrechnen lohnt nicht |
+| Browser kann das Format nicht | Original, langsam ist besser als gar nicht |
+| Ergebnis größer als das Original | Original |
+
+Gerechnet wird **eins nach dem anderen**. Fünfzehn Handyfotos gleichzeitig zu
+dekodieren bringt Safari auf dem iPhone zuverlässig um.
+
+Beide Wege ins Tagebuch gehen darüber: der neue Eintrag und das Nachreichen an
+einem bestehenden (`.tbe-fotos`). Für die Doppelt-Erkennung reicht deshalb ein
+Blick auf die fertige Datei nicht mehr — `wahlQuellen` merkt sich Name, Größe
+und Zeitstempel der **Originale**, Index für Index parallel zu
+`gewaehlteFotos`. Wer beides anfasst, muss beides anfassen.
+
 ## Ein Paket loswerden — `stelleEin()`
 
 Alles, was ins Tagebuch geht — neuer Eintrag, nachgereichte Bilder —, läuft
@@ -447,7 +503,8 @@ Nummern davor.
 
 - **Kein Speichern des Originalfotos.** Bilder werden auf 1600 px verkleinert.
   Zwölf Tage Handyfotos in voller Größe sprengen jedes Volume, und für ein
-  Reisetagebuch reicht die Kante.
+  Reisetagebuch reicht die Kante. Verkleinert wird bereits auf dem Handy
+  (2000 px, JPEG 0,85) — siehe unten.
 - **Keine ausgedachten Wetterwerte.** Weiter als 16 Tage voraus gibt es keine
   Vorhersage. Statt eine zu erfinden, steht dort das Mittel derselben
   Kalendertage der Vorjahre — und es steht auch dran.

@@ -422,17 +422,112 @@
     });
   }
 
+  /* ================= Bilder vor dem Hochladen verkleinern =============== */
+  /* Ein Handyfoto hat heute 12 bis 48 Megapixel und 3 bis 6 MB. Gespeichert
+     wird davon ohnehin nur die 1600-px-Fassung — die vollen Megabyte durchs
+     portugiesische Mobilnetz zu schieben kostet also nichts als Zeit, und auf
+     halber Strecke bricht die Verbindung ab. Deshalb wird schon auf dem Gerät
+     verkleinert: aus 5 MB werden ungefähr 400 KB.
+
+     Zwei Nebenwirkungen, beide erwünscht:
+     - Was hier herauskommt, ist ein frischer Blob im Speicher. Der iOS-Fall,
+       dass ein in der Warteschlange liegender Verweis auf die Galerie später
+       nur noch 0 Bytes liefert, kann damit gar nicht mehr auftreten.
+     - HEIC wird zu JPEG. Das kann der Server dann auch verkleinern, statt es
+       unverändert durchzureichen, weil GD das Format nicht kennt. */
+
+  var MAX_SENDE   = 2000;          // Serverseitig bleiben 1600 — etwas Reserve.
+  var SENDE_GUETE = 0.85;
+  var KLEIN_GENUG = 600 * 1024;    // Darunter lohnt das Umrechnen nicht.
+
+  function ueberBildElement(datei) {
+    return new Promise(function (ok, nein) {
+      var url = URL.createObjectURL(datei);
+      var bild = new Image();
+      bild.onload  = function () { URL.revokeObjectURL(url); ok(bild); };
+      bild.onerror = function () { URL.revokeObjectURL(url); nein(new Error('Bild nicht lesbar')); };
+      bild.src = url;
+    });
+  }
+
+  /* createImageBitmap ist der sparsame Weg, kann aber je nach Browser die
+     Optionen nicht oder das Format nicht. Dann eben über ein <img>. */
+  function entpacke(datei) {
+    if (!window.createImageBitmap) return ueberBildElement(datei);
+    try {
+      return createImageBitmap(datei, { imageOrientation: 'from-image' })
+        .catch(function () { return createImageBitmap(datei); })
+        .catch(function () { return ueberBildElement(datei); });
+    } catch (e) {
+      return ueberBildElement(datei);
+    }
+  }
+
+  function verkleinere(datei) {
+    var istBild = /^image\//.test((datei && datei.type) || '');
+    if (!datei || !istBild || datei.size <= KLEIN_GENUG) {
+      return Promise.resolve(datei);
+    }
+    return entpacke(datei).then(function (quelle) {
+      var faktor = Math.min(1, MAX_SENDE / Math.max(quelle.width, quelle.height));
+      var nb = Math.max(1, Math.round(quelle.width * faktor));
+      var nh = Math.max(1, Math.round(quelle.height * faktor));
+      var leinwand = document.createElement('canvas');
+      leinwand.width = nb;
+      leinwand.height = nh;
+      leinwand.getContext('2d').drawImage(quelle, 0, 0, nb, nh);
+      if (quelle.close) quelle.close();
+      return new Promise(function (ok) {
+        leinwand.toBlob(function (blob) { ok(blob); }, 'image/jpeg', SENDE_GUETE);
+      });
+    }).then(function (blob) {
+      // Nichts gewonnen — dann bleibt das Original, es ist ja schon klein.
+      if (!blob || blob.size >= datei.size) return datei;
+      var name = (datei.name || 'bild').replace(/\.[^.]+$/, '') + '.jpg';
+      try {
+        return new File([blob], name, {
+          type: 'image/jpeg',
+          lastModified: datei.lastModified || Date.now()
+        });
+      } catch (e) {
+        // Ohne File-Konstruktor tut es der Blob auch; der Name geht beim
+        // Hochladen ohnehin als eigenes Feld mit.
+        return blob;
+      }
+    }).catch(function () {
+      // Kann der Browser das Format nicht lesen (HEIC unter Android), geht
+      // das Original raus. Langsam hochladen ist besser als gar nicht.
+      return datei;
+    });
+  }
+
+  /* Eins nach dem anderen: 15 Handyfotos gleichzeitig zu dekodieren bringt
+     Safari auf dem iPhone zuverlässig um. */
+  function verkleinereAlle(dateien, melde) {
+    var fertig = [];
+    return dateien.reduce(function (kette, datei, i) {
+      return kette.then(function () {
+        if (melde) melde(i + 1, dateien.length);
+        return verkleinere(datei).then(function (f) { fertig.push(f); });
+      });
+    }, Promise.resolve()).then(function () { return fertig; });
+  }
+
   /* ================= Speichern ========================================== */
 
   var fotoEingabe = document.getElementById('tbFotos');
   var wahlEl = document.getElementById('tbWahl');
   var gewaehlteFotos = [];
+  /* Merkmale der Originale, Index fuer Index zu `gewaehlteFotos`. Gebraucht
+     wird das, weil in `gewaehlteFotos` die verkleinerte Fassung liegt — die
+     hat eine andere Groesse als das, was aus der Galerie kam. */
+  var wahlQuellen = [];
 
   /* Zwei Bilder sind dasselbe, wenn Name, Groesse und Zeitstempel stimmen.
      Wer die Galerie zweimal oeffnet und dasselbe Foto nochmal antippt, soll es
      nicht doppelt hochladen. */
   function schonDrin(datei) {
-    return gewaehlteFotos.some(function (a) {
+    return wahlQuellen.some(function (a) {
       return a.name === datei.name && a.size === datei.size && a.lastModified === datei.lastModified;
     });
   }
@@ -471,6 +566,7 @@
       weg.textContent = '\u00d7';
       weg.addEventListener('click', function () {
         gewaehlteFotos.splice(i, 1);
+        wahlQuellen.splice(i, 1);
         malWahl();
       });
       kachel.appendChild(bild);
@@ -484,15 +580,27 @@
     fotoEingabe.addEventListener('change', function () {
       // Sammeln, nicht ersetzen: am Handy kommt das zweite Bild aus einem
       // zweiten Griff in die Galerie, und der erste darf davon nicht weg sein.
-      var neu = 0;
-      Array.prototype.slice.call(fotoEingabe.files || []).forEach(function (datei) {
-        if (!schonDrin(datei)) { gewaehlteFotos.push(datei); neu++; }
-      });
+      var roh = Array.prototype.slice.call(fotoEingabe.files || []);
       // Zuruecksetzen, damit dasselbe Bild erneut ausgewaehlt werden koennte
       // und `change` beim naechsten Mal ueberhaupt wieder feuert.
       fotoEingabe.value = '';
-      malWahl();
-      if (!neu) sag('Diese Bilder sind schon in der Auswahl.');
+
+      var neu = roh.filter(function (datei) { return !schonDrin(datei); });
+      if (!neu.length) { sag('Diese Bilder sind schon in der Auswahl.'); return; }
+
+      // Die Merkmale gleich vormerken, sonst gilt dasselbe Bild waehrend des
+      // Verkleinerns noch als neu.
+      neu.forEach(function (datei) {
+        wahlQuellen.push({ name: datei.name, size: datei.size, lastModified: datei.lastModified });
+      });
+
+      verkleinereAlle(neu, function (i, von) {
+        sag(von === 1 ? 'Bild wird vorbereitet …' : 'Bilder werden vorbereitet … (' + i + ' von ' + von + ')');
+      }).then(function (fertig) {
+        fertig.forEach(function (datei) { gewaehlteFotos.push(datei); });
+        malWahl();
+        sag(fertig.length === 1 ? 'Bild bereit.' : fertig.length + ' Bilder bereit.');
+      });
     });
   }
 
@@ -543,6 +651,7 @@
       var aufraeumen = function () {
         textFeld.value = '';
         gewaehlteFotos = [];
+        wahlQuellen = [];
         if (fotoEingabe) fotoEingabe.value = '';
         malWahl();
         fertigeAufnahme = null;
@@ -645,10 +754,20 @@
     var karte = eingabe.closest('.tbe');
     if (!karte) return;
 
-    var dateien = Array.prototype.slice.call(eingabe.files || []);
+    var roh = Array.prototype.slice.call(eingabe.files || []);
     eingabe.value = '';
-    if (!dateien.length) return;
+    if (!roh.length) return;
 
+    eingabe.disabled = true;
+    verkleinereAlle(roh, function (i, von) {
+      sag(von === 1 ? 'Bild wird vorbereitet …' : 'Bilder werden vorbereitet … (' + i + ' von ' + von + ')');
+    }).then(function (dateien) {
+      eingabe.disabled = false;
+      schickeNachtrag(karte, dateien);
+    });
+  });
+
+  function schickeNachtrag(karte, dateien) {
     stelleEin({
       id: kennung(),
       entryId: Number(karte.dataset.id),
@@ -664,7 +783,7 @@
         ? dateien.length + (dateien.length === 1 ? ' Bild wird hochgeladen.' : ' Bilder werden hochgeladen.')
         : 'Auf dem Gerät gemerkt — geht raus, sobald Netz da ist.');
     }).catch(function () { /* gemeldet ist es schon */ });
-  });
+  }
 
   /* ================= Bilder beschriften und löschen ===================== */
   /* Die Kacheln stehen an zwei Stellen — an den Einträgen und in der
