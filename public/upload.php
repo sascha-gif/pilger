@@ -38,6 +38,21 @@ if (!is_array($datei) || ($datei['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_
         UPLOAD_ERR_NO_FILE                        => 'Es kam keine Datei an.',
         default                                   => 'Die Datei kam nicht heil an.',
     };
+
+    /* Liegt die Sendung über `post_max_size`, wirft PHP den kompletten Rumpf
+       weg: $_POST und $_FILES sind dann beide leer, und der Endpunkt meldet
+       „keine Datei" — was stimmt, aber nicht weiterhilft. Die Zahlen stehen
+       hier noch zur Verfügung, also gehören sie in die Antwort. */
+    $laenge = (int) ($_SERVER['CONTENT_LENGTH'] ?? 0);
+    $grenze = ini_bytes((string) ini_get('post_max_size'));
+    if (!$_POST && $laenge > 0 && $grenze > 0 && $laenge > $grenze) {
+        $grund = sprintf(
+            'Die Sendung war %.1f MB und damit über der Grenze von %d MB — der Server hat sie verworfen.',
+            $laenge / 1048576,
+            (int) round($grenze / 1048576)
+        );
+    }
+
     json_out(['ok' => false, 'error' => $grund], 400);
 }
 

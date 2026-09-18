@@ -391,6 +391,39 @@ Blick auf die fertige Datei nicht mehr — `wahlQuellen` merkt sich Name, Größ
 und Zeitstempel der **Originale**, Index für Index parallel zu
 `gewaehlteFotos`. Wer beides anfasst, muss beides anfassen.
 
+## „Es kam keine Datei an." — und was dahintersteckt
+
+Am 18.09. hingen zwei Fotopakete (15 und 10 Bilder) mit genau dieser Meldung.
+Sie kommt aus `public/upload.php` und heißt: der Server hat die Anfrage
+bekommen, die Anmeldung galt, aber `$_FILES['datei']` war leer.
+
+`UPLOAD_ERR_NO_FILE` hat dafür nur wenige Ursachen, und eine davon ist die
+wahrscheinlichste: **liegt die Sendung über `post_max_size`, verwirft PHP den
+kompletten Rumpf.** `$_POST` und `$_FILES` sind dann beide leer — es sieht aus,
+als wäre nie eine Datei mitgeschickt worden. Das ist auch der Grund, warum ein
+Paket komplett stehen bleibt: die Fotos gehen eins nach dem anderen hoch, und
+das erste, das scheitert, bricht die Kette ab.
+
+Deshalb drei Dinge:
+
+1. **Der Endpunkt rechnet nach.** Sind `$_POST` und `$_FILES` leer, obwohl ein
+   `Content-Length` ankam, das über der Grenze liegt, steht die Grenze und die
+   tatsächliche Größe in der Antwort statt „keine Datei". `ini_bytes()` in
+   `src/helpers.php` übersetzt dafür die INI-Kurzschreibweise (`72M`).
+2. **Die Meldung im Browser nennt Datei und Größe** — `[IMG_4711.jpg, 0,4 MB]`.
+   „Es kam keine Datei an" heißt bei 0,4 MB etwas völlig anderes als bei 45 MB,
+   und ohne die Zahl ist das nicht zu unterscheiden. Konnte der Browser das
+   Bild nicht verkleinern, steht `nicht verkleinerbar` dabei.
+3. **Die Grenzen stehen höher** — `upload_max_filesize = 64M`,
+   `post_max_size = 72M`. Nach dem Verkleinern auf dem Gerät sind Fotos
+   ohnehin unter 1 MB; die Grenze greift nur noch für Dateien, die der Browser
+   nicht lesen konnte, und die sollen dann wenigstens durchkommen.
+
+Was in derselben Nacht **funktioniert** hat: die Sprachnotiz. Sie lag mit zwei
+Fehlversuchen in derselben Warteschlange und war am Morgen durch. Das Problem
+war also von Anfang an nur bei den Bildern, bei der Größe — nicht bei der
+Anmeldung und nicht beim Weg an sich.
+
 ## Ein Paket loswerden — `stelleEin()`
 
 Alles, was ins Tagebuch geht — neuer Eintrag, nachgereichte Bilder —, läuft

@@ -149,3 +149,24 @@ function json_out(array $payload, int $status = 200): void
     echo json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     exit;
 }
+
+/**
+ * `post_max_size = 72M` als Zahl. Die INI-Kurzschreibweise kennt K, M und G,
+ * und `ini_get()` gibt sie unverändert zurück — vergleichen lässt sich damit
+ * nichts.
+ */
+function ini_bytes(string $wert): int
+{
+    $wert = trim($wert);
+    if ($wert === '') {
+        return 0;
+    }
+    $zahl   = (int) $wert;
+    $einheit = strtolower(substr($wert, -1));
+    return match ($einheit) {
+        'g'     => $zahl * 1024 * 1024 * 1024,
+        'm'     => $zahl * 1024 * 1024,
+        'k'     => $zahl * 1024,
+        default => $zahl,
+    };
+}

@@ -214,6 +214,9 @@
     }).catch(function () {
       // Kann der Browser das Format nicht lesen (HEIC unter Android), geht
       // das Original raus. Langsam hochladen ist besser als gar nicht.
+      // Vermerkt wird es trotzdem: scheitert der Upload danach, ist das der
+      // Unterschied zwischen „zu gross" und „Verbindung weg".
+      try { datei.nichtVerkleinert = true; } catch (e) { /* eingefroren */ }
       return datei;
     });
   }
@@ -267,6 +270,11 @@
       });
   }
 
+  function mengeMB(bytes) {
+    if (typeof bytes !== 'number') return '?';
+    return (bytes / 1048576).toFixed(1).replace('.', ',') + ' MB';
+  }
+
   function sendeDatei(felder, datei, dateiname) {
     var fd = new FormData();
     Object.keys(felder).forEach(function (k) {
@@ -282,11 +290,20 @@
         + 'iOS hat den Zugriff darauf verloren. Bild noch einmal auswählen.'));
     }
 
+    // Was genau da rausging, gehoert in die Meldung. „Es kam keine Datei an"
+    // heisst je nach Groesse etwas voellig anderes: bei 0,4 MB ist die
+    // Verbindung schuld, bei 45 MB die Obergrenze des Servers. Ohne die Zahl
+    // ist das nicht zu unterscheiden.
+    var woher = ' [' + dateiname + ', ' + mengeMB(datei && datei.size)
+      + (datei && datei.nichtVerkleinert ? ', nicht verkleinerbar' : '') + ']';
+
     return fetch(UPLOAD, { method: 'POST', body: fd })
       .then(function (r) { return antwortLesen(r, 'upload'); })
       .catch(function (err) {
-        if (err instanceof TypeError) throw new Error('upload — keine Verbindung (' + err.message + ')');
-        throw err;
+        if (err instanceof TypeError) {
+          throw new Error('upload — keine Verbindung (' + err.message + ')' + woher);
+        }
+        throw new Error(err.message + woher);
       });
   }
 

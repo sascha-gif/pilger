@@ -19,7 +19,7 @@ RUN apt-get update \
 # Ein 24-Megapixel-Handyfoto sind damit schon 97 MB, und beim Drehen nach EXIF
 # liegen kurz zwei Fassungen gleichzeitig da. Mit den voreingestellten 128 MB
 # stirbt PHP dabei mitten im Upload, ohne verwertbare Antwort.
-RUN printf 'upload_max_filesize = 32M\npost_max_size = 40M\nmax_file_uploads = 30\nmemory_limit = 512M\n' \
+RUN printf 'upload_max_filesize = 64M\npost_max_size = 72M\nmax_file_uploads = 30\nmemory_limit = 512M\n' \
       > /usr/local/etc/php/conf.d/uploads.ini
 
 # Document-Root auf public/ legen — src/, config/ und db/ liegen dadurch
