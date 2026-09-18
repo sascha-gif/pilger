@@ -177,6 +177,42 @@
     return kette.then(function () { return ausDerSchlange(p.id).catch(function () {}); });
   }
 
+  /* Ein Paket loswerden — auf dem sicheren Weg, und wenn der versperrt ist,
+     auf dem direkten.
+
+     Der sichere Weg ist die Warteschlange: erst auf dem Geraet merken, dann
+     hochladen. Faellt sie aus — in Safaris privatem Fenster bekommt die
+     IndexedDB keinen Platz, auf einem vollen Geraet auch nicht —, ist das kein
+     Grund, den Eintrag wegzuwerfen. Solange Netz da ist, geht er eben direkt
+     raus. Nur ohne Netz *und* ohne Zwischenspeicher ist wirklich Schluss.
+
+     Bewusst eine Funktion fuer alle Wege: neuer Eintrag, nachgereichte Bilder,
+     alles. Als das zwei getrennte Stellen waren, hatte die eine den Rueckfall
+     und die andere nicht — und nachgereichte Bilder gingen im privaten Fenster
+     wortlos verloren. */
+  function stelleEin(paket, gelungen, direktGelungen) {
+    return inDieSchlange(paket).then(function () {
+      if (gelungen) gelungen();
+      return malSchlange().then(abarbeiten);
+    }).catch(function (err) {
+      if (!navigator.onLine) {
+        sag('Kein Netz, und dieses Gerät lässt nichts zwischenspeichern (privates Fenster?). '
+          + 'Bitte den Text kopieren, bevor du die Seite verlässt!', true);
+        throw err;
+      }
+      sag('Zwischenspeicher streikt — wird direkt hochgeladen …');
+      return schickePaket(paket).then(function () {
+        if (direktGelungen) { direktGelungen(); } else if (gelungen) { gelungen(); }
+        sag('Hochgeladen. Die Seite lädt gleich neu.');
+        setTimeout(function () { location.reload(); }, 900);
+      }).catch(function (zweiter) {
+        sag('Hochladen fehlgeschlagen und Zwischenspeichern geht auf diesem Gerät nicht. '
+          + 'Bitte den Text kopieren! (' + (zweiter && zweiter.message ? zweiter.message : 'unbekannt') + ')', true);
+        throw zweiter;
+      });
+    });
+  }
+
   var laeuft = false;
 
   function abarbeiten(stillschweigend) {
@@ -449,31 +485,10 @@
         }
       };
 
-      return inDieSchlange(paket).then(function () {
+      return stelleEin(paket, function () {
         aufraeumen();
         sag(navigator.onLine ? 'Gespeichert — wird hochgeladen.' : 'Auf dem Gerät gemerkt — geht raus, sobald Netz da ist.');
-        return malSchlange().then(abarbeiten);
-      }).catch(function (err) {
-        // Die Warteschlange ist ausgefallen — im privaten Fenster gibt Safari
-        // der IndexedDB keinen Platz, und ein volles Gerät kann es auch. Das
-        // ist kein Grund, den Eintrag wegzuwerfen: solange Netz da ist, geht
-        // er eben direkt raus. Nur ohne Netz ist wirklich Schluss.
-        if (!navigator.onLine) {
-          sag('Kein Netz, und dieses Gerät lässt nichts zwischenspeichern (privates Fenster?). '
-            + 'Bitte den Text kopieren, bevor du die Seite verlässt!', true);
-          throw err;
-        }
-        sag('Zwischenspeicher streikt — wird direkt hochgeladen …');
-        return schickePaket(paket).then(function () {
-          aufraeumen();
-          sag('Hochgeladen. Die Seite lädt gleich neu.');
-          setTimeout(function () { location.reload(); }, 900);
-        }).catch(function (zweiter) {
-          sag('Hochladen fehlgeschlagen und Zwischenspeichern geht auf diesem Gerät nicht. '
-            + 'Bitte den Text kopieren! (' + (zweiter && zweiter.message ? zweiter.message : 'unbekannt') + ')', true);
-          throw zweiter;
-        });
-      });
+      }, aufraeumen);
   }
 
   /* ================= Lesen oder bearbeiten =============================== */
@@ -567,26 +582,21 @@
     eingabe.value = '';
     if (!dateien.length) return;
 
-    inDieSchlange({
+    stelleEin({
       id: kennung(),
       entryId: Number(karte.dataset.id),
       stage: karte.dataset.stage || '',
-      etappe: (karte.querySelector('.tbtag') || {}).textContent || '',
+      etappe: (karte.querySelector('.tbuhr') || {}).textContent || '',
       text: null,
       audio: null,
       fotos: dateien,
       erstellt: new Date().toISOString(),
       versuche: 0
-    }).then(function () {
+    }, function () {
       sag(navigator.onLine
         ? dateien.length + (dateien.length === 1 ? ' Bild wird hochgeladen.' : ' Bilder werden hochgeladen.')
         : 'Auf dem Gerät gemerkt — geht raus, sobald Netz da ist.');
-      return malSchlange();
-    }).then(function () {
-      return abarbeiten();
-    }).catch(function () {
-      sag('Die Bilder konnten nicht einmal auf dem Gerät gemerkt werden.', true);
-    });
+    }).catch(function () { /* gemeldet ist es schon */ });
   });
 
   /* ================= Bilder beschriften und löschen ===================== */

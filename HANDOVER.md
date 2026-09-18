@@ -310,6 +310,28 @@ Zwei Fallen, die dabei aufgefallen sind:
 - **`.tagblock` ist ein `<section>`** und erbte damit `section{padding:56px 0}`.
   Der Tagespunkt hing 56 px über seiner Überschrift. Padding ausgeschrieben.
 
+## Ein Paket loswerden — `stelleEin()`
+
+Alles, was ins Tagebuch geht — neuer Eintrag, nachgereichte Bilder —, läuft
+durch **eine** Funktion. Der sichere Weg ist die Warteschlange: erst auf dem
+Gerät merken, dann hochladen. Fällt sie aus (Safaris privates Fenster gibt der
+IndexedDB keinen Platz, ein volles Gerät auch nicht), geht das Paket direkt
+raus, solange Netz da ist. Nur ohne Netz **und** ohne Zwischenspeicher ist
+wirklich Schluss — und dann sagt die Meldung, warum.
+
+Das war schon einmal an zwei Stellen umgesetzt, und prompt hatte die eine den
+Rückfall und die andere nicht: nachgereichte Bilder gingen im privaten Fenster
+wortlos verloren. Deshalb eine Funktion, nicht zwei.
+
+## Welcher Tag im Tagebuch zur Auswahl steht
+
+Abgehakte Tage stehen **nicht** mehr zur Auswahl — die Liste soll mit der Reise
+kürzer werden, nicht länger. Eine Ausnahme, und die ist wichtig: **heute und
+gestern bleiben drin, auch abgehakt.** Man kommt an, hakt den Tag ab, duscht —
+und will erst danach die Notiz sprechen. Ohne die Ausnahme wäre der Tag dann
+weg und man müsste ihn wieder aufmachen, um über ihn zu schreiben. Dasselbe
+gilt für den Morgen danach, wenn man abends zu müde war.
+
 ## Sprachnotizen — was daran schon kaputt war
 
 Zwei Fehler, die zusammen dafür gesorgt haben, dass **keine einzige Aufnahme

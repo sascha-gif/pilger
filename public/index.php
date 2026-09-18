@@ -482,11 +482,24 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
 
     <div class="tb-neu">
       <?php
-        // Erledigte Tage rutschen nach unten, damit die Auswahl mit der Reise
-        // kürzer wird. Ganz verschwinden dürfen sie nicht: der Eintrag zu einem
-        // Tag entsteht abends, wenn der Tag längst abgehakt ist.
+        // Abgehakte Tage stehen nicht mehr zur Auswahl — die Liste soll mit der
+        // Reise kürzer werden, nicht länger.
+        //
+        // Mit einer Ausnahme, und die ist wichtig: **heute und gestern bleiben
+        // drin, auch wenn sie abgehakt sind.** Man kommt an, hakt den Tag ab
+        // (das ist der schöne Moment), duscht — und will erst danach die Notiz
+        // sprechen. Ohne diese Ausnahme wäre der Tag dann weg und man müsste
+        // ihn wieder aufmachen, um über ihn zu schreiben. Dasselbe gilt für den
+        // Morgen danach, wenn man abends zu müde war.
+        $heute    = date('Y-m-d');
+        $gestern  = date('Y-m-d', strtotime('-1 day'));
+        $frisch   = static fn (array $st): bool => in_array((string) $st['date_iso'], [$heute, $gestern], true);
+
         $offeneTage    = array_values(array_filter($stages, static fn ($st) => !(int) $st['done']));
-        $erledigteTage = array_values(array_filter($stages, static fn ($st) => (int) $st['done']));
+        $erledigteTage = array_values(array_filter(
+            $stages,
+            static fn ($st) => (int) $st['done'] && $frisch($st)
+        ));
         $vorauswahl    = $offeneTage ? (int) $offeneTage[0]['id'] : 0;
       ?>
       <div class="tb-kopf">
@@ -502,7 +515,7 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
             </optgroup>
           <?php endif; ?>
           <?php if ($erledigteTage): ?>
-            <optgroup label="Erledigt" data-gruppe="erledigt">
+            <optgroup label="Gerade abgehakt" data-gruppe="erledigt">
               <?php foreach (array_reverse($erledigteTage) as $st): ?>
                 <option value="<?= (int) $st['id'] ?>" data-tag="<?= h((string) $st['date_iso']) ?>"<?= !$offeneTage && (int) $st['id'] === (int) $erledigteTage[count($erledigteTage) - 1]['id'] ? ' selected' : '' ?>>
                   <?= h($stageLabel[(int) $st['id']]) ?>
