@@ -144,6 +144,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/020_tagespanne.php';
             migration_020($db);
         });
+
+        // Esposende gebucht.
+        $apply('021_esposende', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/021_esposende.php';
+            migration_021($db);
+        });
     }
 
     /** @return array<int,string> */

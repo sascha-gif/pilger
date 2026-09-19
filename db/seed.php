@@ -149,11 +149,23 @@ function seed_database(Database $db): void
                 'seq' => 2, 'code' => 'E2 · 20.09.', 'date_label' => '20.09.2026',
                 'title' => 'Vila do Conde → Esposende', 'title_suffix' => null,
                 'dist' => '24 km',
-                'target' => '<b>Budget-Ziel:</b> Guesthouse/3★ am Fluss · <b>eigenes Zimmer</b> · ca. 55–75 €',
-                'note' => null,
+                'target' => '<b style="color:#2e7d32">Gebucht:</b> Hello Esposende · <b>74,00 €</b> · '
+                    . 'Buchungsnr. 5557270875',
+                'note' => '<b>Weg dorthin:</b> Der Küstenweg quert bei Fão den <b>Rio Cávado</b> — '
+                    . 'Fão am Südufer, Esposende am Nordufer. Die Unterkunft liegt <b>gut einen '
+                    . 'Kilometer nördlich des Ortskerns</b> (Freguesia Marinhas), also schon in der '
+                    . 'Richtung, in die es am nächsten Morgen weitergeht: '
+                    . '<b>Rua Dom Dinis 8, 4740-267</b>. '
+                    . '<a href="https://www.google.com/maps/search/?api=1&amp;query='
+                    . 'Hello%20Esposende%2C%20Rua%20Dom%20Dinis%208%2C%20Esposende" '
+                    . 'target="_blank" rel="noopener">Karte</a><br>'
+                    . '<small>Die Lage stammt aus dem Postleitzahlenregister, nicht aus der Buchung — '
+                    . 'für den letzten Kilometer gilt der Kartenlink. Die Entfernungsangaben der '
+                    . 'Portale widersprechen sich (Praia de Ofir liegt südlich des Cávado), deshalb '
+                    . 'steht davon hier nichts. Check-in-Zeit vorher durchgeben.</small>',
                 'alt_note' => '<b>Senda Litoral:</b> über Póvoa de Varzim &amp; Apúlia direkt am Strand.',
-                'booking_url' => sprintf($bk, 'Esposende%2C%20Portugal', '2026-09-20', '2026-09-21'),
-                'booking_label' => 'Booking Esposende',
+                'booking_url' => null,
+                'booking_label' => null,
                 'km_big' => '222', 'km_sub' => 'noch bis SCQ', 'variant' => 'normal',
                 'lat' => 41.532351, 'lng' => -8.78308,
                 'map_eyebrow' => 'Etappe 2 · 20.09.', 'map_meta' => '24 km · noch 222 km',
@@ -465,7 +477,7 @@ function seed_database(Database $db): void
             ['Flug Rückflug', 'SCQ → Palma → FRA · Vueling + TUI fly · Kiwi.com 838426721', 235.00, 'ok', 'gebucht'],
             ['Porto (2 N)', 'Carpe Diem by Dualgroup', 186.83, 'ok', 'gebucht'],
             ['Vila do Conde (E1)', 'Residencial Princesa do Ave · Einzelzimmer · Buchungsnr. 5656009787', 78.00, 'ok', 'gebucht'],
-            ['Esposende (E2)', '~ Guesthouse', null, 'open', 'offen'],
+            ['Esposende (E2)', 'Hello Esposende · Buchungsnr. 5557270875', 74.00, 'ok', 'gebucht'],
             ['Viana do Castelo (E3)', '~ Pension', null, 'open', 'offen'],
             ['Caminha (E4)', '~ Pension', null, 'open', 'offen'],
             ['Oia (E5)', '~ dünnes Angebot', null, 'open', 'offen'],
