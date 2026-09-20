@@ -103,12 +103,14 @@ danach läuft sie mit der Costa zusammen.
   E3. Die Lage stammt aus dem Postleitzahlenregister, nicht aus der Buchung;
   die Entfernungsangaben der Portale widersprechen sich, deshalb steht auf der
   Seite nur die Adresse und ein Kartenlink auf den Namen.
-- **Gebucht:** Viana do Castelo (E3), B&B HOTEL Viana do Castelo, Doppelzimmer,
-  21.–22.09., 65,00 €, Check-in ab 14:00, Check-out bis 12:00. Estrada da
-  Papanata 74, 4900-470, Tel. +351 258 121 906 — rund anderthalb Kilometer
-  **östlich** der Altstadt, also ein Umweg hin und am nächsten Morgen zurück.
-  Der Name stand nicht in der Bestätigung; gefunden über die Telefonnummer,
-  Karte und Foto der Bestätigung passen dazu.
+- **Gebucht:** Viana do Castelo (E3), B&B HOTEL Viana do Castelo ★★★,
+  Doppelzimmer, 21.–22.09., 65,00 €, Check-in ab 14:00, Check-out bis 12:00.
+  Estrada da Papanata 74, 4900-462, Tel. +351 258 121 906 — rund anderthalb
+  Kilometer **östlich** der Altstadt, also ein Umweg hin und am nächsten Morgen
+  zurück. Am Empfang: **Check-in-Nummer B1541743170** und Ausweis auf denselben
+  Namen. **Partnerangebot:** der Buchungsvertrag besteht mit LINKALL HONGKONG
+  LIMITED, **Änderungen sind nicht möglich**; bei Problemen ist der
+  Booking.com-Kundenservice zuständig, nicht der Empfang.
 - **Offen:** 9 Etappenorte. Booking-Links im HTML, nach Preis sortiert.
   Kritisch früh buchen: **Oia** (dünnes Angebot) und **Santiago** (hohe Nachfrage).
 - Budget-Ausrichtung: Pension/Hostal statt Hotel, ca. 50–110 €/Nacht

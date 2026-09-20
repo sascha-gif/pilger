@@ -175,21 +175,25 @@ function seed_database(Database $db): void
                 'seq' => 3, 'code' => 'E3 · 21.09.', 'date_label' => '21.09.2026',
                 'title' => 'Esposende → Viana do Castelo', 'title_suffix' => null,
                 'dist' => '25 km',
-                'target' => '<b style="color:#2e7d32">Gebucht:</b> B&amp;B HOTEL Viana do Castelo · '
+                'target' => '<b style="color:#2e7d32">Gebucht:</b> B&amp;B HOTEL Viana do Castelo ★★★ · '
                     . 'Doppelzimmer · <b>65,00 €</b> · Check-in ab 14:00, Check-out bis 12:00',
                 'note' => '<b>Weg dorthin:</b> Der Küstenweg kommt von Süden und quert den <b>Rio Lima '
                     . 'über die Ponte Eiffel</b> in die Altstadt. Von dort noch einmal <b>rund '
-                    . 'anderthalb Kilometer nach Osten</b>: <b>Estrada da Papanata 74, 4900-470</b>. '
+                    . 'anderthalb Kilometer nach Osten</b>: <b>Estrada da Papanata 74, 4900-462</b>. '
                     . 'Nach 25 km aus Esposende ist das kein Nebensatz — und am nächsten Morgen geht '
                     . 'es denselben Weg zurück, weil der Camino nach Norden aus der Altstadt führt. '
                     . '<a href="https://www.google.com/maps/search/?api=1&amp;query='
                     . 'B%26B%20HOTEL%20Viana%20do%20Castelo" '
                     . 'target="_blank" rel="noopener">Karte</a> · '
                     . '<a href="tel:+351258121906">+351 258 121 906</a><br>'
-                    . '<small>Der Name stand nicht in der Bestätigung, nur die Telefonnummer — die '
-                    . 'gehört zum B&amp;B HOTEL Viana do Castelo, und Karte und Foto der Bestätigung '
-                    . 'passen dazu. Die Entfernung stammt aus dem Straßenregister, nicht aus der '
-                    . 'Buchung; für den letzten Kilometer gilt der Kartenlink.</small>',
+                    . '<b>Am Empfang:</b> Check-in-Nummer <b>B1541743170</b> und ein Ausweis auf '
+                    . 'denselben Namen.<br>'
+                    . '<small><b>Partnerangebot — hier aufpassen:</b> Der Buchungsvertrag besteht '
+                    . 'nicht mit dem Hotel, sondern mit LINKALL HONGKONG LIMITED. <b>Änderungen an '
+                    . 'der Buchung sind nicht möglich.</b> Fragen kann man das Hotel, zugesagt ist '
+                    . 'nichts. Klemmt etwas, ist der Kundenservice von Booking.com zuständig und '
+                    . 'nicht der Empfang vor Ort — Bestätigungsnummer und PIN aus der Mail '
+                    . 'bereithalten.</small>',
                 'alt_note' => '<b>Senda Litoral:</b> letzter durchgehender Küstenabschnitt — danach läuft sie mit der Costa zusammen.',
                 'booking_url' => null,
                 'booking_label' => null,

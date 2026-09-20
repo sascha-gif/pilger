@@ -156,6 +156,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/022_viana.php';
             migration_022($db);
         });
+
+        // Viana: richtige Postleitzahl, Check-in-Nummer, Partnerangebot.
+        $apply('023_viana_nachtrag', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/023_viana_nachtrag.php';
+            migration_023($db);
+        });
     }
 
     /** @return array<int,string> */
