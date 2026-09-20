@@ -489,14 +489,23 @@ Jetzt liefert `Repo::mapStops()` `done`, `date_from` und `date_iso` mit, und
 
 | Stand | Punkt | heißt |
 |---|---|---|
-| `fertig` | grün gefüllt | abgehakt — das ist gelaufen |
-| `heute` | gelb, dunkler Rand, größer | der heutige Tag fällt in diese Etappe |
-| `vorbei` | weiß mit grünem Ring | Datum durch, Häkchen fehlt |
-| `offen` | atlantikblau | kommt noch |
+| `fertig` | grün `#2e7d32` | abgehakt — das ist gelaufen |
+| `heute` | gelb `#f4b400`, dunkler Rand, größer | der heutige Tag fällt in diese Etappe |
+| `vorbei` | rostrot `#a4341f` | Datum durch, Häkchen fehlt |
+| `offen` | anthrazit `#232a2e` | kommt noch |
+
+**Vier Farbtöne, keine zwei aus derselben Familie.** Die erste Fassung hatte
+`offen` in Atlantikblau `#1f5d6c` und `vorbei` als weißen Punkt mit grünem
+Ring. Auf dem Handy, bei 7 Pixeln Radius und in der Sonne, sahen Grün und
+Dunkelpetrol gleich aus — und der Ringunterschied war gar nicht zu erkennen.
+Jetzt stehen Gelb, Grün, Rostrot und Anthrazit nebeneinander, und keine zwei
+lassen sich verwechseln.
 
 **`vorbei` ist mit Absicht ein eigener Stand** und wird nicht stillschweigend zu
 `fertig` gerechnet. Es kann heißen „vergessen abzuhaken" oder „einen Tag
-hinterher" — beides will man sehen, und an den Häkchen hängen die Stempel.
+hinterher" — beides will man sehen, und an den Häkchen hängen die Stempel. Das
+Rostrot ist dieselbe Farbe, die auch eine klemmende Warteschlange bekommt: hier
+ist etwas nachzutragen.
 
 `map_hub` bleibt, entscheidet aber nur noch über die Größe: Start und Ziel sind
 etwas dicker als die Zwischenstationen.

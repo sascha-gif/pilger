@@ -808,10 +808,10 @@
     /* Der Punkt sagt, wo er steht. Vorher war Porto gelb und alles andere
        gleich — am fuenften Tag sah die Karte aus wie am ersten. */
     var STAND = {
-      fertig: { fuellung: '#2e7d32', rand: '#fff',    breit: 2, wort: 'geschafft' },
+      fertig: { fuellung: '#2e7d32', rand: '#fff', breit: 2, wort: 'geschafft' },
       heute:  { fuellung: '#f4b400', rand: '#232a2e', breit: 3, wort: 'heute' },
-      vorbei: { fuellung: '#fff',    rand: '#2e7d32', breit: 3, wort: 'Datum vorbei — noch nicht abgehakt' },
-      offen:  { fuellung: '#1f5d6c', rand: '#fff',    breit: 2, wort: 'kommt noch' }
+      vorbei: { fuellung: '#a4341f', rand: '#fff', breit: 2, wort: 'Datum vorbei — noch nicht abgehakt' },
+      offen:  { fuellung: '#232a2e', rand: '#fff', breit: 2, wort: 'kommt noch' }
     };
 
     var punkte = {};

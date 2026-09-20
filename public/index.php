@@ -266,9 +266,9 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
           <span><i class="dot" style="background:#2e7d32"></i> geschafft</span>
         <?php endif; ?>
         <?php if (!empty($mapStaende['vorbei'])): ?>
-          <span><i class="dot hohl"></i> vorbei, nicht abgehakt</span>
+          <span><i class="dot" style="background:#a4341f"></i> vorbei, nicht abgehakt</span>
         <?php endif; ?>
-        <span><i class="dot" style="background:#1f5d6c"></i> kommt noch</span>
+        <span><i class="dot" style="background:#232a2e"></i> kommt noch</span>
         <?php foreach ($mapPayload['routes'] as $r): ?>
           <span><i style="background:<?= h($r['color']) ?><?= $r['dashed'] ? ';height:0;border-top:3px dashed ' . h($r['color']) : '' ?>"></i> <?= h($r['name']) ?></span>
         <?php endforeach; ?>
