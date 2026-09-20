@@ -250,7 +250,12 @@ function seed_database(Database $db): void
                 'dist' => '27 km · längste Etappe',
                 'target' => '<b>Budget-Ziel:</b> Stadthotel/Hostal Zentrum · <b>eigenes Zimmer</b> · ca. 55–80 €',
                 'note' => null,
-                'alt_note' => null,
+                'alt_note' => '<b>Küstenvariante:</b> Hinter der <b>Ponte da Ramallosa</b> biegt der offizielle Weg '
+                    . 'ins Land ab und steigt über den Monte San Román. Wer am Wasser bleibt, geht über '
+                    . '<b>Nigrán, Praia América und Saiáns</b> nach Vigo — Holzstege, Radwege, flache '
+                    . 'Stadtabschnitte, fast durchgehend am Atlantik und flacher als das Original. '
+                    . 'Danach dreht der Weg in die Ría und später ins Landesinnere: das hier ist der '
+                    . 'letzte Tag am offenen Meer.',
                 'booking_url' => sprintf($bk, 'Vigo%2C%20Spain', '2026-09-25', '2026-09-26'),
                 'booking_label' => 'Booking Vigo',
                 'km_big' => '103', 'km_sub' => 'noch bis SCQ', 'variant' => 'normal',

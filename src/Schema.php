@@ -162,6 +162,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/023_viana_nachtrag.php';
             migration_023($db);
         });
+
+        // Baiona -> Vigo: die Variante am Wasser statt ueber den Berg.
+        $apply('024_kuestenvariante_vigo', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/024_kuestenvariante_vigo.php';
+            migration_024($db);
+        });
     }
 
     /** @return array<int,string> */
