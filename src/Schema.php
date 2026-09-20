@@ -150,6 +150,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/021_esposende.php';
             migration_021($db);
         });
+
+        // Viana do Castelo gebucht.
+        $apply('022_viana', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/022_viana.php';
+            migration_022($db);
+        });
     }
 
     /** @return array<int,string> */

@@ -103,7 +103,13 @@ danach läuft sie mit der Costa zusammen.
   E3. Die Lage stammt aus dem Postleitzahlenregister, nicht aus der Buchung;
   die Entfernungsangaben der Portale widersprechen sich, deshalb steht auf der
   Seite nur die Adresse und ein Kartenlink auf den Namen.
-- **Offen:** 10 Etappenorte. Booking-Links im HTML, nach Preis sortiert.
+- **Gebucht:** Viana do Castelo (E3), B&B HOTEL Viana do Castelo, Doppelzimmer,
+  21.–22.09., 65,00 €, Check-in ab 14:00, Check-out bis 12:00. Estrada da
+  Papanata 74, 4900-470, Tel. +351 258 121 906 — rund anderthalb Kilometer
+  **östlich** der Altstadt, also ein Umweg hin und am nächsten Morgen zurück.
+  Der Name stand nicht in der Bestätigung; gefunden über die Telefonnummer,
+  Karte und Foto der Bestätigung passen dazu.
+- **Offen:** 9 Etappenorte. Booking-Links im HTML, nach Preis sortiert.
   Kritisch früh buchen: **Oia** (dünnes Angebot) und **Santiago** (hohe Nachfrage).
 - Budget-Ausrichtung: Pension/Hostal statt Hotel, ca. 50–110 €/Nacht
 - **Nur Unterkünfte mit eigenem Zimmer** — kein Bett im Schlafsaal. Steht in
@@ -121,11 +127,12 @@ danach läuft sie mit der Costa zusammen.
 Unterkünfte ~70 €/Nacht × 12 ≈ 840 € · Verpflegung ~25–35 €/Tag ·
 Gesamtbudget realistisch **1.400–1.900 €**.
 Bereits fix: Hinflug 258,00 € · Rückflug 235,00 € · Porto 186,83 € ·
-Vila do Conde 78,00 € · Esposende 74,00 € · Credencial 2,00 €.
+Vila do Conde 78,00 € · Esposende 74,00 € · Viana do Castelo 65,00 € ·
+Credencial 2,00 €.
 Gekauft: Wandersocken FALKE TK2 2× 57,26 € · Wandershorts maamgic 2× 55,98 € ·
 Reiseapotheke & Hygiene 20,54 € (Compeed, Dr. Bronner's, Zahncreme, Deo) ·
 Papiertüten 5,49 € (Tagesportionen Medikamente) · USB-C-Ladegerät 9,99 €.
-Erfasst damit 983,09 €.
+Erfasst damit 1.048,09 €.
 
 ## Equipment-Kernpunkte
 
@@ -199,7 +206,8 @@ darauf auf, nicht auf der ausgebauten Fassung.
 ## Offene Punkte
 
 - **Passwort auf der Seite setzen** — beim nächsten Aufruf
-- 10 Unterkünfte buchen (Oia und Santiago zuerst) — Vila do Conde und Esposende sind durch
+- 9 Unterkünfte buchen (Oia und Santiago zuerst) — Vila do Conde, Esposende
+  und Viana do Castelo sind durch
 - Fährfahrplan Caminha → A Guarda/Spanien prüfen
 - **Rückflug-Gepäck klären.** Im Tarif steckt nur ein persönliches Gepäckstück
   40 × 30 × 20 cm — da passt der Rucksack nicht hinein. Kabinengepäck

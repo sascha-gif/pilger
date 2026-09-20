@@ -175,11 +175,24 @@ function seed_database(Database $db): void
                 'seq' => 3, 'code' => 'E3 · 21.09.', 'date_label' => '21.09.2026',
                 'title' => 'Esposende → Viana do Castelo', 'title_suffix' => null,
                 'dist' => '25 km',
-                'target' => '<b>Budget-Ziel:</b> Pension Altstadt nahe Eiffel-Brücke · <b>eigenes Zimmer</b> · ca. 60–80 €',
-                'note' => null,
+                'target' => '<b style="color:#2e7d32">Gebucht:</b> B&amp;B HOTEL Viana do Castelo · '
+                    . 'Doppelzimmer · <b>65,00 €</b> · Check-in ab 14:00, Check-out bis 12:00',
+                'note' => '<b>Weg dorthin:</b> Der Küstenweg kommt von Süden und quert den <b>Rio Lima '
+                    . 'über die Ponte Eiffel</b> in die Altstadt. Von dort noch einmal <b>rund '
+                    . 'anderthalb Kilometer nach Osten</b>: <b>Estrada da Papanata 74, 4900-470</b>. '
+                    . 'Nach 25 km aus Esposende ist das kein Nebensatz — und am nächsten Morgen geht '
+                    . 'es denselben Weg zurück, weil der Camino nach Norden aus der Altstadt führt. '
+                    . '<a href="https://www.google.com/maps/search/?api=1&amp;query='
+                    . 'B%26B%20HOTEL%20Viana%20do%20Castelo" '
+                    . 'target="_blank" rel="noopener">Karte</a> · '
+                    . '<a href="tel:+351258121906">+351 258 121 906</a><br>'
+                    . '<small>Der Name stand nicht in der Bestätigung, nur die Telefonnummer — die '
+                    . 'gehört zum B&amp;B HOTEL Viana do Castelo, und Karte und Foto der Bestätigung '
+                    . 'passen dazu. Die Entfernung stammt aus dem Straßenregister, nicht aus der '
+                    . 'Buchung; für den letzten Kilometer gilt der Kartenlink.</small>',
                 'alt_note' => '<b>Senda Litoral:</b> letzter durchgehender Küstenabschnitt — danach läuft sie mit der Costa zusammen.',
-                'booking_url' => sprintf($bk, 'Viana%20do%20Castelo%2C%20Portugal', '2026-09-21', '2026-09-22'),
-                'booking_label' => 'Booking Viana do Castelo',
+                'booking_url' => null,
+                'booking_label' => null,
                 'km_big' => '197', 'km_sub' => 'noch bis SCQ', 'variant' => 'normal',
                 'lat' => 41.694376, 'lng' => -8.837134,
                 'map_eyebrow' => 'Etappe 3 · 21.09.', 'map_meta' => '25 km · noch 197 km',
@@ -478,7 +491,7 @@ function seed_database(Database $db): void
             ['Porto (2 N)', 'Carpe Diem by Dualgroup', 186.83, 'ok', 'gebucht'],
             ['Vila do Conde (E1)', 'Residencial Princesa do Ave · Einzelzimmer · Buchungsnr. 5656009787', 78.00, 'ok', 'gebucht'],
             ['Esposende (E2)', 'Hello Esposende · Buchungsnr. 5557270875', 74.00, 'ok', 'gebucht'],
-            ['Viana do Castelo (E3)', '~ Pension', null, 'open', 'offen'],
+            ['Viana do Castelo (E3)', 'B&B HOTEL Viana do Castelo · Doppelzimmer', 65.00, 'ok', 'gebucht'],
             ['Caminha (E4)', '~ Pension', null, 'open', 'offen'],
             ['Oia (E5)', '~ dünnes Angebot', null, 'open', 'offen'],
             ['Baiona (E6)', '~ Hostal', null, 'open', 'offen'],
