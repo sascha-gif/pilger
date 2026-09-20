@@ -429,6 +429,11 @@
         .then(function (data) {
           malWeg(data.weg);
           malStempel(data.stempel);
+          // Der Punkt auf der Karte gehoert zu derselben Etappe und soll die
+          // Farbe sofort wechseln — nicht erst beim naechsten Seitenaufruf.
+          document.dispatchEvent(new CustomEvent('etappe-abgehakt', {
+            detail: { id: Number(cb.dataset.id), fertig: an }
+          }));
           flash(an
             ? 'Etappe abgehakt · <b>' + String(data.weg.gelaufen).replace('.', ',') + ' km</b> gelaufen'
             : 'Häkchen entfernt');
@@ -800,14 +805,47 @@
       L.control.layers(null, overlays, { collapsed: false }).addTo(map);
     }
 
-    stops.forEach(function (s) {
+    /* Der Punkt sagt, wo er steht. Vorher war Porto gelb und alles andere
+       gleich — am fuenften Tag sah die Karte aus wie am ersten. */
+    var STAND = {
+      fertig: { fuellung: '#2e7d32', rand: '#fff',    breit: 2, wort: 'geschafft' },
+      heute:  { fuellung: '#f4b400', rand: '#232a2e', breit: 3, wort: 'heute' },
+      vorbei: { fuellung: '#fff',    rand: '#2e7d32', breit: 3, wort: 'Datum vorbei — noch nicht abgehakt' },
+      offen:  { fuellung: '#1f5d6c', rand: '#fff',    breit: 2, wort: 'kommt noch' }
+    };
+
+    var punkte = {};
+
+    function malePunkt(marker, s, stand) {
+      var art = STAND[stand] || STAND.offen;
       var hub = Number(s.hub) === 1;
-      L.circleMarker([s.lat, s.lng], {
-        radius: hub ? 9 : 7, color: '#fff', weight: 2,
-        fillColor: hub ? '#f4b400' : '#1f5d6c', fillOpacity: 1
-      }).addTo(map).bindPopup(
-        '<div class="pop"><div class="pe">' + s.e + '</div><div class="pn">' + s.n + '</div><div class="pm">' + s.m + '</div></div>'
+      marker.setStyle({
+        color: art.rand, weight: art.breit,
+        fillColor: art.fuellung, fillOpacity: 1
+      });
+      if (marker.setRadius) marker.setRadius(stand === 'heute' ? 10 : (hub ? 9 : 7));
+      marker.setPopupContent(
+        '<div class="pop"><div class="pe">' + s.e + '</div><div class="pn">' + s.n + '</div>' +
+        '<div class="pm">' + s.m + '</div>' +
+        '<div class="ps ps-' + stand + '">' + art.wort + '</div></div>'
       );
+    }
+
+    stops.forEach(function (s) {
+      var marker = L.circleMarker([s.lat, s.lng], { fillOpacity: 1 }).addTo(map).bindPopup('');
+      malePunkt(marker, s, s.st || 'offen');
+      if (s.id) punkte[s.id] = { marker: marker, stop: s };
+    });
+
+    /* Haken gesetzt oder weggenommen? Dann faerbt sich der Punkt sofort um.
+       Ohne Haken gilt wieder der Stand nach dem Kalender — deshalb liefert der
+       Server ihn getrennt mit (`sz`), sonst waere nach dem Wegnehmen nicht
+       mehr bekannt, ob der Tag heute, vorbei oder noch vor einem liegt. */
+    document.addEventListener('etappe-abgehakt', function (e) {
+      var treffer = punkte[e.detail.id];
+      if (!treffer) return;
+      malePunkt(treffer.marker, treffer.stop,
+        e.detail.fertig ? 'fertig' : (treffer.stop.sz || 'offen'));
     });
 
     if (!bounds.length) {

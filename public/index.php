@@ -38,17 +38,49 @@ $costs     = $repo->costItems();
 $costTotal = $repo->costTotal();
 $notes     = $repo->notes();
 
+/* Wo steht er gerade? Die Karte hatte bisher einen gelben Punkt auf Porto und
+   sonst zwoelf gleiche — am fuenften Tag sah sie deshalb aus wie am ersten.
+
+   Vier Staende, und jeder sagt etwas anderes:
+     fertig  — abgehakt, das ist gelaufen
+     heute   — der Tag von heute faellt in diese Etappe
+     vorbei  — das Datum ist durch, das Haekchen fehlt. Das kann heissen: noch
+               nicht abgehakt, oder einen Tag hinterher. Beides gehoert gesagt
+               und nicht stillschweigend zu „fertig" geschlagen — an den
+               Haekchen haengen die Stempel.
+     offen   — kommt noch */
+$heuteIso = date('Y-m-d');
+
+/* Der Stand allein nach dem Kalender — ohne das Häkchen. Er geht mit an den
+   Browser, damit ein Haken, der dort gesetzt oder wieder weggenommen wird,
+   den Punkt sofort umfärben kann, ohne die Seite neu zu laden. */
+$standNachDatum = static function (array $r) use ($heuteIso): string {
+    $bis = (string) ($r['date_iso'] ?? '');
+    $von = (string) ($r['date_from'] ?? '') ?: $bis;
+    if ($bis === '') {
+        return 'offen';
+    }
+    if ($heuteIso >= $von && $heuteIso <= $bis) {
+        return 'heute';
+    }
+    return $heuteIso > $bis ? 'vorbei' : 'offen';
+};
+
+$mapStops = $repo->mapStops();
 $mapPayload = [
     'center' => array_map('floatval', explode(',', $s['map_center'] ?? '42.0,-8.72')),
     'zoom'   => (int) ($s['map_zoom'] ?? 8),
     'stops'  => array_map(static fn ($r) => [
+        'id'  => (int) $r['id'],
         'n'   => $r['n'],
         'e'   => $r['e'],
         'm'   => $r['m'],
         'lat' => (float) $r['lat'],
         'lng' => (float) $r['lng'],
         'hub' => (int) $r['hub'],
-    ], $repo->mapStops()),
+        'st'  => (int) $r['done'] === 1 ? 'fertig' : $standNachDatum($r),
+        'sz'  => $standNachDatum($r),
+    ], $mapStops),
     'routes' => array_map(static fn ($r) => [
         'name'   => $r['name'],
         'color'  => $r['color'],
@@ -221,9 +253,22 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
 
     <div class="mapwrap reveal">
       <div id="map"></div>
+      <?php
+        /* Nur zeigen, was es auch gibt. Vor der Abreise ist nichts geschafft,
+           und „Datum vorbei, nicht abgehakt" ist hoffentlich meistens leer. */
+        $mapStaende = array_count_values(array_column($mapPayload['stops'], 'st'));
+      ?>
       <div class="maplegend">
-        <span><i class="dot" style="background:#f4b400"></i> Start / Ziel</span>
-        <span><i class="dot" style="background:#1f5d6c"></i> Etappenort</span>
+        <?php if (!empty($mapStaende['heute'])): ?>
+          <span><i class="dot" style="background:#f4b400;border:2px solid #232a2e"></i> heute</span>
+        <?php endif; ?>
+        <?php if (!empty($mapStaende['fertig'])): ?>
+          <span><i class="dot" style="background:#2e7d32"></i> geschafft</span>
+        <?php endif; ?>
+        <?php if (!empty($mapStaende['vorbei'])): ?>
+          <span><i class="dot hohl"></i> vorbei, nicht abgehakt</span>
+        <?php endif; ?>
+        <span><i class="dot" style="background:#1f5d6c"></i> kommt noch</span>
         <?php foreach ($mapPayload['routes'] as $r): ?>
           <span><i style="background:<?= h($r['color']) ?><?= $r['dashed'] ? ';height:0;border-top:3px dashed ' . h($r['color']) : '' ?>"></i> <?= h($r['name']) ?></span>
         <?php endforeach; ?>

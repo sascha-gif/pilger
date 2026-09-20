@@ -164,8 +164,12 @@ final class Repo
     /** Etappen mit Koordinaten, für die Karte. */
     public function mapStops(): array
     {
+        // `done` und die Daten kommen mit, damit die Karte zeigen kann, wo er
+        // gerade ist. Ohne sie sah jeder Ort gleich aus und der gelbe Punkt
+        // stand die ganze Reise lang auf Porto.
         return $this->db->all(
-            'SELECT map_name AS n, map_eyebrow AS e, map_meta AS m, lat, lng, map_hub AS hub
+            'SELECT id, map_name AS n, map_eyebrow AS e, map_meta AS m, lat, lng, map_hub AS hub,
+                    done, date_from, date_iso
                FROM stages
               WHERE on_map = 1 AND lat IS NOT NULL AND lng IS NOT NULL
               ORDER BY seq'

@@ -477,6 +477,41 @@ Etappe ist nur noch der Rückfall:
 Überall `?:` statt `??`: ein leeres Feld ist hier kein Wert, und `'' ?? $x` gibt
 den leeren String zurück.
 
+## Die Karte zeigt, wo er steht
+
+Bis zum 20.09.2026 hatte die Karte genau zwei Sorten Punkte: `map_hub = 1`
+(Porto und Santiago) in Gelb, alles andere in Atlantikblau. Am fünften Tag sah
+sie damit aus wie am ersten — der gelbe Punkt stand die ganze Reise lang auf
+Porto, als wäre er nie losgegangen.
+
+Jetzt liefert `Repo::mapStops()` `done`, `date_from` und `date_iso` mit, und
+`index.php` rechnet daraus vier Stände:
+
+| Stand | Punkt | heißt |
+|---|---|---|
+| `fertig` | grün gefüllt | abgehakt — das ist gelaufen |
+| `heute` | gelb, dunkler Rand, größer | der heutige Tag fällt in diese Etappe |
+| `vorbei` | weiß mit grünem Ring | Datum durch, Häkchen fehlt |
+| `offen` | atlantikblau | kommt noch |
+
+**`vorbei` ist mit Absicht ein eigener Stand** und wird nicht stillschweigend zu
+`fertig` gerechnet. Es kann heißen „vergessen abzuhaken" oder „einen Tag
+hinterher" — beides will man sehen, und an den Häkchen hängen die Stempel.
+
+`map_hub` bleibt, entscheidet aber nur noch über die Größe: Start und Ziel sind
+etwas dicker als die Zwischenstationen.
+
+Die Legende zeigt nur Stände, die es auch gibt (`array_count_values` über die
+Stopps) — vor der Abreise gibt es kein „geschafft", und „vorbei, nicht
+abgehakt" ist hoffentlich meistens leer.
+
+**Ein Häkchen färbt den Punkt sofort um**, ohne Neuladen: der Etappen-Haken
+schickt ein `CustomEvent('etappe-abgehakt')` los, die Karte hört darauf. Damit
+das Wegnehmen auch wieder richtig landet, liefert der Server je Stopp **zwei**
+Stände mit — `st` (mit Häkchen) und `sz` (nur nach dem Kalender). Ohne `sz`
+wäre nach dem Wegnehmen nicht mehr bekannt, ob der Tag heute, vorbei oder noch
+vor einem liegt.
+
 ## Eine Etappe kann mehr als einen Tag dauern
 
 `stages.date_iso` hält genau ein Datum. Für E1 bis E12 stimmt das — ein Tag,
