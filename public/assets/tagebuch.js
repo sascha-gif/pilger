@@ -365,7 +365,16 @@
       });
     });
 
-    return kette.then(function () { return ausDerSchlange(p.id).catch(function () {}); });
+    return kette.then(function () {
+      /* Der Tagblock, in dem der Eintrag gleich auftaucht, muss offen sein.
+         Sonst laedt die Seite neu und der frisch hochgeladene Eintrag steckt
+         hinter einer zugeklappten Ueberschrift — hochgeladen und trotzdem
+         nicht zu finden. */
+      if (p.tag) {
+        document.dispatchEvent(new CustomEvent('tag-aufklappen', { detail: { tag: p.tag } }));
+      }
+      return ausDerSchlange(p.id).catch(function () {});
+    });
   }
 
   /* Ein Paket loswerden — auf dem sicheren Weg, und wenn der versperrt ist,
@@ -641,6 +650,11 @@
   var textFeld = document.getElementById('tbText');
   var tagWahl = document.getElementById('tbTag');
 
+  if (tagWahl) {
+    tagWahl.addEventListener('change', malTagZiel);
+    malTagZiel();
+  }
+
   if (speichern) {
     speichern.addEventListener('click', function () {
       // Laeuft die Aufnahme noch, wird sie erst beendet — sonst waere sie beim
@@ -683,6 +697,27 @@
     var heute = ortsDatum();
     var ausEtappe = option && option.dataset ? (option.dataset.tag || '') : '';
     return (ausEtappe && ausEtappe < heute) ? ausEtappe : heute;
+  }
+
+  /* Hinschreiben, welchen Tag der Eintrag bekommt. Ohne das ist es eine
+     Ueberraschung: waehlt man abends eine abgehakte Etappe, landet die Notiz
+     auf gestern — richtig so, aber dann sucht man sie oben und findet sie
+     nicht, weil der Tagblock von gestern zugeklappt ist. */
+  var tagZielEl = document.getElementById('tbTagZiel');
+  var WOCHENTAGE = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+  var MONATE = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
+                'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+
+  function malTagZiel() {
+    if (!tagZielEl || !tagWahl) return;
+    var tag = tagDesEintrags(tagWahl.options[tagWahl.selectedIndex]);
+    var teile = tag.split('-');
+    // Mittags bauen, damit keine Zeitzone den Tag verschiebt.
+    var d = new Date(Number(teile[0]), Number(teile[1]) - 1, Number(teile[2]), 12);
+    var heute = tag === ortsDatum();
+    tagZielEl.hidden = false;
+    tagZielEl.innerHTML = 'Kommt auf <b>' + WOCHENTAGE[d.getDay()] + ', ' + d.getDate() + '. '
+      + MONATE[d.getMonth()] + '</b>' + (heute ? ' (heute)' : '');
   }
 
   function packUndSpeichere() {

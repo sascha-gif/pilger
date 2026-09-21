@@ -313,6 +313,33 @@ Zwei Fallen, die dabei aufgefallen sind:
 - **`.tagblock` ist ein `<section>`** und erbte damit `section{padding:56px 0}`.
   Der Tagespunkt hing 56 px über seiner Überschrift. Padding ausgeschrieben.
 
+## Hochgeladen und trotzdem nicht zu finden
+
+Am 21.09.2026 war eine Sprachnotiz mit Bildern hochgeladen und nirgends zu
+sehen. Sie war da — nur hinter einer zugeklappten Tagesüberschrift. Zwei Dinge
+kamen zusammen:
+
+1. **Der Eintrag bekommt nicht immer den heutigen Tag.** Liegt das Datum der
+   gewählten Etappe in der Vergangenheit, gewinnt es (siehe oben, „Der Tag
+   eines Eintrags"). Das ist gewollt — abends eine abgehakte Etappe zu wählen
+   heißt „das war gestern". Nur stand nirgends, was dabei herauskommt.
+2. **Ein Tag, der nicht der neueste ist, ist zugeklappt.** Der Eintrag landete
+   also in einem Block, der beim Neuladen zu blieb.
+
+Beides ist behoben:
+
+- Unter der Tagesauswahl steht jetzt **„Kommt auf Montag, 21. September
+  (heute)"** und ändert sich mit der Auswahl mit. Keine Überraschung mehr.
+- Nach einem erfolgreichen Upload meldet `schickePaket()` den Tag per
+  `CustomEvent('tag-aufklappen')`, `app.js` schreibt ihn in `pilger-tage` und
+  klappt den Block auf — die Seite lädt direkt danach neu, und der Eintrag ist
+  zu sehen.
+
+Der Zuhörer für das Ereignis steht **außerhalb** der Prüfung auf vorhandene
+Tagblöcke. Beim allerersten Eintrag gibt es noch keinen einzigen — und genau
+dann wird er gebraucht. Beim ersten Anlauf stand er drinnen, und der Test fiel
+prompt darauf herein.
+
 ## Jeder Tag im Tagebuch klappt für sich auf
 
 Zwölf Etappen mit Notizen und Fotos sind zugeklappt ein Inhaltsverzeichnis der

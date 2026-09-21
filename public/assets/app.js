@@ -190,16 +190,36 @@
   var TAG_SPEICHER = 'pilger-tage';
   var tagbloecke = document.querySelectorAll('details.tagblock');
 
-  if (tagbloecke.length) {
-    var gemerkteTage = {};
-    try {
-      var rohTage = localStorage.getItem(TAG_SPEICHER);
-      var geparst = rohTage ? JSON.parse(rohTage) : null;
-      if (geparst && typeof geparst === 'object' && !Array.isArray(geparst)) {
-        gemerkteTage = geparst;
-      }
-    } catch (e) { gemerkteTage = {}; }
+  var gemerkteTage = {};
+  try {
+    var rohTage = localStorage.getItem(TAG_SPEICHER);
+    var geparst = rohTage ? JSON.parse(rohTage) : null;
+    if (geparst && typeof geparst === 'object' && !Array.isArray(geparst)) {
+      gemerkteTage = geparst;
+    }
+  } catch (e) { gemerkteTage = {}; }
 
+  function merkeTage() {
+    try { localStorage.setItem(TAG_SPEICHER, JSON.stringify(gemerkteTage)); } catch (e) { /* dann eben nicht */ }
+  }
+
+  /* Ein frisch hochgeladener Eintrag darf nicht hinter einer zugeklappten
+     Ueberschrift verschwinden. Das Tagebuch meldet den Tag, hier wird er
+     aufgeschrieben — die Seite laedt gleich danach neu.
+
+     Bewusst ausserhalb der Pruefung auf vorhandene Tagbloecke: beim allerersten
+     Eintrag gibt es noch keinen einzigen, und genau dann wird der Zuhoerer
+     gebraucht. */
+  document.addEventListener('tag-aufklappen', function (e) {
+    var tag = e.detail && e.detail.tag;
+    if (!tag) return;
+    gemerkteTage[tag] = true;
+    merkeTage();
+    var block = document.querySelector('details.tagblock[data-tag="' + tag + '"]');
+    if (block) block.open = true;
+  });
+
+  if (tagbloecke.length) {
     tagbloecke.forEach(function (t) {
       var schluessel = t.dataset.tag;
       if (Object.prototype.hasOwnProperty.call(gemerkteTage, schluessel)) {
@@ -207,7 +227,7 @@
       }
       t.addEventListener('toggle', function () {
         gemerkteTage[schluessel] = t.open;
-        try { localStorage.setItem(TAG_SPEICHER, JSON.stringify(gemerkteTage)); } catch (e) { /* dann eben nicht */ }
+        merkeTage();
       });
     });
   }

@@ -625,6 +625,12 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
             </optgroup>
           <?php endif; ?>
         </select>
+        <?php /* Der Eintrag bekommt nicht immer das Datum der Etappe: das
+                 Basislager Porto deckt zwei Tage ab, und wer abends eine
+                 abgehakte Etappe waehlt, meint den Tag davor. Was dabei
+                 herauskommt, gehoert hingeschrieben — sonst sucht man den
+                 Eintrag spaeter unter dem falschen Tag. */ ?>
+        <p class="tb-tagziel" id="tbTagZiel" hidden></p>
       </div>
 
       <div class="tb-werkzeug">

@@ -535,6 +535,8 @@ footer a{color:var(--flecha)}
 .tb-mini.veredeln{border-color:var(--flecha);color:var(--granite);font-weight:600}
 /* Das Dateifeld ist ein <label> — ohne das hier steht es neben den Knoepfen
    wie ein Fremdkoerper. */
+.tb-tagziel{font-family:"Spline Sans Mono",monospace;font-size:11px;color:var(--stone);margin-top:6px}
+.tb-tagziel b{color:var(--granite);font-weight:600}
 .tb-mini.datei{display:inline-block;line-height:normal}
 /* Der Tag entscheidet, welche Zahlen der Uhr beim Ausbau mitkommen — das Feld
    steht deshalb bei den Knoepfen und nicht versteckt in einem Untermenue. */
