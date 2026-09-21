@@ -155,6 +155,11 @@ try {
             }
             json_out(['ok' => true, 'eintrag' => $tagebuch->eintrag($id)]);
 
+        case 'route.gpx.loeschen':
+            // Zurueck zu den Stuetzpunkten von Hand.
+            $db->run("DELETE FROM map_routes WHERE quelle = 'gpx'");
+            json_out(['ok' => true]);
+
         case 'tagebuch.tag':
             if ($id <= 0) {
                 json_out(['ok' => false, 'error' => 'Ungültige ID.'], 400);

@@ -12,6 +12,16 @@ declare(strict_types=1);
  * markierten Weges. Für die Übersichtskarte reicht das; wer navigieren will,
  * nimmt eine Wander-App.
  *
+ * Zwischen zwei Stützpunkten liegt eine Gerade — je weiter sie auseinander
+ * liegen, desto mehr schneidet die Linie ab. Am schlimmsten war das im
+ * galicischen Binnenland: Pontevedra → Caldas de Reis waren 19 km am Stück,
+ * Padrón → Santiago 18 km. Dort stehen jetzt Barro, Valga, Pontecesures und
+ * O Milladoiro dazwischen — nachgeschlagene Orte, keine geratenen Punkte.
+ *
+ * Der eigentliche Ausweg ist der GPX-Import auf der Kartenseite: eine echte
+ * Aufzeichnung ersetzt diese Liste vollständig. Solange keine hochgeladen ist,
+ * gilt das hier.
+ *
  * @return array<int,array{0:float,1:float}>
  */
 function kuesten_route_punkte(): array
@@ -45,8 +55,12 @@ function kuesten_route_punkte(): array
         [42.2836, -8.6094],  // Redondela
         [42.3450, -8.6350],  // Arcade
         [42.4310, -8.6444],  // Pontevedra — ab hier landeinwärts
+        [42.5250, -8.6472],  // Barro / A Portela
         [42.6050, -8.6417],  // Caldas de Reis
+        [42.7000, -8.6330],  // Valga
+        [42.7167, -8.6500],  // Pontecesures
         [42.7369, -8.6600],  // Padrón
+        [42.8428, -8.5792],  // O Milladoiro
         [42.8805, -8.5456],  // Santiago de Compostela
     ];
 }

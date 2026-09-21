@@ -168,6 +168,18 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/024_kuestenvariante_vigo.php';
             migration_024($db);
         });
+
+        // Mehr Stuetzpunkte, damit die Linie weniger abschneidet.
+        $apply('025_route_stuetzpunkte', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/025_route_stuetzpunkte.php';
+            migration_025($db);
+        });
+
+        // Platz fuer einen echten Track aus einer GPX-Datei.
+        $apply('026_gpx_route', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/026_gpx_route.php';
+            migration_026($db);
+        });
     }
 
     /** @return array<int,string> */
@@ -259,7 +271,8 @@ final class Schema
                 color $str NOT NULL,
                 weight INT NOT NULL DEFAULT 3,
                 dashed INT NOT NULL DEFAULT 0,
-                points $txt NOT NULL
+                points $txt NOT NULL,
+                quelle $str NOT NULL DEFAULT 'plan'
             )$tail",
 
             "CREATE TABLE IF NOT EXISTS equipment_cards (

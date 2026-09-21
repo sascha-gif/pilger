@@ -21,7 +21,7 @@ genau einmal.
 | `nutrition_slots` | 6 | Tagesprotokoll 12:00 bis 21:30 |
 | `travel_cards` | 3 | Hinflug, Orga-Tag, Rückflug |
 | `stages` | 13 | Porto + 12 Etappen, inklusive Koordinaten für die Karte |
-| `map_routes` | 1 | Senda Litoral als eigene Linie |
+| `map_routes` | 1–2 | Linien auf der Karte. `quelle = 'plan'` sind die Stützpunkte aus `db/kuestenroute.php`, `quelle = 'gpx'` ist eine hochgeladene Aufzeichnung — liegt eine vor, zeigt die Karte nur noch sie |
 | `equipment_cards` / `equipment_items` | 4 / 13 | Abschnitt 05 |
 | `pack_categories` / `pack_items` | 12 / 52 | Packliste |
 | `cost_items` | 20 | Kostentabelle |

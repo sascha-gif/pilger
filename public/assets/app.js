@@ -112,6 +112,69 @@
     oeffneZiel(location.hash);
   }
 
+  /* ---------- GPX hochladen ---------------------------------------------- */
+  /* Die Linie auf der Karte ist eine Kette aus Geraden zwischen
+     nachgeschlagenen Orten. Eine echte Aufzeichnung macht daraus den Weg, wie
+     er wirklich laeuft — und die kann nur von aussen kommen. Der Server
+     duennt sie beim Annehmen aus, hier muss nichts vorbereitet werden. */
+  var gpxDatei = document.getElementById('gpxDatei');
+  var gpxMeldung = document.getElementById('gpxMeldung');
+
+  function sagGpx(text, art) {
+    if (!gpxMeldung) return;
+    gpxMeldung.textContent = text || '';
+    gpxMeldung.className = 'gpxmeldung' + (art ? ' ' + art : '');
+  }
+
+  if (gpxDatei) {
+    gpxDatei.addEventListener('change', function () {
+      var datei = (gpxDatei.files || [])[0];
+      gpxDatei.value = '';
+      if (!datei) return;
+
+      sagGpx('„' + datei.name + '" wird gelesen …');
+      var fd = new FormData();
+      fd.append('art', 'gpx');
+      fd.append('datei', datei, datei.name);
+
+      fetch('upload.php', { method: 'POST', body: fd })
+        .then(function (r) {
+          return r.text().then(function (text) {
+            var d = null;
+            try { d = JSON.parse(text); } catch (e) { /* kein JSON */ }
+            if (r.ok && d && d.ok) return d;
+            var grund = (d && d.error) ? d.error
+              : (text ? text.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 120)
+                      : 'leere Antwort');
+            throw new Error('HTTP ' + r.status + ' — ' + grund);
+          });
+        })
+        .then(function (d) {
+          sagGpx(d.roh.toLocaleString('de-DE') + ' Punkte gelesen, auf '
+            + d.punkte.toLocaleString('de-DE') + ' eingedampft · '
+            + String(d.km).replace('.', ',') + ' km. Die Seite lädt gleich neu.', 'ok');
+          setTimeout(function () { location.reload(); }, 1600);
+        })
+        .catch(function (err) {
+          sagGpx(err instanceof TypeError ? 'Keine Verbindung.' : err.message, 'fehler');
+        });
+    });
+  }
+
+  var gpxWeg = document.getElementById('gpxWeg');
+  if (gpxWeg) {
+    gpxWeg.addEventListener('click', function () {
+      if (!confirm('Den hochgeladenen Track entfernen? Die Karte zeigt danach wieder die Stützpunkte.')) return;
+      gpxWeg.disabled = true;
+      send({ action: 'route.gpx.loeschen' })
+        .then(function () {
+          sagGpx('Entfernt. Die Seite lädt gleich neu.', 'ok');
+          setTimeout(function () { location.reload(); }, 1000);
+        })
+        .catch(function () { gpxWeg.disabled = false; });
+    });
+  }
+
   /* ---------- Tage im Tagebuch auf- und zuklappen ------------------------- */
   /* Nach zwoelf Etappen ist der Zeitstrahl sonst eine einzige Bildschirmlaenge.
      Offen ist der neueste Tag — den sucht man, wenn man die Seite aufmacht.

@@ -277,6 +277,38 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
         Von Porto bis Caminha die Senda Litoral am Atlantik, über den Minho nach Spanien, dann die
         galicische Küste bis Vigo. Ab Pontevedra geht es landeinwärts nach Santiago.
       </p>
+
+      <?php if (!$locked): ?>
+        <?php $hatGpx = $repo->hatGpxRoute(); ?>
+        <?php /* Die Linie oben ist eine Kette aus Geraden zwischen nachgeschlagenen
+                 Orten. Eine echte Aufzeichnung macht daraus den Weg, wie er wirklich
+                 laeuft — und die kann nur von aussen kommen. */ ?>
+        <details class="gpxbox">
+          <summary><?= $hatGpx ? 'Weg kommt aus einer GPX-Datei' : 'Weg genauer machen — GPX hochladen' ?></summary>
+          <div class="gpxinhalt">
+            <?php if ($hatGpx): ?>
+              <p>Die Karte zeichnet gerade einen <b>hochgeladenen Track</b>. Eine neue Datei
+                 ersetzt ihn.</p>
+            <?php else: ?>
+              <p>Die Linie auf der Karte sind <b>35 Stützpunkte</b> mit Geraden dazwischen —
+                 nah dran, aber nicht der markierte Weg. Lade eine <b>GPX-Datei</b> hoch
+                 (Gronze, Wikiloc, deine Wander-App, eine eigene Aufzeichnung), dann zeichnet
+                 die Karte den echten Verlauf. Sie wird beim Annehmen ausgedünnt, große
+                 Dateien sind also kein Problem.</p>
+            <?php endif; ?>
+            <div class="gpxreihe">
+              <label class="tb-mini datei">
+                GPX auswählen
+                <input type="file" id="gpxDatei" accept=".gpx,application/gpx+xml,application/xml,text/xml" hidden>
+              </label>
+              <?php if ($hatGpx): ?>
+                <button type="button" class="tb-mini" id="gpxWeg">Track entfernen</button>
+              <?php endif; ?>
+              <span class="gpxmeldung" id="gpxMeldung"></span>
+            </div>
+          </div>
+        </details>
+      <?php endif; ?>
     </div>
 
     <div class="weg reveal">

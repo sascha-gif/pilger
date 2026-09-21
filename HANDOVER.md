@@ -477,6 +477,62 @@ Etappe ist nur noch der Rückfall:
 Überall `?:` statt `??`: ein leeres Feld ist hier kein Wert, und `'' ?? $x` gibt
 den leeren String zurück.
 
+## Wie genau die Linie auf der Karte ist
+
+Die Linie kommt aus `db/kuestenroute.php`: **35 Stützpunkte** über 266 km, mit
+einer Geraden dazwischen. Je weiter zwei Punkte auseinanderliegen, desto mehr
+schneidet sie ab. Am 21.09.2026 gemessen waren die schlimmsten Lücken
+Pontevedra → Caldas de Reis mit **19,3 km**, Padrón → Santiago mit 18,5 km und
+Caldas → Padrón mit 14,7 km — im galicischen Binnenland sah die Route aus wie
+mit dem Lineal gezogen.
+
+Dort stehen jetzt **Barro/A Portela, Valga, Pontecesures und O Milladoiro**
+dazwischen. Die größte Lücke sinkt damit auf 13,5 km. Alle vier sind
+nachgeschlagene Orte am Weg, keine geratenen Zwischenpunkte.
+
+**Weiter kommt man von hier aus nicht.** Die Quellen mit dem echten Track sind
+aus dieser Umgebung gesperrt (403 vom Egress-Proxy): Overpass/OpenStreetMap,
+waymarkedtrails, gronze.com, caminodesantiago.gal, santiagoways.com, dazu jeder
+offene Geocoder (Nominatim, Photon, Geoapify). Für die restlichen Zwischenorte
+— Saiáns, Bouzas, Chapela, Cesantes, Viladesuso — war über die Websuche keine
+belegte Koordinate zu bekommen. Geraten wird hier nichts; wer das nachholen
+will, braucht einen erreichbaren Geocoder oder eine GPX-Datei.
+
+## GPX-Import — der Weg, wie er wirklich läuft
+
+Unter der Karte steht (nur angemeldet, zugeklappt) **„Weg genauer machen — GPX
+hochladen"**. Eine echte Aufzeichnung ersetzt die Stützpunkte vollständig.
+
+Der Ablauf: `upload.php` mit `art=gpx` → `Route::ausGpx()` liest die Punkte →
+`Route::eindampfen()` dünnt sie aus → eine Zeile in `map_routes` mit
+`quelle = 'gpx'`.
+
+Ein paar Entscheidungen, die nicht offensichtlich sind:
+
+- **Ausdünnen ist keine Kür.** Eine GPX-Datei über 266 km hat schnell
+  hunderttausend Punkte. Douglas-Peucker mit 10 m Toleranz wirft alles weg, was
+  die Form nicht ändert; reicht das nicht, verdoppelt sich die Toleranz, bis
+  höchstens 3000 Punkte übrig sind. Gemessen an einer 3,4-MB-Testdatei:
+  60.001 Punkte → 234 Punkte, 5 KB JSON, 0,7 Sekunden.
+- **Iterativ statt rekursiv.** Douglas-Peucker rekursiv zu schreiben ist
+  kürzer, legt aber bei hunderttausend Punkten den Stack um — und die Datei
+  kommt von außen.
+- **Getrennte Zeile statt Überschreiben.** `quelle` unterscheidet `plan` von
+  `gpx`. So darf `025_route_stuetzpunkte` die Planlinie weiter neu einspielen,
+  ohne einen hochgeladenen Track zu zerstören. `Repo::mapRoutes()` zeigt den
+  Track allein, sobald einer da ist — eine Näherung daneben zu zeichnen hilft
+  niemandem.
+- **Keine Entities beim Parsen.** `loadXML()` bekommt `LIBXML_NONET` und
+  ausdrücklich **nicht** `LIBXML_NOENT`. Eine hochgeladene Datei darf den
+  Server nicht dazu bringen, `/etc/passwd` zu lesen. Mit einem XXE-Versuch
+  geprüft: die Punkte kommen an, die Entity wird nicht aufgelöst.
+- **GPX 1.0 und 1.1, mit und ohne Präfix.** Gelesen wird mit
+  `getElementsByTagNameNS('*', …)`, der Namensraum ist also egal. Fehlen
+  `trkpt`, werden `rtept` und `wpt` probiert.
+
+Mit „Track entfernen" (`route.gpx.loeschen`) geht es zurück auf die
+Stützpunkte.
+
 ## Die Karte zeigt, wo er steht
 
 Bis zum 20.09.2026 hatte die Karte genau zwei Sorten Punkte: `map_hub = 1`

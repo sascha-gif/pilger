@@ -176,13 +176,30 @@ final class Repo
         );
     }
 
+    /**
+     * Linien für die Karte.
+     *
+     * Liegt ein hochgeladener Track vor (`quelle = 'gpx'`), zeigt die Karte
+     * nur noch den. Die von Hand gesetzten Stützpunkte sind eine Näherung —
+     * sie daneben zu zeichnen hilft niemandem und verwirrt nur.
+     */
     public function mapRoutes(): array
     {
         $rows = $this->db->all('SELECT * FROM map_routes ORDER BY seq');
+        $gpx  = array_values(array_filter($rows, static fn ($r) => ($r['quelle'] ?? 'plan') === 'gpx'));
+        if ($gpx) {
+            $rows = $gpx;
+        }
         foreach ($rows as &$r) {
             $r['points'] = json_decode((string) $r['points'], true) ?: [];
         }
         return $rows;
+    }
+
+    /** Ist eine GPX-Aufzeichnung hinterlegt? */
+    public function hatGpxRoute(): bool
+    {
+        return (int) $this->db->value("SELECT COUNT(*) FROM map_routes WHERE quelle = 'gpx'") > 0;
     }
 
     /** Equipment-Karten samt Stichpunkten. */

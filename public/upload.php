@@ -69,6 +69,37 @@ try {
         json_out(['ok' => true, 'art' => 'foto', 'foto' => $foto]);
     }
 
+    if ($art === 'gpx') {
+        /* Eine echte Aufzeichnung statt der Stuetzpunkte von Hand. Sie wird
+           beim Annehmen ausgeduennt — eine GPX-Datei ueber 266 km hat schnell
+           hunderttausend Punkte, und die will niemand durchs Mobilnetz laden. */
+        $xml = @file_get_contents($datei['tmp_name']);
+        if ($xml === false) {
+            throw new RuntimeException('Die Datei konnte nicht gelesen werden.');
+        }
+
+        $roh = Route::ausGpx($xml);
+        [$linie, $toleranz] = Route::eindampfen($roh);
+
+        $db->transaction(static function (Database $db) use ($linie): void {
+            $db->run("DELETE FROM map_routes WHERE quelle = 'gpx'");
+            $db->run(
+                'INSERT INTO map_routes (seq, name, color, weight, dashed, points, quelle)
+                 VALUES (?,?,?,?,?,?,?)',
+                [1, 'Der Weg (GPX)', '#f4b400', 4, 0, json_encode($linie), 'gpx']
+            );
+        });
+
+        json_out([
+            'ok'       => true,
+            'art'      => 'gpx',
+            'roh'      => count($roh),
+            'punkte'   => count($linie),
+            'km'       => Route::laengeKm($linie),
+            'toleranz' => $toleranz,
+        ]);
+    }
+
     json_out(['ok' => false, 'error' => 'Unbekannte Art: ' . $art], 400);
 } catch (Throwable $e) {
     error_log('pilger: Upload fehlgeschlagen — ' . $e->getMessage());

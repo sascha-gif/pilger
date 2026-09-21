@@ -210,6 +210,23 @@ Tag entscheidet, welche Zahlen der Uhr beim Ausbau mitkommen — eine Notiz, die
 morgens über gestern gesprochen wird, gehört auf gestern. Das Datum muss als
 `JJJJ-MM-TT` kommen, sonst **422**.
 
+### `upload.php` mit `art=gpx` — den echten Wegverlauf hinterlegen
+
+Dieselbe `multipart/form-data`-Form wie bei Fotos, nur `art=gpx`. Die Datei
+wird gelesen (`trkpt`, ersatzweise `rtept`/`wpt`, Namensraum egal), mit
+Douglas-Peucker auf höchstens 3000 Punkte ausgedünnt und als Zeile in
+`map_routes` mit `quelle = 'gpx'` abgelegt. Eine vorhandene GPX-Zeile wird
+ersetzt, die Planlinie bleibt unangetastet.
+
+Antwort: `{"ok":true,"art":"gpx","roh":60001,"punkte":234,"km":244.9,"toleranz":10}`
+— gelesene Punkte, gespeicherte Punkte, Länge und die benutzte Toleranz in
+Metern.
+
+### `route.gpx.loeschen` — zurück zu den Stützpunkten
+
+`{"action":"route.gpx.loeschen"}`. Entfernt die GPX-Zeile; die Karte zeigt
+danach wieder die Linie aus `db/kuestenroute.php`.
+
 ### `media.php` — Auslieferung
 
 `GET media.php?art=foto|klein|audio&id=…`. Ohne Anmeldung **403**. Die Dateien

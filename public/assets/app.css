@@ -157,6 +157,21 @@ section:has(> .wrap > details.block:not([open])){padding:26px 0}
 .maplegend i.dot{width:12px;height:12px;border-radius:50%}
 @media (max-width:560px){#map{height:380px}}
 
+/* GPX-Import unter der Karte. Zugeklappt eine Zeile — die Karte ist zum
+   Ansehen da, nicht zum Hochladen. */
+.gpxbox{margin-top:10px;border-top:1px solid var(--line);padding-top:10px}
+.gpxbox > summary{list-style:none;cursor:pointer;font-family:"Spline Sans Mono",monospace;
+                  font-size:11px;color:var(--atlantic);-webkit-tap-highlight-color:transparent}
+.gpxbox > summary::-webkit-details-marker{display:none}
+.gpxbox > summary::before{content:"+ ";font-weight:600}
+.gpxbox[open] > summary::before{content:"– "}
+.gpxinhalt{padding-top:10px;font-size:13.5px;max-width:46rem}
+.gpxinhalt p{margin-bottom:10px}
+.gpxreihe{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.gpxmeldung{font-family:"Spline Sans Mono",monospace;font-size:11.5px;color:var(--stone)}
+.gpxmeldung.fehler{color:#a4341f}
+.gpxmeldung.ok{color:var(--ok)}
+
 .pl-note{background:var(--paper-2);border:1px solid var(--line);border-left:3px solid var(--flecha);padding:16px 18px;margin-bottom:22px;font-size:14.5px}
 .pl-note b{font-weight:600}
 .pack{display:flex;flex-direction:column;gap:16px}
