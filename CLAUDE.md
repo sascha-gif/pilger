@@ -111,7 +111,14 @@ danach läuft sie mit der Costa zusammen.
   Namen. **Partnerangebot:** der Buchungsvertrag besteht mit LINKALL HONGKONG
   LIMITED, **Änderungen sind nicht möglich**; bei Problemen ist der
   Booking.com-Kundenservice zuständig, nicht der Empfang.
-- **Offen:** 9 Etappenorte. Booking-Links im HTML, nach Preis sortiert.
+- **Gebucht:** Caminha (E4), Residencial Galo d'Ouro, Einzelzimmer, 22.–23.09.,
+  56,50 € (51,89 Zimmer + 3,11 MwSt + 1,50 Übernachtungssteuer). Rua da
+  Corredoura 15, 4910-133, Tel. +351 258 921 160 — 76 m vom Ortszentrum, eine
+  Minute von der Torre do Relógio, kein Umweg. **Check-in nur 15:30–18:30,
+  Check-out 08:30–11:30** (wichtig für die Fähre am nächsten Morgen).
+  Nicht stornierbar, keine Änderungen, Vorauszahlung kann jederzeit fällig
+  werden, kein Frühstück.
+- **Offen:** 8 Etappenorte. Booking-Links im HTML, nach Preis sortiert.
   Kritisch früh buchen: **Oia** (dünnes Angebot) und **Santiago** (hohe Nachfrage).
 - Budget-Ausrichtung: Pension/Hostal statt Hotel, ca. 50–110 €/Nacht
 - **Nur Unterkünfte mit eigenem Zimmer** — kein Bett im Schlafsaal. Steht in
@@ -130,11 +137,11 @@ Unterkünfte ~70 €/Nacht × 12 ≈ 840 € · Verpflegung ~25–35 €/Tag ·
 Gesamtbudget realistisch **1.400–1.900 €**.
 Bereits fix: Hinflug 258,00 € · Rückflug 235,00 € · Porto 186,83 € ·
 Vila do Conde 78,00 € · Esposende 74,00 € · Viana do Castelo 65,00 € ·
-Credencial 2,00 €.
+Caminha 56,50 € · Credencial 2,00 €.
 Gekauft: Wandersocken FALKE TK2 2× 57,26 € · Wandershorts maamgic 2× 55,98 € ·
 Reiseapotheke & Hygiene 20,54 € (Compeed, Dr. Bronner's, Zahncreme, Deo) ·
 Papiertüten 5,49 € (Tagesportionen Medikamente) · USB-C-Ladegerät 9,99 €.
-Erfasst damit 1.048,09 €.
+Erfasst damit 1.104,59 €.
 
 ## Equipment-Kernpunkte
 
@@ -208,9 +215,10 @@ darauf auf, nicht auf der ausgebauten Fassung.
 ## Offene Punkte
 
 - **Passwort auf der Seite setzen** — beim nächsten Aufruf
-- 9 Unterkünfte buchen (Oia und Santiago zuerst) — Vila do Conde, Esposende
-  und Viana do Castelo sind durch
-- Fährfahrplan Caminha → A Guarda/Spanien prüfen
+- 8 Unterkünfte buchen (Oia und Santiago zuerst) — E1 bis E4 sind durch
+- **Fährfahrplan Caminha → A Guarda/Spanien prüfen** — am Vorabend des 22.09.
+  Der Check-out in Caminha beginnt erst um 8:30; eine frühe Fähre passt da
+  nicht dazu.
 - **Rückflug-Gepäck klären.** Im Tarif steckt nur ein persönliches Gepäckstück
   40 × 30 × 20 cm — da passt der Rucksack nicht hinein. Kabinengepäck
   (55 × 40 × 20 cm, 10 kg) oder Aufgabegepäck bei **Vueling und TUI fly

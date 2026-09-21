@@ -180,6 +180,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/026_gpx_route.php';
             migration_026($db);
         });
+
+        // Caminha gebucht.
+        $apply('027_caminha', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/027_caminha.php';
+            migration_027($db);
+        });
     }
 
     /** @return array<int,string> */

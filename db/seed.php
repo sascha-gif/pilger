@@ -206,11 +206,27 @@ function seed_database(Database $db): void
                 'seq' => 4, 'code' => 'E4 · 22.09.', 'date_label' => '22.09.2026',
                 'title' => 'Viana do Castelo → Caminha', 'title_suffix' => null,
                 'dist' => '26 km',
-                'target' => '<b>Budget-Ziel:</b> Pension am Hauptplatz · <b>eigenes Zimmer</b> · ca. 60–85 €',
-                'note' => 'Vor der Fähre nach Spanien — Bootsfahrplan vorab checken.',
+                'target' => '<b style="color:#2e7d32">Gebucht:</b> Residencial Galo d\'Ouro · Einzelzimmer · '
+                    . '<b>56,50 €</b> (51,89 Zimmer + 3,11 MwSt + 1,50 Übernachtungssteuer)',
+                'note' => '<b>Check-in nur 15:30–18:30</b> — drei Stunden Fenster nach 26 km. Wer gegen 8 Uhr '
+                    . 'aus Viana losgeht, passt hinein; deutlich früher steht man vielleicht vor '
+                    . 'verschlossener Tür, später besser vorher anrufen. <b>Check-out 08:30–11:30.</b><br>'
+                    . '<b>Weg dorthin:</b> Der Küstenweg kommt von Süden über Moledo. Die Pension liegt '
+                    . '<b>76 m vom Ortszentrum</b>, eine Minute von der <b>Torre do Relógio</b>, an der '
+                    . 'Hauptachse der Praça Central neben der Casa dos Pitas — Blick auf den Platz, auf '
+                    . 'den Monte de Santa Tecla drüben in Spanien und auf die Mündung des Minho. '
+                    . 'Kein Umweg. <b>Rua da Corredoura 15, 4910-133</b>. '
+                    . '<a href="https://www.google.com/maps/search/?api=1&amp;query='
+                    . 'Residencial%20Galo%20d%27Ouro%2C%20Caminha" '
+                    . 'target="_blank" rel="noopener">Karte</a> · '
+                    . '<a href="tel:+351258921160">+351 258 921 160</a><br>'
+                    . '<small><b>Nicht stornierbar, Daten nicht änderbar</b>, und eine Vorauszahlung des '
+                    . 'Gesamtpreises kann jederzeit fällig werden. Frühstück ist nicht dabei. '
+                    . '<b>Am nächsten Morgen die Fähre über den Minho</b> — Abfahrtszeiten am Vorabend '
+                    . 'prüfen: vor 8:30 kommst du hier nicht raus.</small>',
                 'alt_note' => null,
-                'booking_url' => sprintf($bk, 'Caminha%2C%20Portugal', '2026-09-22', '2026-09-23'),
-                'booking_label' => 'Booking Caminha',
+                'booking_url' => null,
+                'booking_label' => null,
                 'km_big' => '171', 'km_sub' => 'noch bis SCQ', 'variant' => 'normal',
                 'lat' => 41.873208, 'lng' => -8.837845,
                 'map_eyebrow' => 'Etappe 4 · 22.09.', 'map_meta' => '26 km · noch 171 km · Fähre nach ESP',
@@ -501,7 +517,7 @@ function seed_database(Database $db): void
             ['Vila do Conde (E1)', 'Residencial Princesa do Ave · Einzelzimmer · Buchungsnr. 5656009787', 78.00, 'ok', 'gebucht'],
             ['Esposende (E2)', 'Hello Esposende · Buchungsnr. 5557270875', 74.00, 'ok', 'gebucht'],
             ['Viana do Castelo (E3)', 'B&B HOTEL Viana do Castelo · Doppelzimmer', 65.00, 'ok', 'gebucht'],
-            ['Caminha (E4)', '~ Pension', null, 'open', 'offen'],
+            ['Caminha (E4)', 'Residencial Galo d\'Ouro · Einzelzimmer · inkl. 3,11 € MwSt und 1,50 € Übernachtungssteuer', 56.50, 'ok', 'gebucht'],
             ['Oia (E5)', '~ dünnes Angebot', null, 'open', 'offen'],
             ['Baiona (E6)', '~ Hostal', null, 'open', 'offen'],
             ['Vigo (E7)', '~ Stadthotel', null, 'open', 'offen'],
