@@ -445,6 +445,46 @@ Blick auf die fertige Datei nicht mehr — `wahlQuellen` merkt sich Name, Größ
 und Zeitstempel der **Originale**, Index für Index parallel zu
 `gewaehlteFotos`. Wer beides anfasst, muss beides anfassen.
 
+## Fotos kommen nicht an, Sprachnotizen schon — der zweite Weg
+
+Stand 22.09.2026: Auf dem Server scheitern **Fotos** seit Tagen mit
+`upload HTTP 400 — Es kam keine Datei an. [IMG_1130.jpg, 0,9 MB]`, bei bis zu
+76 Versuchen je Paket. **Sprachnotizen gehen über denselben Endpunkt durch** —
+in jedem Paket „Sprachnotiz + N Fotos" nennt der Fehler ein Foto, nie die
+Aufnahme. Und 0,7 bis 1,3 MB sind weit unter jeder Grenze; an der Größe liegt
+es nicht.
+
+Damit ist ausgeschlossen: Anmeldung (die wäre 403), Größe (0,9 MB gegen 64 MB),
+`post_max_size` (die Prüfung in `upload.php` hätte die Zahlen genannt) und der
+Weg an sich (Audio geht ja).
+
+**Zwei Dinge dagegen:**
+
+1. **Die Diagnose.** Scheitert die Dateiprüfung, hängt `upload.php` jetzt an,
+   was der Server über sich selbst sieht: `CONTENT_LENGTH`, `CONTENT_TYPE`, die
+   Feldnamen in `$_POST` und `$_FILES`, den `UPLOAD_ERR_*`-Code und die
+   Einstellungen `post_max_size`, `upload_max_filesize`, `file_uploads`,
+   `max_file_uploads` sowie das Temp-Verzeichnis samt Schreibrecht. Steht alles
+   in der Warteschlangen-Meldung. Damit ist die nächste Runde keine Raterei
+   mehr: `files_felder=` leer bei gefülltem `post_felder` heißt, PHP hat den
+   Rumpf zerlegt und den Dateiteil verworfen; beides leer heißt, der Rumpf kam
+   nie an.
+2. **Ein zweiter Weg, der nachweislich funktioniert.** Texteinträge kommen als
+   JSON an — also kommt ein Bild als Base64 im JSON auch an. Scheitert ein Foto
+   mit genau „Es kam keine Datei an", schickt `schickePaket()` denselben Inhalt
+   noch einmal an `api.php` mit `action: 'foto.daten'`. Der Endpunkt legt die
+   Bytes in eine Temp-Datei und gibt sie an dasselbe `Tagebuch::nimmFoto()` —
+   Ergebnis identisch: geprüft 1600 × 1066, Vorschaubild da, gleiche Bytezahl
+   wie über den normalen Weg.
+
+Base64 bläht die Daten um ein Drittel auf. Deshalb ist das der **Rückfall** und
+nicht der Normalweg: erst multipart, und nur bei genau dieser Meldung JSON.
+Steht die Ursache fest, kann der Rückfall bleiben — er kostet nichts, solange
+er nicht gebraucht wird.
+
+Geprüft mit abgefangenem `upload.php`, das genau Saschas 400er zurückgibt: das
+Bild landet trotzdem im Tagebuch, die Warteschlange ist danach leer.
+
 ## „Es kam keine Datei an." — und was dahintersteckt
 
 Am 18.09. hingen zwei Fotopakete (15 und 10 Bilder) mit genau dieser Meldung.

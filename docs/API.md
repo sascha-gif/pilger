@@ -222,6 +222,14 @@ Antwort: `{"ok":true,"art":"gpx","roh":60001,"punkte":234,"km":244.9,"toleranz":
 — gelesene Punkte, gespeicherte Punkte, Länge und die benutzte Toleranz in
 Metern.
 
+### `foto.daten` — ein Foto als JSON statt als Datei
+
+`{"action":"foto.daten","stage":4,"entry":12,"client_id":"…","name":"IMG_1130.jpg","daten":"data:image/jpeg;base64,…"}`
+— das `data:`-Präfix darf dabei sein. Der **Rückfall**, wenn `upload.php` die
+Datei nicht annimmt: die Bytes gehen in eine Temp-Datei und von dort an
+dasselbe `Tagebuch::nimmFoto()` wie beim normalen Weg. Base64 kostet ein
+Drittel mehr Daten, deshalb wird er nur bei „Es kam keine Datei an" benutzt.
+
 ### `route.gpx.loeschen` — zurück zu den Stützpunkten
 
 `{"action":"route.gpx.loeschen"}`. Entfernt die GPX-Zeile; die Karte zeigt
