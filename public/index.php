@@ -985,18 +985,48 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
     <span><?= h($s['footer_left'] ?? '') ?></span>
     <span><?= h($s['footer_right'] ?? '') ?></span>
     <?php
-      // Welcher Stand läuft gerade? Ohne diese Zeile ist „ist es schon
-      // deployt?" eine Frage, die niemand von außen beantworten kann.
-      $commit = getenv('PILGER_COMMIT') ?: null;
-      $gebaut = getenv('PILGER_BUILD_TIME') ?: null;
+      /* Welcher Stand läuft gerade? Ohne diese Zeile ist „ist es schon
+         deployt?" eine Frage, die niemand von außen beantworten kann.
+
+         Der Commit kommt als Build-Argument ins Image. Kommt er dort nicht an
+         — und am 22.09.2026 stand im Fuß „unbekannt" —, ist genau die Frage
+         wieder offen. Deshalb steht daneben, **wann die Dateien zuletzt
+         angefasst wurden**: das kommt ohne Build-Argument aus und sagt
+         dasselbe. `git reset --hard` schreibt geänderte Dateien mit der
+         aktuellen Zeit, der Deploy ist damit am Zeitstempel ablesbar. */
+      $umgebung = static function (string $name): ?string {
+          foreach ([getenv($name), $_SERVER[$name] ?? null, $_ENV[$name] ?? null] as $wert) {
+              if (is_string($wert) && $wert !== '' && $wert !== 'unbekannt') {
+                  return $wert;
+              }
+          }
+          if (function_exists('apache_getenv')) {
+              $wert = @apache_getenv($name);
+              if (is_string($wert) && $wert !== '' && $wert !== 'unbekannt') {
+                  return $wert;
+              }
+          }
+          return null;
+      };
+      $commit = $umgebung('PILGER_COMMIT');
+      $gebaut = $umgebung('PILGER_BUILD_TIME');
+
+      // Die jüngste Datei der App. Fast jeder Deploy fasst eine davon an.
+      $stempel = 0;
+      foreach ([__FILE__, __DIR__ . '/assets/app.js', __DIR__ . '/assets/tagebuch.js',
+                __DIR__ . '/assets/app.css', APP_ROOT . '/src/Tagebuch.php'] as $datei) {
+          $stempel = max($stempel, (int) @filemtime($datei));
+      }
     ?>
-    <?php if ($commit): ?>
-      <span class="stand">
+    <span class="stand">
+      <?php if ($commit): ?>
         Stand <a href="https://github.com/sascha-gif/pilger/commit/<?= h($commit) ?>"
                  target="_blank" rel="noopener"><?= h($commit) ?></a><?php
-        if ($gebaut): ?> · gebaut <?= h(date('d.m. H:i', strtotime($gebaut))) ?><?php endif; ?>
-      </span>
-    <?php endif; ?>
+        if ($gebaut): ?> · gebaut <?= h(date('d.m. H:i', strtotime($gebaut))) ?><?php endif;
+      else: ?>
+        Stand unbekannt<?php
+      endif; ?><?php if ($stempel): ?> · Dateien vom <?= h(date('d.m. H:i', $stempel)) ?><?php endif; ?>
+    </span>
   </div>
 </footer>
 

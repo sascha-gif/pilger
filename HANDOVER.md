@@ -445,6 +445,29 @@ Blick auf die fertige Datei nicht mehr — `wahlQuellen` merkt sich Name, Größ
 und Zeitstempel der **Originale**, Index für Index parallel zu
 `gewaehlteFotos`. Wer beides anfasst, muss beides anfassen.
 
+## „Stand unbekannt" im Seitenfuß
+
+Der Commit kommt als Build-Argument ins Image: `ops/pilger-update.sh` exportiert
+`GIT_COMMIT` und `BUILD_TIME`, `docker-compose.yml` reicht sie an den Build
+weiter, das `Dockerfile` macht `ENV PILGER_COMMIT` daraus. Am 22.09.2026 stand
+im Fuß trotzdem **„Stand unbekannt"** — und damit war die Frage „läuft mein
+Stand schon?" wieder unbeantwortbar, genau in dem Moment, in dem sie am meisten
+zählte.
+
+Woran es liegt, lässt sich von hier aus nicht klären: der Server ist aus dieser
+Umgebung nicht erreichbar. Deshalb steht jetzt **daneben, wann die Dateien
+zuletzt angefasst wurden**. Das kommt ohne Build-Argument aus: `git reset
+--hard` schreibt geänderte Dateien mit der aktuellen Zeit, und `filemtime()`
+über `index.php`, `app.js`, `tagebuch.js`, `app.css` und `src/Tagebuch.php`
+nimmt davon die jüngste. Fast jeder Deploy fasst eine dieser Dateien an.
+
+    Stand unbekannt · Dateien vom 22.09. 16:10
+    Stand abc1234 · gebaut 22.09. 21:05 · Dateien vom 22.09. 16:10
+
+Dazu liest der Fuß die Umgebung nicht mehr nur über `getenv()`, sondern auch
+aus `$_SERVER`, `$_ENV` und `apache_getenv()` — je nachdem, wie PHP unter
+Apache läuft, steht sie in einem davon.
+
 ## Die Warteschlange darf nicht nur wachsen
 
 Am 22.09.2026 stand in der Warteschlange ein Dutzend Pakete mit bis zu
