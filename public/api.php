@@ -155,6 +155,54 @@ try {
             }
             json_out(['ok' => true, 'eintrag' => $tagebuch->eintrag($id)]);
 
+        case 'foto.daten':
+            /* Ein Foto als JSON statt als multipart/form-data.
+        
+               Auf dem Server von Sascha scheitern Fotos seit Tagen mit
+               „Es kam keine Datei an" — bei 0,7 MB, waehrend Sprachnotizen
+               ueber denselben Weg durchgehen. Woran das liegt, sagt die
+               Diagnose in upload.php; bis dahin braucht es einen Weg, der
+               nachweislich funktioniert. JSON tut es: Texteintraege kommen
+               genau so an.
+        
+               Teurer ist es auch: Base64 blaeht die Daten um ein Drittel auf.
+               Deshalb ist das der Rueckfall und nicht der Normalweg. */
+            $roh = (string) ($body['daten'] ?? '');
+            if ($roh === '') {
+                json_out(['ok' => false, 'error' => 'Keine Bilddaten mitgeschickt.'], 422);
+            }
+            // Ein data:-Praefix darf dabei sein, muss aber nicht.
+            if (str_contains($roh, ',') && str_starts_with($roh, 'data:')) {
+                $roh = substr($roh, strpos($roh, ',') + 1);
+            }
+            $bytes = base64_decode($roh, true);
+            if ($bytes === false || $bytes === '') {
+                json_out(['ok' => false, 'error' => 'Die Bilddaten sind nicht lesbar (Base64).'], 422);
+            }
+
+            $tmp = tempnam(sys_get_temp_dir(), 'pilgerfoto');
+            if ($tmp === false || file_put_contents($tmp, $bytes) === false) {
+                json_out(['ok' => false, 'error' => 'Das Bild konnte nicht zwischengespeichert werden.'], 500);
+            }
+
+            try {
+                $tagebuch = new Tagebuch($db, $repo);
+                $foto = $tagebuch->nimmFoto(
+                    ['tmp_name' => $tmp, 'name' => substr((string) ($body['name'] ?? 'bild.jpg'), 0, 120)],
+                    isset($body['stage']) && $body['stage'] !== '' ? (int) $body['stage'] : null,
+                    isset($body['entry']) && $body['entry'] !== '' ? (int) $body['entry'] : null,
+                    isset($body['client_id']) ? substr((string) $body['client_id'], 0, 64) : null,
+                    isset($body['aufgenommen']) && $body['aufgenommen'] !== ''
+                        ? substr((string) $body['aufgenommen'], 0, 32) : null
+                );
+            } finally {
+                // nimmFoto verschiebt die Datei; bleibt sie liegen, weg damit.
+                if (is_file($tmp)) {
+                    @unlink($tmp);
+                }
+            }
+            json_out(['ok' => true, 'art' => 'foto', 'foto' => $foto, 'weg' => 'json']);
+
         case 'route.gpx.loeschen':
             // Zurueck zu den Stuetzpunkten von Hand.
             $db->run("DELETE FROM map_routes WHERE quelle = 'gpx'");

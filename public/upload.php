@@ -53,7 +53,26 @@ if (!is_array($datei) || ($datei['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_
         );
     }
 
-    json_out(['ok' => false, 'error' => $grund], 400);
+    /* Wenn es trotzdem nicht klar ist, hilft nur noch, was der Server selbst
+       sieht. Fotos scheitern hier seit Tagen mit „keine Datei", waehrend
+       Sprachnotizen durchgehen — beide auf demselben Weg. Diese Zahlen sagen,
+       ob der Rumpf ueberhaupt ankam, ob PHP ihn zerlegt hat und was von den
+       Uploads uebrig blieb. Hinter der Anmeldung, also unbedenklich. */
+    $diagnose = [
+        'laenge'       => (int) ($_SERVER['CONTENT_LENGTH'] ?? 0),
+        'typ'          => substr((string) ($_SERVER['CONTENT_TYPE'] ?? ''), 0, 90),
+        'post_felder'  => implode(',', array_keys($_POST)),
+        'files_felder' => implode(',', array_keys($_FILES)),
+        'fehlercode'   => (int) ($datei['error'] ?? -1),
+        'post_max'     => (string) ini_get('post_max_size'),
+        'upload_max'   => (string) ini_get('upload_max_filesize'),
+        'uploads_an'   => ini_get('file_uploads') ? 'ja' : 'NEIN',
+        'max_dateien'  => (string) ini_get('max_file_uploads'),
+        'tmp'          => ((string) ini_get('upload_tmp_dir') ?: sys_get_temp_dir()),
+    ];
+    $diagnose['tmp_beschreibbar'] = is_writable($diagnose['tmp']) ? 'ja' : 'NEIN';
+
+    json_out(['ok' => false, 'error' => $grund, 'diagnose' => $diagnose], 400);
 }
 
 try {

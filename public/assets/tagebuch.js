@@ -249,6 +249,13 @@
       var grund;
       if (d && d.error) {
         grund = d.error;
+        // Was der Server ueber sich selbst sagt, gehoert dazu — sonst raet man
+        // weiter, woran „keine Datei" liegt.
+        if (d.diagnose) {
+          grund += ' {' + Object.keys(d.diagnose).map(function (k) {
+            return k + '=' + d.diagnose[k];
+          }).join(' ') + '}';
+        }
       } else if (!text) {
         grund = 'leere Antwort';
       } else {
@@ -307,6 +314,40 @@
       });
   }
 
+  /* Ein Foto als JSON schicken — der Rueckfall, wenn multipart klemmt.
+
+     Auf Saschas Server scheitern Fotos mit „Es kam keine Datei an", obwohl sie
+     nur 0,7 MB gross sind und Sprachnotizen ueber genau denselben Weg
+     durchgehen. Woran es liegt, muss die Diagnose aus upload.php zeigen. Bis
+     dahin gibt es einen zweiten Weg, von dem feststeht, dass er funktioniert:
+     Texteintraege kommen als JSON an, also kommt ein Bild als Base64 im JSON
+     auch an.
+
+     Base64 blaeht die Daten um ein Drittel auf. Deshalb ist das der Rueckfall
+     und nicht der Normalweg. */
+  function alsBase64(datei) {
+    return new Promise(function (ok, nein) {
+      var leser = new FileReader();
+      leser.onload = function () { ok(String(leser.result)); };
+      leser.onerror = function () { nein(new Error('Die Datei liess sich auf dem Gerät nicht lesen.')); };
+      leser.readAsDataURL(datei);
+    });
+  }
+
+  function sendeFotoAlsJson(felder, datei, dateiname) {
+    return alsBase64(datei).then(function (daten) {
+      return sendeJson({
+        action: 'foto.daten',
+        stage: felder.stage || '',
+        entry: felder.entry || '',
+        client_id: felder.client_id || '',
+        aufgenommen: felder.aufgenommen || '',
+        name: dateiname,
+        daten: daten
+      });
+    });
+  }
+
   /* Ein Paket abarbeiten. Was durch ist, wird im Paket vermerkt — bricht die
      Verbindung mitten in einem Paket mit fünf Fotos ab, fängt der nächste
      Versuch nicht wieder bei null an. */
@@ -353,11 +394,23 @@
         // Handyfoto in der Warteschlange. Die sollen nicht ewig weiterscheitern.
         return verkleinere(datei).then(function (klein) {
           p.fotos[i] = klein;
-          return sendeDatei({
+          var felder = {
             art: 'foto', stage: p.stage, entry: entryId || '',
             client_id: p.id + '-f' + i,
             aufgenommen: klein.lastModified ? new Date(klein.lastModified).toISOString() : ''
-          }, klein, klein.name || ('bild' + i + '.jpg'));
+          };
+          var name = klein.name || ('bild' + i + '.jpg');
+
+          return sendeDatei(felder, klein, name).catch(function (err) {
+            // Der Server hat die Anfrage bekommen, aber keine Datei darin
+            // gefunden. Dann ist der Weg kaputt und nicht die Datei — also
+            // denselben Inhalt noch einmal, diesmal als JSON.
+            if (!/Es kam keine Datei an/.test(err.message || '')) {
+              throw err;
+            }
+            sag('Der übliche Weg klemmt — Bild geht als JSON raus …');
+            return sendeFotoAlsJson(felder, klein, name);
+          });
         }).then(function () {
           p.fotosFertig[i] = true;
           return merke(p).then(function () { return entryId; });
