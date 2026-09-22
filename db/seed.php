@@ -235,29 +235,46 @@ function seed_database(Database $db): void
             [
                 'seq' => 5, 'code' => 'E5 · 23.09.', 'date_label' => '23.09.2026',
                 'title' => 'Caminha → Oia', 'title_suffix' => '(Spanien)',
-                'dist' => '23 km · Fähre/Taxiboot über den Minho · ab hier 2 Stempel/Tag',
-                'target' => '<b>Budget-Ziel:</b> Pension/Hostal · <b>eigenes Zimmer</b> · ca. 65–90 € <span style="color:var(--stone)">(dünnes Angebot — hier sind die Privatzimmer zuerst weg, früh buchen)</span>',
-                'note' => null,
+                'dist' => '27 km · Fähre/Taxiboot über den Minho · ab hier 2 Stempel/Tag',
+                'target' => '<b style="color:#2e7d32">Gebucht:</b> Hotel-Restaurante Glasgow ★★★, Viladesuso · '
+                    . 'Einzelzimmer · <b>100,00 €</b> (90,91 + 9,09 MwSt)',
+                'note' => '<b>Achtung, die Etappe ist länger als geplant.</b> Viladesuso gehört zur Gemeinde '
+                    . 'Oia, liegt aber <b>rund 4 km nördlich des Klosters</b> — in Laufrichtung. Aus '
+                    . '23 km werden damit <b>27 km</b>, und der Tag danach nach Baiona wird um dieselben '
+                    . '4 km kürzer. Nach der Fähre über den Minho und dem Grenzübertritt ist das der '
+                    . 'zweitlängste Tag der Reise.<br>'
+                    . '<b>Estrada Xeral 103, 36309 Viladesuso</b> — direkt an der Küstenstraße, '
+                    . 'Restaurant im Haus. '
+                    . '<a href="https://www.google.com/maps/search/?api=1&amp;query='
+                    . 'Hotel%20Restaurante%20Glasgow%2C%20Viladesuso%2C%20Oia" '
+                    . 'target="_blank" rel="noopener">Karte</a> · '
+                    . '<a href="tel:+34986361552">+34 986 361 552</a><br>'
+                    . '<small><b>Nicht stornierbar, Daten nicht änderbar.</b> Ab hier gilt Spanien: '
+                    . '<b>zwei Stempel pro Tag</b>. Die 4 km sind aus der Koordinate der Pfarrkirche '
+                    . 'gerechnet, nicht aus der Hausnummer — auf die Richtung ist Verlass, auf ein paar '
+                    . 'hundert Meter nicht.</small>',
                 'alt_note' => null,
-                'booking_url' => sprintf($bk, 'Oia%2C%20Pontevedra%2C%20Spain', '2026-09-23', '2026-09-24'),
-                'booking_label' => 'Booking Oia',
-                'km_big' => '148', 'km_sub' => 'Grenze ↦ ESP', 'variant' => 'special',
+                'booking_url' => null,
+                'booking_label' => null,
+                'km_big' => '144', 'km_sub' => 'Grenze ↦ ESP', 'variant' => 'special',
                 'lat' => 42.03204, 'lng' => -8.85833,
-                'map_eyebrow' => 'Etappe 5 · 23.09.', 'map_meta' => '23 km · noch 148 km · ab hier 2 Stempel/Tag',
+                'map_eyebrow' => 'Etappe 5 · 23.09.', 'map_meta' => '27 km · noch 144 km · ab hier 2 Stempel/Tag',
                 'map_hub' => 0, 'map_name' => 'Oia',
             ],
             [
                 'seq' => 6, 'code' => 'E6 · 24.09.', 'date_label' => '24.09.2026',
                 'title' => 'Oia → Baiona', 'title_suffix' => null,
-                'dist' => '18 km · kurze Etappe',
+                'dist' => '14 km · kürzeste Etappe',
                 'target' => '<b>Budget-Ziel:</b> Hostal Altstadt (statt Parador) · <b>eigenes Zimmer</b> · ca. 65–95 €',
-                'note' => 'Parador wäre das teure Highlight — als bewusste Ausnahme behaltbar.',
+                'note' => 'Kurz, weil das Bett schon 4 km hinter Oia stand. Nach dem langen Tag davor '
+                    . 'ein Geschenk — Baiona ist früh erreicht. Parador wäre das teure Highlight, '
+                    . 'als bewusste Ausnahme behaltbar.',
                 'alt_note' => null,
                 'booking_url' => sprintf($bk, 'Baiona%2C%20Pontevedra%2C%20Spain', '2026-09-24', '2026-09-25'),
                 'booking_label' => 'Booking Baiona',
                 'km_big' => '130', 'km_sub' => 'noch bis SCQ', 'variant' => 'normal',
                 'lat' => 42.120152, 'lng' => -8.852366,
-                'map_eyebrow' => 'Etappe 6 · 24.09.', 'map_meta' => '18 km · noch 130 km',
+                'map_eyebrow' => 'Etappe 6 · 24.09.', 'map_meta' => '14 km · noch 130 km',
                 'map_hub' => 0, 'map_name' => 'Baiona',
             ],
             [
@@ -296,7 +313,7 @@ function seed_database(Database $db): void
             [
                 'seq' => 9, 'code' => 'E9 · 27.09.', 'date_label' => '27.09.2026',
                 'title' => 'Arcade → Pontevedra', 'title_suffix' => null,
-                'dist' => '15 km · kürzeste Etappe',
+                'dist' => '15 km · kurze Etappe',
                 'target' => '<b>Budget-Ziel:</b> Hostal Altstadt (casco vello) · <b>eigenes Zimmer</b> · ca. 60–85 €',
                 'note' => null,
                 'alt_note' => null,
@@ -304,7 +321,7 @@ function seed_database(Database $db): void
                 'booking_label' => 'Booking Pontevedra',
                 'km_big' => '66', 'km_sub' => 'noch bis SCQ', 'variant' => 'normal',
                 'lat' => 42.429884, 'lng' => -8.64462,
-                'map_eyebrow' => 'Etappe 9 · 27.09.', 'map_meta' => '15 km · noch 66 km · kürzeste Etappe',
+                'map_eyebrow' => 'Etappe 9 · 27.09.', 'map_meta' => '15 km · noch 66 km · kurze Etappe',
                 'map_hub' => 0, 'map_name' => 'Pontevedra',
             ],
             [
@@ -339,11 +356,22 @@ function seed_database(Database $db): void
                 'seq' => 12, 'code' => 'E12 · 30.09.', 'date_label' => '30.09.2026',
                 'title' => 'Padrón → Santiago de Compostela', 'title_suffix' => null,
                 'dist' => '25 km · Einzug Praza do Obradoiro · 1 Nacht (bis 01.10.)',
-                'target' => '<b>Budget-Ziel:</b> Pension/Hostal nahe Altstadt · <b>eigenes Zimmer</b> · ca. 70–110 € <span style="color:var(--stone)">(hohe Nachfrage — früh buchen)</span>',
-                'note' => 'Compostela-Urkunde: Pilgerbüro Rúa de Carretas 33. Pilgermesse 12:00.',
+                'target' => '<b style="color:#2e7d32">Gebucht:</b> Lemonade Stays · Standard-Einzelzimmer · '
+                    . '<b>76,95 €</b> bezahlt · Buchungsnr. 6412320933',
+                'note' => '<b>Rúa das Galeras 44, 15705</b> — rund <b>385 m von der Praza do Obradoiro</b>, '
+                    . 'am Rand der Altstadt. Check-in ab 15:00, Check-out am 01.10. bis 11:00: der Bus '
+                    . 'zum Flughafen geht um 9:45, das passt. '
+                    . '<a href="https://www.google.com/maps/search/?api=1&amp;query='
+                    . 'Lemonade%20Stays%2C%20R%C3%BAa%20das%20Galeras%2044%2C%20Santiago%20de%20Compostela" '
+                    . 'target="_blank" rel="noopener">Karte</a> · '
+                    . '<a href="tel:+34981072903">+34 981 072 903</a><br>'
+                    . '<b>Alles Wichtige passiert am 30.09.:</b> Compostela-Urkunde im Pilgerbüro '
+                    . '(Rúa das Carretas 33, 9:00–19:00) und Pilgermesse um 12:00. Am 01.10. sitzt du '
+                    . 'zu der Zeit im Flieger.<br>'
+                    . '<small><b>Nicht stornierbar, Daten nicht änderbar.</b></small>',
                 'alt_note' => null,
-                'booking_url' => sprintf($bk, 'Santiago%20de%20Compostela%2C%20Spain', '2026-09-30', '2026-10-01'),
-                'booking_label' => 'Booking Santiago',
+                'booking_url' => null,
+                'booking_label' => null,
                 'km_big' => '0', 'km_sub' => 'ZIEL', 'variant' => 'special',
                 'lat' => 42.880688, 'lng' => -8.544395,
                 'map_eyebrow' => 'ZIEL · 30.09.', 'map_meta' => '25 km · Praza do Obradoiro · Urkunde',
@@ -518,14 +546,14 @@ function seed_database(Database $db): void
             ['Esposende (E2)', 'Hello Esposende · Buchungsnr. 5557270875', 74.00, 'ok', 'gebucht'],
             ['Viana do Castelo (E3)', 'B&B HOTEL Viana do Castelo · Doppelzimmer', 65.00, 'ok', 'gebucht'],
             ['Caminha (E4)', 'Residencial Galo d\'Ouro · Einzelzimmer · inkl. 3,11 € MwSt und 1,50 € Übernachtungssteuer', 56.50, 'ok', 'gebucht'],
-            ['Oia (E5)', '~ dünnes Angebot', null, 'open', 'offen'],
+            ['Oia (E5)', 'Hotel-Restaurante Glasgow ★★★, Viladesuso · Einzelzimmer · inkl. 9,09 € MwSt', 100.00, 'ok', 'gebucht'],
             ['Baiona (E6)', '~ Hostal', null, 'open', 'offen'],
             ['Vigo (E7)', '~ Stadthotel', null, 'open', 'offen'],
             ['Arcade (E8)', '~ Pension', null, 'open', 'offen'],
             ['Pontevedra (E9)', '~ Hostal casco vello', null, 'open', 'offen'],
             ['Caldas de Reis (E10)', '~ Pension/Balneario', null, 'open', 'offen'],
             ['Padrón (E11)', '~ Pension', null, 'open', 'offen'],
-            ['Santiago (E12, 1 N)', '~ Hochsaison', null, 'open', 'offen'],
+            ['Santiago (E12, 1 N)', 'Lemonade Stays · Standard-Einzelzimmer · Buchungsnr. 6412320933', 76.95, 'ok', 'gebucht'],
             ['Credencial (Pilgerpass)', 'Sé do Porto', 2.00, 'est', 'fix ~2 €'],
             ['Nahverkehr', 'Metro Porto · Fähre Caminha · Bus SCQ-Flughafen', null, 'est', 'Schätzung'],
             ['Verpflegung', '14 Tage Essen/Kaffee/Pilgermenüs', null, 'est', 'Schätzung'],

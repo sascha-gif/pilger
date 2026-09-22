@@ -186,6 +186,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/027_caminha.php';
             migration_027($db);
         });
+
+        // Oia und Santiago gebucht — und E5/E6 verschieben sich dadurch.
+        $apply('028_oia_santiago', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/028_oia_santiago.php';
+            migration_028($db);
+        });
     }
 
     /** @return array<int,string> */

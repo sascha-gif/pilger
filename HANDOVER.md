@@ -193,9 +193,9 @@ Zwei Volumes, beide müssen ins Backup:
 ## Nächste sinnvolle Schritte
 
 1. **Passwort setzen** — beim nächsten Aufruf der Seite, dauert zehn Sekunden.
-2. Die **8 offenen Unterkünfte** buchen; Beträge direkt auf der Seite
-   eintragen (Oia und Santiago zuerst — dünnes Angebot bzw. hohe Nachfrage).
-   E1 bis E4 sind gebucht, siehe `CLAUDE.md`.
+2. Die **6 offenen Unterkünfte** buchen; Beträge direkt auf der Seite
+   eintragen. E1 bis E5 und E12 sind gebucht, siehe `CLAUDE.md` — damit auch
+   Oia und Santiago, die beiden kritischen.
    Eine Buchung heißt hier: Kostenzeile **und** Etappe (`target`, `note`,
    `booking_url` raus) in `db/seed.php` **und** eine Migration — Vorlage dafür
    ist `db/migrations/019_vila_do_conde.php`.

@@ -76,11 +76,11 @@ Gewicht 93 kg (Start 12.01.) → Ziel ~88 kg bis Abflug
 | E2 | 20.09. | Vila do Conde → Esposende | 24 | 222 |
 | E3 | 21.09. | Esposende → Viana do Castelo | 25 | 197 |
 | E4 | 22.09. | Viana do Castelo → Caminha (Fährfahrplan checken!) | 26 | 171 |
-| E5 | 23.09. | Caminha → Oia (Fähre über den Minho, Grenze ESP, ab hier 2 Stempel/Tag) | 23 | 148 |
-| E6 | 24.09. | Oia → Baiona | 18 | 130 |
+| E5 | 23.09. | Caminha → Viladesuso/Oia (Fähre über den Minho, Grenze ESP, ab hier 2 Stempel/Tag) | 27 | 144 |
+| E6 | 24.09. | Viladesuso → Baiona | 14 | 130 |
 | E7 | 25.09. | Baiona → Vigo (längste Etappe) | 27 | 103 |
 | E8 | 26.09. | Vigo → Arcade (Austern) | 22 | 81 |
-| E9 | 27.09. | Arcade → Pontevedra (kürzeste Etappe) | 15 | 66 |
+| E9 | 27.09. | Arcade → Pontevedra | 15 | 66 |
 | E10 | 28.09. | Pontevedra → Caldas de Reis (Thermalort) | 22 | 44 |
 | E11 | 29.09. | Caldas de Reis → Padrón | 19 | 25 |
 | E12 | 30.09. | Padrón → Santiago (Praza do Obradoiro) | 25 | 0 |
@@ -118,8 +118,19 @@ danach läuft sie mit der Costa zusammen.
   Check-out 08:30–11:30** (wichtig für die Fähre am nächsten Morgen).
   Nicht stornierbar, keine Änderungen, Vorauszahlung kann jederzeit fällig
   werden, kein Frühstück.
-- **Offen:** 8 Etappenorte. Booking-Links im HTML, nach Preis sortiert.
-  Kritisch früh buchen: **Oia** (dünnes Angebot) und **Santiago** (hohe Nachfrage).
+- **Gebucht:** Oia (E5), Hotel-Restaurante Glasgow ★★★, Einzelzimmer, 23.–24.09.,
+  100,00 € (90,91 + 9,09 MwSt). Estrada Xeral 103, 36309 **Viladesuso**,
+  Tel. +34 986 361 552. **Viladesuso liegt rund 4 km nördlich von Oia** — in
+  Laufrichtung. Deshalb ist E5 jetzt 27 km und E6 nur noch 14 km; die Summe
+  bleibt 266 km. Nicht stornierbar, keine Änderungen.
+- **Gebucht:** Santiago (E12), Lemonade Stays, Standard-Einzelzimmer,
+  30.09.–01.10., 76,95 € bezahlt, Buchungsnr. 6412320933. Rúa das Galeras 44,
+  15705, Tel. +34 981 072 903 — rund 385 m von der Praza do Obradoiro.
+  Check-in ab 15:00, Check-out bis 11:00 (der Bus zum Flughafen geht 9:45).
+  Nicht stornierbar, keine Änderungen.
+- **Offen:** 6 Etappenorte — E7 Vigo, E8 Arcade, E9 Pontevedra,
+  E10 Caldas de Reis, E11 Padrón, E6 Baiona. Booking-Links im HTML, nach Preis
+  sortiert. **Oia und Santiago, die beiden kritischen, sind durch.**
 - Budget-Ausrichtung: Pension/Hostal statt Hotel, ca. 50–110 €/Nacht
 - **Nur Unterkünfte mit eigenem Zimmer** — kein Bett im Schlafsaal. Steht in
   jedem Budget-Ziel. Die Booking-Links können das nicht erzwingen: den Filter
@@ -137,11 +148,11 @@ Unterkünfte ~70 €/Nacht × 12 ≈ 840 € · Verpflegung ~25–35 €/Tag ·
 Gesamtbudget realistisch **1.400–1.900 €**.
 Bereits fix: Hinflug 258,00 € · Rückflug 235,00 € · Porto 186,83 € ·
 Vila do Conde 78,00 € · Esposende 74,00 € · Viana do Castelo 65,00 € ·
-Caminha 56,50 € · Credencial 2,00 €.
+Caminha 56,50 € · Oia 100,00 € · Santiago 76,95 € · Credencial 2,00 €.
 Gekauft: Wandersocken FALKE TK2 2× 57,26 € · Wandershorts maamgic 2× 55,98 € ·
 Reiseapotheke & Hygiene 20,54 € (Compeed, Dr. Bronner's, Zahncreme, Deo) ·
 Papiertüten 5,49 € (Tagesportionen Medikamente) · USB-C-Ladegerät 9,99 €.
-Erfasst damit 1.104,59 €.
+Erfasst damit 1.281,54 €.
 
 ## Equipment-Kernpunkte
 
@@ -215,7 +226,8 @@ darauf auf, nicht auf der ausgebauten Fassung.
 ## Offene Punkte
 
 - **Passwort auf der Seite setzen** — beim nächsten Aufruf
-- 8 Unterkünfte buchen (Oia und Santiago zuerst) — E1 bis E4 sind durch
+- 6 Unterkünfte buchen: Baiona, Vigo, Arcade, Pontevedra, Caldas de Reis,
+  Padrón — E1 bis E5 und E12 sind durch, damit auch die beiden kritischen
 - **Fährfahrplan Caminha → A Guarda/Spanien prüfen** — am Vorabend des 22.09.
   Der Check-out in Caminha beginnt erst um 8:30; eine frühe Fähre passt da
   nicht dazu.
