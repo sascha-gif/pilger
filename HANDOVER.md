@@ -445,6 +445,28 @@ Blick auf die fertige Datei nicht mehr — `wahlQuellen` merkt sich Name, Größ
 und Zeitstempel der **Originale**, Index für Index parallel zu
 `gewaehlteFotos`. Wer beides anfasst, muss beides anfassen.
 
+## Die Warteschlange darf nicht nur wachsen
+
+Am 22.09.2026 stand in der Warteschlange ein Dutzend Pakete mit bis zu
+**76 Fehlversuchen** — und mit jedem neuen Anlauf ueber „Bearbeiten → Fotos
+hinzufügen" kam eins dazu. Das ist folgerichtig (jeder Griff in die Galerie ist
+ein neues Paket) und trotzdem falsch: die Liste wurde länger statt kürzer, der
+Selbstlauf zog alle 45 Sekunden Akku, und wegwerfen konnte man nichts.
+
+Drei Dinge dagegen:
+
+- **Verwerfen je Paket** (`.qweg`) und **„Alle verwerfen"**, sobald mehr als eins
+  wartet. Gefragt wird unterschiedlich: bei Fotos liegen die Bilder weiter in
+  der Kamerarolle, bei einer **Sprachnotiz ist die Aufnahme danach weg**. Das
+  steht so in der Rückfrage.
+- **Nach `AUFGEBEN_AB = 5` Fehlversuchen läuft nichts mehr von selbst.** Ein
+  Paket, das 76-mal gescheitert ist, geht beim 77. Mal auch nicht durch. Der
+  Kasten sagt das auch so: „Nach 5 Fehlversuchen wird nicht mehr von selbst
+  weiterprobiert — das kostet nur Akku."
+- **Der Knopf setzt den Zähler zurück.** Sonst käme ein aufgegebenes Paket auch
+  von Hand nicht mehr los. `abarbeiten(stillschweigend)` filtert aufgegebene
+  Pakete nur im Selbstlauf heraus — von Hand laufen alle mit.
+
 ## Fotos kommen nicht an, Sprachnotizen schon — der zweite Weg
 
 Stand 22.09.2026: Auf dem Server scheitern **Fotos** seit Tagen mit

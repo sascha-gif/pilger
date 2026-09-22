@@ -73,8 +73,19 @@
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
+  /* Ab so vielen Fehlversuchen laeuft nichts mehr von selbst. Ein Paket, das
+     76-mal gescheitert ist, wird beim 77. Mal auch nicht durchgehen — es zieht
+     nur Akku und macht die Liste unleserlich. Der Knopf geht weiter. */
+  var AUFGEBEN_AB = 5;
+
+  /* Was gerade in der Warteschlange liegt, nach id — der Verwerfen-Knopf muss
+     wissen, ob eine Sprachaufnahme drin steckt. */
+  var offeneNachId = {};
+
   function malSchlange() {
     return schlange().then(function (offen) {
+      offeneNachId = {};
+      offen.forEach(function (p) { offeneNachId[p.id] = p; });
       if (!queueEl) return offen;
       if (!offen.length) {
         queueEl.hidden = true;
@@ -84,15 +95,20 @@
 
       // Haengt etwas fest? Dann ist „wartet auf Netz" die falsche Auskunft.
       var klemmt = offen.some(function (p) { return (p.versuche || 0) >= 2; });
+      var ruht   = offen.some(function (p) { return (p.versuche || 0) >= AUFGEBEN_AB; });
 
       queueEl.hidden = false;
       queueEl.innerHTML =
         '<b>' + offen.length + (offen.length === 1 ? ' Eintrag liegt' : ' Einträge liegen') +
         ' noch auf diesem Gerät.</b> ' +
-        (klemmt
-          ? 'Das Hochladen hat mehrfach nicht geklappt — der Grund steht dabei. '
-            + 'Bis dahin ist nichts verloren: alles bleibt gespeichert, auch wenn du die Seite schließt.'
-          : 'Sie gehen von selbst raus, sobald wieder Empfang da ist.') +
+        (ruht
+          ? 'Nach ' + AUFGEBEN_AB + ' Fehlversuchen wird nicht mehr von selbst weiterprobiert — '
+            + 'das kostet nur Akku. Der Grund steht dabei. Verloren ist nichts: '
+            + 'alles bleibt gespeichert, auch wenn du die Seite schließt.'
+          : klemmt
+            ? 'Das Hochladen hat mehrfach nicht geklappt — der Grund steht dabei. '
+              + 'Bis dahin ist nichts verloren: alles bleibt gespeichert, auch wenn du die Seite schließt.'
+            : 'Sie gehen von selbst raus, sobald wieder Empfang da ist.') +
         '<ul>' + offen.map(function (p) {
           var was = [];
           if (p.audio) was.push('Sprachnotiz');
@@ -107,10 +123,15 @@
           }
           return '<li>' + roh(p.etappe || 'ohne Tag') + ' — ' + was.join(' + ') +
                  (p.versuche ? ' <em>' + p.versuche + '× versucht</em>' : '') +
+                 ' <button type="button" class="qweg" data-id="' + roh(p.id) +
+                 '" title="Dieses Paket verwerfen">verwerfen</button>' +
                  (p.fehler ? '<span class="qgrund">' + roh(p.fehler) + '</span>' : '') +
                  '</li>';
         }).join('') + '</ul>' +
-        '<button type="button" class="tb-mini" id="tbNochmal">Jetzt noch einmal versuchen</button>';
+        '<button type="button" class="tb-mini" id="tbNochmal">Jetzt noch einmal versuchen</button>' +
+        (offen.length > 1
+          ? ' <button type="button" class="tb-mini" id="tbAllesWeg">Alle verwerfen</button>'
+          : '');
       return offen;
     }).catch(function () { return []; });
   }
@@ -119,10 +140,41 @@
      gerade sieht, dass wieder Balken da sind, will nicht warten. */
   if (queueEl) {
     queueEl.addEventListener('click', function (e) {
+      var weg = e.target.closest('.qweg');
+      if (weg) {
+        // Verwerfen ist ungefaehrlich: die Fotos liegen weiter in der
+        // Kamerarolle, nur das wartende Paket verschwindet. Bei einer
+        // Sprachnotiz ist die Aufnahme dagegen weg — deshalb wird gefragt.
+        var paket = offeneNachId[weg.dataset.id];
+        var frage = (paket && paket.audio)
+          ? 'Dieses Paket verwerfen? Die Sprachaufnahme darin ist danach weg.'
+          : 'Dieses Paket verwerfen? Die Fotos bleiben in deiner Kamerarolle.';
+        if (!confirm(frage)) return;
+        ausDerSchlange(weg.dataset.id).then(malSchlange)
+          .then(function () { sag('Verworfen.'); });
+        return;
+      }
+
+      if (e.target.closest('#tbAllesWeg')) {
+        if (!confirm('Alle wartenden Pakete verwerfen? Fotos bleiben in der Kamerarolle, '
+                   + 'Sprachaufnahmen sind danach weg.')) return;
+        schlange().then(function (offen) {
+          return Promise.all(offen.map(function (p) { return ausDerSchlange(p.id); }));
+        }).then(malSchlange).then(function () { sag('Warteschlange geleert.'); });
+        return;
+      }
+
       if (!e.target.closest('#tbNochmal')) return;
       if (!navigator.onLine) { sag('Immer noch kein Netz.', true); return; }
+      // Von Hand heisst: noch einmal von vorn. Sonst bliebe ein Paket, das
+      // schon aufgegeben hatte, auch beim Knopfdruck liegen.
       sag('Wird versucht …');
-      abarbeiten();
+      schlange().then(function (offen) {
+        return Promise.all(offen.map(function (p) {
+          p.versuche = 0;
+          return inDieSchlange(p);
+        }));
+      }).then(function () { return abarbeiten(); });
     });
   }
 
@@ -472,7 +524,12 @@
     if (laeuft || !navigator.onLine) return Promise.resolve();
     laeuft = true;
 
-    return schlange().then(function (offen) {
+    return schlange().then(function (alle) {
+      // Aufgegebene Pakete laufen im Selbstlauf nicht mehr mit. Von Hand
+      // schon — der Knopf setzt den Zaehler vorher zurueck.
+      var offen = stillschweigend
+        ? alle.filter(function (p) { return (p.versuche || 0) < AUFGEBEN_AB; })
+        : alle;
       if (!offen.length) return null;
       return offen.reduce(function (kette, p) {
         return kette.then(function () {

@@ -476,6 +476,13 @@ footer a{color:var(--flecha)}
    nur „5 Versuche" und niemand weiss, woran es liegt. */
 .qgrund{display:block;font-family:"Spline Sans Mono",monospace;font-size:11px;
         color:#a4341f;margin-top:3px;word-break:break-word}
+/* Ein Paket wegwerfen koennen. Klein und unauffaellig — aber da, wenn die
+   Liste nur noch waechst und nichts mehr durchgeht. */
+.qweg{font-family:"Spline Sans Mono",monospace;font-size:10.5px;color:var(--stone);
+      background:none;border:1px solid var(--line);border-radius:2px;padding:2px 7px;
+      cursor:pointer;margin-left:4px;white-space:nowrap}
+.qweg:hover{border-color:#a4341f;color:#a4341f}
+@media (max-width:560px){.qweg{padding:6px 10px;font-size:11px}}
 
 /* ---- Lesen oder bearbeiten -------------------------------------------------
    Ohne `data-edit` ist die Seite ein Tagebuch: Text, Bilder, Unterschriften.
