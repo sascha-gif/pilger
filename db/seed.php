@@ -281,16 +281,27 @@ function seed_database(Database $db): void
                 'seq' => 7, 'code' => 'E7 · 25.09.', 'date_label' => '25.09.2026',
                 'title' => 'Baiona → Vigo', 'title_suffix' => null,
                 'dist' => '27 km · längste Etappe',
-                'target' => '<b>Budget-Ziel:</b> Stadthotel/Hostal Zentrum · <b>eigenes Zimmer</b> · ca. 55–80 €',
-                'note' => null,
+                'target' => '<b style="color:#2e7d32">Gebucht:</b> Alda Estación Vigo · <b>57,00 €</b> '
+                    . '(inkl. 5,18 € MwSt)',
+                'note' => '<b>Calle Alfonso XIII 19, 36201</b> — 200 m vom Bahnhof Vigo-Urzáiz, mitten im '
+                    . 'Geschäftsviertel, wenige Schritte von der Fußgängerstraße <b>Príncipe</b>, die in '
+                    . 'die Altstadt hinunterführt. Der Küstenweg kommt von Südwesten am Hafen an: von '
+                    . 'dort rund <b>20 Minuten bergauf</b>. Dafür liegt das Haus schon auf der Seite, auf '
+                    . 'der es am nächsten Morgen nach Redondela weitergeht. '
+                    . '<a href="https://www.google.com/maps/search/?api=1&amp;query='
+                    . 'Alda%20Estaci%C3%B3n%20Vigo%2C%20Calle%20Alfonso%20XIII%2019%2C%20Vigo" '
+                    . 'target="_blank" rel="noopener">Karte</a><br>'
+                    . '<small>Vorlage war die <b>Buchungsübersicht</b>, nicht die Bestätigung — unten '
+                    . 'stand noch „Letzter Schritt", eine Buchungsnummer gab es nicht. Wenn die '
+                    . 'Bestätigungsmail da ist: nachsehen, ob sie wirklich kam.</small>',
                 'alt_note' => '<b>Küstenvariante:</b> Hinter der <b>Ponte da Ramallosa</b> biegt der offizielle Weg '
                     . 'ins Land ab und steigt über den Monte San Román. Wer am Wasser bleibt, geht über '
                     . '<b>Nigrán, Praia América und Saiáns</b> nach Vigo — Holzstege, Radwege, flache '
                     . 'Stadtabschnitte, fast durchgehend am Atlantik und flacher als das Original. '
                     . 'Danach dreht der Weg in die Ría und später ins Landesinnere: das hier ist der '
                     . 'letzte Tag am offenen Meer.',
-                'booking_url' => sprintf($bk, 'Vigo%2C%20Spain', '2026-09-25', '2026-09-26'),
-                'booking_label' => 'Booking Vigo',
+                'booking_url' => null,
+                'booking_label' => null,
                 'km_big' => '103', 'km_sub' => 'noch bis SCQ', 'variant' => 'normal',
                 'lat' => 42.240598, 'lng' => -8.720726,
                 'map_eyebrow' => 'Etappe 7 · 25.09.', 'map_meta' => '27 km · noch 103 km · längste Etappe',
@@ -548,7 +559,7 @@ function seed_database(Database $db): void
             ['Caminha (E4)', 'Residencial Galo d\'Ouro · Einzelzimmer · inkl. 3,11 € MwSt und 1,50 € Übernachtungssteuer', 56.50, 'ok', 'gebucht'],
             ['Oia (E5)', 'Hotel-Restaurante Glasgow ★★★, Viladesuso · Einzelzimmer · inkl. 9,09 € MwSt', 100.00, 'ok', 'gebucht'],
             ['Baiona (E6)', '~ Hostal', null, 'open', 'offen'],
-            ['Vigo (E7)', '~ Stadthotel', null, 'open', 'offen'],
+            ['Vigo (E7)', 'Alda Estación Vigo · Calle Alfonso XIII 19 · inkl. 5,18 € MwSt', 57.00, 'ok', 'gebucht'],
             ['Arcade (E8)', '~ Pension', null, 'open', 'offen'],
             ['Pontevedra (E9)', '~ Hostal casco vello', null, 'open', 'offen'],
             ['Caldas de Reis (E10)', '~ Pension/Balneario', null, 'open', 'offen'],

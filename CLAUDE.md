@@ -128,9 +128,16 @@ danach läuft sie mit der Costa zusammen.
   15705, Tel. +34 981 072 903 — rund 385 m von der Praza do Obradoiro.
   Check-in ab 15:00, Check-out bis 11:00 (der Bus zum Flughafen geht 9:45).
   Nicht stornierbar, keine Änderungen.
-- **Offen:** 6 Etappenorte — E7 Vigo, E8 Arcade, E9 Pontevedra,
-  E10 Caldas de Reis, E11 Padrón, E6 Baiona. Booking-Links im HTML, nach Preis
-  sortiert. **Oia und Santiago, die beiden kritischen, sind durch.**
+- **Gebucht:** Vigo (E7), Alda Estación Vigo, 25.–26.09., 57,00 €
+  (inkl. 5,18 € MwSt). Calle Alfonso XIII 19, 36201 — 200 m vom Bahnhof
+  Vigo-Urzáiz, im Geschäftsviertel nahe der Fußgängerstraße Príncipe; vom Hafen,
+  wo der Küstenweg ankommt, rund 20 Minuten bergauf, dafür schon in
+  Laufrichtung für E8. **Vorlage war die Buchungsübersicht, nicht die
+  Bestätigung** („Letzter Schritt", keine Buchungsnummer) — Bestätigungsmail
+  prüfen und die Nummer nachtragen.
+- **Offen:** 5 Etappenorte — E6 Baiona, E8 Arcade, E9 Pontevedra,
+  E10 Caldas de Reis, E11 Padrón. Booking-Links im HTML, nach Preis sortiert.
+  **Oia und Santiago, die beiden kritischen, sind durch.**
 - Budget-Ausrichtung: Pension/Hostal statt Hotel, ca. 50–110 €/Nacht
 - **Nur Unterkünfte mit eigenem Zimmer** — kein Bett im Schlafsaal. Steht in
   jedem Budget-Ziel. Die Booking-Links können das nicht erzwingen: den Filter
@@ -148,11 +155,12 @@ Unterkünfte ~70 €/Nacht × 12 ≈ 840 € · Verpflegung ~25–35 €/Tag ·
 Gesamtbudget realistisch **1.400–1.900 €**.
 Bereits fix: Hinflug 258,00 € · Rückflug 235,00 € · Porto 186,83 € ·
 Vila do Conde 78,00 € · Esposende 74,00 € · Viana do Castelo 65,00 € ·
-Caminha 56,50 € · Oia 100,00 € · Santiago 76,95 € · Credencial 2,00 €.
+Caminha 56,50 € · Oia 100,00 € · Vigo 57,00 € · Santiago 76,95 € ·
+Credencial 2,00 €.
 Gekauft: Wandersocken FALKE TK2 2× 57,26 € · Wandershorts maamgic 2× 55,98 € ·
 Reiseapotheke & Hygiene 20,54 € (Compeed, Dr. Bronner's, Zahncreme, Deo) ·
 Papiertüten 5,49 € (Tagesportionen Medikamente) · USB-C-Ladegerät 9,99 €.
-Erfasst damit 1.281,54 €.
+Erfasst damit 1.338,54 €.
 
 ## Equipment-Kernpunkte
 
@@ -226,8 +234,10 @@ darauf auf, nicht auf der ausgebauten Fassung.
 ## Offene Punkte
 
 - **Passwort auf der Seite setzen** — beim nächsten Aufruf
-- 6 Unterkünfte buchen: Baiona, Vigo, Arcade, Pontevedra, Caldas de Reis,
-  Padrón — E1 bis E5 und E12 sind durch, damit auch die beiden kritischen
+- 5 Unterkünfte buchen: Baiona, Arcade, Pontevedra, Caldas de Reis, Padrón —
+  E1 bis E5, E7 und E12 sind durch, damit auch die beiden kritischen
+- **Vigo: Bestätigungsmail prüfen.** Der Screenshot war die Buchungsübersicht
+  mit „Letzter Schritt", nicht die Bestätigung — und ohne Buchungsnummer.
 - **Fährfahrplan Caminha → A Guarda/Spanien prüfen** — am Vorabend des 22.09.
   Der Check-out in Caminha beginnt erst um 8:30; eine frühe Fähre passt da
   nicht dazu.

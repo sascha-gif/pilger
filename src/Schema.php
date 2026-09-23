@@ -192,6 +192,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/028_oia_santiago.php';
             migration_028($db);
         });
+
+        // Vigo gebucht.
+        $apply('029_vigo', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/029_vigo.php';
+            migration_029($db);
+        });
     }
 
     /** @return array<int,string> */

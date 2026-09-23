@@ -193,7 +193,7 @@ Zwei Volumes, beide müssen ins Backup:
 ## Nächste sinnvolle Schritte
 
 1. **Passwort setzen** — beim nächsten Aufruf der Seite, dauert zehn Sekunden.
-2. Die **6 offenen Unterkünfte** buchen; Beträge direkt auf der Seite
+2. Die **5 offenen Unterkünfte** buchen; Beträge direkt auf der Seite
    eintragen. E1 bis E5 und E12 sind gebucht, siehe `CLAUDE.md` — damit auch
    Oia und Santiago, die beiden kritischen.
    Eine Buchung heißt hier: Kostenzeile **und** Etappe (`target`, `note`,
