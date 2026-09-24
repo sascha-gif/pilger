@@ -58,6 +58,29 @@ final class Repo
     }
 
     /**
+     * Wo geschlafen wurde, nach Etappe.
+     *
+     * Die Tabelle kommt aus einer späteren Migration; eine Datenbank, die noch
+     * nicht so weit ist, soll deshalb keine Seite umbringen — dann eben keine
+     * Unterkünfte.
+     *
+     * @return array<int,array<string,mixed>>  Etappen-ID => Unterkunft
+     */
+    public function unterkuenfte(): array
+    {
+        if (!$this->db->tableExists('lodgings')) {
+            return [];
+        }
+        $raus = [];
+        foreach ($this->db->all('SELECT * FROM lodgings ORDER BY seq') as $u) {
+            if ($u['stage_id'] !== null) {
+                $raus[(int) $u['stage_id']] = $u;
+            }
+        }
+        return $raus;
+    }
+
+    /**
      * Wie weit ist er? Gerechnet wird aus den abgehakten Etappen, nicht aus
      * dem Datum — wer einen Tag mit dem Bus abkürzt, hat die Kilometer nicht.
      *

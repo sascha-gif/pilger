@@ -117,6 +117,25 @@ a{color:var(--atlantic)}
                      background:#c2410c;border:1.5px solid #fff;margin-right:8px;
                      vertical-align:middle;transform:translateY(-1px)}
 
+/* ---------- Wo der Tag aufhoerte ------------------------------------------
+   Die Unterkunft steht am Ende des Kapitels, eingerueckt und leiser als der
+   Text — sie ist die Fussnote des Tages, nicht sein Inhalt. */
+.jbett{width:var(--spalte);max-width:92vw;margin:44px auto 0;
+       border-left:3px solid var(--flecha);padding:4px 0 4px 20px}
+.jbett-was{font-family:"Spline Sans Mono",monospace;font-size:10.5px;letter-spacing:.16em;
+           text-transform:uppercase;color:var(--stone)}
+.jbett h3{font-family:"Fraunces",serif;font-size:23px;font-weight:600;line-height:1.2;
+          margin-top:7px}
+.jbett-wo{margin-top:6px;font-size:15px}
+.jbett-wo a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--line)}
+.jbett-wo a:hover{border-bottom-color:var(--flecha)}
+.jbett-lage{margin-top:12px;font-size:15.5px;line-height:1.62;color:#3d443f}
+.jbett-note{margin-top:10px;font-size:13.5px;line-height:1.6;color:var(--stone)}
+.jbett-zahlen{margin-top:16px;display:flex;flex-wrap:wrap;gap:6px 28px}
+.jbett-zahlen dt{font-family:"Spline Sans Mono",monospace;font-size:10px;letter-spacing:.14em;
+                 text-transform:uppercase;color:var(--stone)}
+.jbett-zahlen dd{font-size:15px;margin-top:2px}
+
 /* ---------- Bildmosaik ---------------------------------------------------
    Spalten statt Raster. Im Raster muessen alle Bilder dieselbe Zellenhoehe
    fuellen — also beschneiden, und bei ungerader Mischung aus hoch und quer
@@ -154,7 +173,7 @@ a{color:var(--atlantic)}
   .jzahlen > div:nth-child(1),.jzahlen > div:nth-child(2){padding-top:18px}
   .jzahlen > div:nth-child(3),.jzahlen > div:nth-child(4){border-top:1px solid #3a444a;padding-bottom:18px}
   .jzahlen b{font-size:27px}
-  .jkopf,.jzeile,.jtext,.jkarte,.jkartennote{width:auto;margin-left:22px;margin-right:22px}
+  .jkopf,.jzeile,.jtext,.jkarte,.jkartennote,.jbett{width:auto;margin-left:22px;margin-right:22px}
   .jtext{font-size:17.5px}
   .jmosaik{width:auto;margin-left:14px;margin-right:14px;column-count:1}
   .jmosaik figure{margin-bottom:14px}

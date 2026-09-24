@@ -151,6 +151,64 @@ function json_out(array $payload, int $status = 200): void
 }
 
 /**
+ * Wie das Haus zu nennen ist.
+ *
+ * **Nicht jede Schlafstelle war ein Hotel.** Ein *Residencial* ist ein
+ * portugiesisches Gästehaus, ein *Hostal* das spanische Gegenstück, und ein
+ * *Albergue* wäre die Pilgerherberge mit Schlafsaal gewesen — die kam nie
+ * infrage. Steht die Art nicht fest, wird sie auch nicht behauptet: dann heißt
+ * es schlicht „Übernachtung", und die Zimmerart dahinter sagt ohnehin mehr.
+ */
+function bett_art(array $u): string
+{
+    $teile = array_filter([
+        $u['art'] ?: 'Übernachtung',
+        $u['zimmer'] ?: null,
+    ]);
+    return implode(' · ', $teile);
+}
+
+/**
+ * Straße, Postleitzahl, Ort — so viel davon, wie bekannt ist.
+ */
+function bett_adresse(array $u): string
+{
+    $zeile2 = trim(((string) $u['plz']) . ' ' . ((string) $u['ort']));
+    $teile  = array_filter([trim((string) $u['strasse']), $zeile2]);
+    return implode(', ', $teile);
+}
+
+/**
+ * Die Zeilen unter der Unterkunft: Nächte, Preis, Ankommen, Gehen, Telefon.
+ * Was nicht belegt ist, fehlt — es wird nichts ausgedacht, um die Liste
+ * vollzukriegen.
+ *
+ * @return array<int,array{0:string,1:string}>
+ */
+function bett_zahlen(array $u): array
+{
+    $zeilen = [];
+
+    if ($u['naechte'] !== null && (int) $u['naechte'] > 0) {
+        $n = (int) $u['naechte'];
+        $zeilen[] = ['Bleibe', $n === 1 ? 'eine Nacht' : $n . ' Nächte'];
+    }
+    if ($u['preis'] !== null) {
+        $zeilen[] = ['Kosten', number_format((float) $u['preis'], 2, ',', '.') . ' €'];
+    }
+    if ($u['checkin']) {
+        $zeilen[] = ['Ankommen', (string) $u['checkin']];
+    }
+    if ($u['checkout']) {
+        $zeilen[] = ['Gehen', (string) $u['checkout']];
+    }
+    if ($u['telefon']) {
+        $zeilen[] = ['Telefon', (string) $u['telefon']];
+    }
+    return $zeilen;
+}
+
+/**
  * Eine Koordinate, wie sie vom Gerät kommt — oder nichts.
  *
  * Gelesen wird sie im Browser aus dem Bild selbst, und was von dort kommt,

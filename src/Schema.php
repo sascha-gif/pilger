@@ -204,6 +204,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/030_foto_koordinaten.php';
             migration_030($db);
         });
+
+        // Unterkuenfte als Tabelle, nicht als Absatz.
+        $apply('031_unterkuenfte', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/031_unterkuenfte.php';
+            migration_031($db);
+        });
     }
 
     /** @return array<int,string> */

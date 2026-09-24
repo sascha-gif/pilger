@@ -23,6 +23,7 @@ $eintraege  = $tagebuch->eintraege();
 $alleFotos  = $tagebuch->fotos();
 $healthTage = (new Gesundheit($db))->tage();
 $weg        = $repo->wegProgress();
+$betten     = $repo->unterkuenfte();
 
 /* Wetter und Höhen sind nett, aber nicht lebenswichtig: wenn der Dienst nicht
    antwortet, fehlt eine Zeile — die Seite bleibt lesbar. */
@@ -241,6 +242,39 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
           ? 'Ein Bild dieses Tages weiß, wo es entstanden ist.'
           : count($fotoPunkte) . ' Bilder dieses Tages wissen, wo sie entstanden sind.' ?></p>
       <?php endif; ?>
+    <?php endif; ?>
+
+    <?php
+      /* Am Ende des Kapitels: wo der Tag aufhoerte. Nicht jede Zeile ist
+         immer da — was nicht belegt ist, steht auch nicht dort. */
+      $bett = $st ? ($betten[(int) $st['id']] ?? null) : null;
+    ?>
+    <?php if ($bett): ?>
+      <aside class="jbett">
+        <p class="jbett-was"><?= h(bett_art($bett)) ?></p>
+        <h3><?= h((string) $bett['name']) ?></h3>
+        <?php $adresse = bett_adresse($bett); ?>
+        <?php if ($adresse !== ''): ?>
+          <p class="jbett-wo">
+            <a href="https://www.google.com/maps/search/?api=1&amp;query=<?= h(urlencode($bett['name'] . ', ' . $adresse)) ?>"
+               target="_blank" rel="noopener"><?= h($adresse) ?></a>
+          </p>
+        <?php endif; ?>
+        <?php if ($bett['lage']): ?>
+          <p class="jbett-lage"><?= h((string) $bett['lage']) ?></p>
+        <?php endif; ?>
+        <?php if ($bett['hinweis']): ?>
+          <p class="jbett-note"><?= h((string) $bett['hinweis']) ?></p>
+        <?php endif; ?>
+        <?php $zeilen = bett_zahlen($bett); ?>
+        <?php if ($zeilen): ?>
+          <dl class="jbett-zahlen">
+            <?php foreach ($zeilen as [$was, $wert]): ?>
+              <div><dt><?= h($was) ?></dt><dd><?= h($wert) ?></dd></div>
+            <?php endforeach; ?>
+          </dl>
+        <?php endif; ?>
+      </aside>
     <?php endif; ?>
 
     <?php if ($fotos): ?>

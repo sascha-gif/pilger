@@ -161,6 +161,7 @@ src/               Anwendungscode
   Tagebuch.php     Aufnahmen, Bilder, Transkription, Glättung
   Gesundheit.php   Schritte, Kalorien und Puls aus dem Google-Health-Konto
 db/seed.php        kompletter Masterplan-Inhalt als Startdaten
+db/unterkuenfte.php wo geschlafen wurde — Quelle der Tabelle `lodgings`
 db/migrations/     002 Küstenroute · 003 Ankunft · 004 Zutritt ·
                    005 Erledigt/km/Stempel · 006 Wetter+Höhen · 007 Tagebuch ·
                    008 Gesundheitsdaten
@@ -919,8 +920,13 @@ andere, dazu `noindex, nofollow`. Sie ist also vorerst nur für ihn lesbar.
 
 - ~~Wo ein Foto entstanden ist~~ — **gebaut**, siehe „Fotos wissen jetzt, wo
   sie entstanden sind". Für die Bilder von vorher bleibt es leer.
-- **Videos.** Dieselbe Warteschlange, dieselbe Ablage, aber `media.php` müsste
-  Bereichsanfragen beantworten, sonst springt kein Player.
+- **Videos.** Dieselbe Warteschlange, dieselbe Ablage — aber drei Dinge fehlen:
+  die Dateiauswahl nimmt nur `image/*`, `media.php` schickt **immer die ganze
+  Datei** (es setzt zwar `Accept-Ranges: bytes`, beantwortet einen
+  `Range:`-Kopf aber nicht — für Audio geht das durch, ein Video spielt auf
+  iOS damit gar nicht erst an), und `mp4` steht in der Typentabelle als
+  `audio/mp4`. Dazu die Größe: ein Handyvideo ist schnell 100 MB, und
+  verkleinern kann der Browser es nicht so nebenbei wie ein Bild.
 - **Ein Text über die Tage hinweg.** Bisher baut Claude jede Notiz für sich
   aus. Ein Journal verträgt mehr: Rückgriffe auf vorgestern, ein Kapitelanfang,
   der weiß, was vorher war. Dieselbe Regel gilt weiter — nur was in den Daten
@@ -968,6 +974,49 @@ Legende darunter.
 dem Telefon, mit allem drin — auf dem Server ist die Herkunft nie angekommen
 und lässt sich dort auch nicht rekonstruieren. Wer sie nachtragen will,
 bräuchte einen Weg, die Originale noch einmal einzulesen.
+
+---
+
+## Wo geschlafen wurde — als Tabelle, nicht als Absatz
+
+Die Buchungen stehen auf der Etappenkarte als fertig formulierter HTML-Absatz
+in `stages.note` und `stages.target`. Zum Nachschlagen am Abend ist das genau
+richtig. Das Journal will aber etwas daraus erzählen, und dafür muss es an die
+einzelnen Angaben herankommen, ohne HTML auseinanderzunehmen.
+
+Die Tabelle heißt `lodgings`, die Daten liegen in **`db/unterkuenfte.php`** und
+werden von Migration 031 eingespielt. In `db/seed.php` stehen sie absichtlich
+**nicht**: eine frische Datenbank läuft ohnehin jede Migration durch, und die
+Tabelle entsteht auch erst dort — zwei Stellen mit denselben Zeilen wären nur
+eine Stelle mehr, die veralten kann. Für Etappen und Kosten gilt die
+Doppelpflege weiter, die stehen schon im Seed.
+
+**Nicht alles davon sind Hotels**, und das steht jetzt sauber drin. Ein
+*Residencial* ist ein portugiesisches Gästehaus, ein *Hostal* das spanische
+Gegenstück, ein *Albergue* wäre die Pilgerherberge mit Schlafsaal gewesen — die
+kam nie infrage. Wo der Name die Art nennt („Residencial Galo d'Ouro", „B&B
+HOTEL"), steht sie im Feld `art`. Wo er es nicht tut — Carpe Diem, Hello
+Esposende, Alda Estación, Lemonade Stays —, bleibt das Feld **leer** und im
+Journal steht schlicht „Übernachtung". Ein Haus zum Hotel zu erklären, weil es
+sich so anhört, wäre geraten.
+
+**Keine Koordinaten.** Die Adressen stehen fest, die Punkte dazu müsste man
+nachschlagen, und ein um zweihundert Meter danebenliegender Stecknadelkopf ist
+schlechter als gar keiner. Verlinkt wird deshalb auf die Adresse.
+
+`quelle` sagt, woher es stammt: `bestaetigung` ist die Buchungsbestätigung,
+`uebersicht` nur der Bildschirm davor. **Vigo steht auf `uebersicht`** — dort
+fehlt die Buchungsnummer, und das soll man sehen.
+
+**Zwei Stellen, solange er läuft.** Die Etappenkarte umzustellen, während er
+jeden Abend darauf schaut, wo sein Bett steht, wäre der falsche Moment. Bis
+dahin gilt: eine neue Buchung wird an beiden Stellen eingetragen — im
+Etappenabsatz **und** in `db/unterkuenfte.php` plus einer Migration. Nach dem
+Camino gehört die Etappenkarte aus der Tabelle erzeugt, dann ist es wieder eine
+Stelle.
+
+Noch offen und deshalb nicht in der Tabelle: **Baiona, Arcade, Pontevedra,
+Caldas de Reis, Padrón.**
 
 ---
 
