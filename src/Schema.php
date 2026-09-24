@@ -216,6 +216,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/032_nigran.php';
             migration_032($db);
         });
+
+        // Nigran ist gebucht, das Datum telefonisch geradegezogen.
+        $apply('033_nigran_gebucht', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/033_nigran_gebucht.php';
+            migration_033($db);
+        });
     }
 
     /** @return array<int,string> */

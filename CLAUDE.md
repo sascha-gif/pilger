@@ -135,15 +135,14 @@ danach läuft sie mit der Costa zusammen.
   Laufrichtung für E8. **Vorlage war die Buchungsübersicht, nicht die
   Bestätigung** („Letzter Schritt", keine Buchungsnummer) — Bestätigungsmail
   prüfen und die Nummer nachtragen.
-- **Zu prüfen:** Nigrán (E6), HOTEL HOLIDAY camino de Santiago por la costa en
-  playa América ★★★, Einzelbelegung, 50,00 € (inkl. 4,55 € MwSt). Carretera
-  Vigo–Baiona (por la costa) 17, 36350 Nigrán — an der Praia América, rund 7 km
-  hinter Baiona und damit schon in Laufrichtung. **Zwei Dinge stimmen daran
-  nicht:** die Vorlage war die Buchungs*übersicht* mit „Letzter Schritt", nicht
-  die Bestätigung (keine Buchungsnummer — ob sie durchging, ist offen), und als
-  Anreise stand dort **Fr, 25.09.**, während die Nacht **Do, 24.09. → Fr,
-  25.09.** gebraucht wird. Der 25. ist die Nacht danach, und die ist in Vigo
-  gebucht. Deshalb steht auf der Seite „zu prüfen" und kein Betrag als bezahlt.
+- **Gebucht:** Nigrán (E6), HOTEL HOLIDAY camino de Santiago por la costa en
+  playa América ★★★, Einzelbelegung, 24.–25.09., 50,00 € (inkl. 4,55 € MwSt).
+  Carretera Vigo–Baiona (por la costa) 17, 36350 Nigrán — an der Praia América,
+  rund 7 km hinter Baiona und damit schon in Laufrichtung. **Nicht geplant
+  gewesen, aber der bessere Schnitt:** aus 14 und 27 km werden 21 und 20.
+  Auf der Übersicht stand als Anreise der 25.09.; das wurde **telefonisch** auf
+  die Nacht vom 24. geändert. Eine **Buchungsnummer gibt es nicht** — die
+  Vorlage war die Übersicht, nicht die Bestätigung.
 - **Offen:** 4 Etappenorte — E8 Arcade, E9 Pontevedra, E10 Caldas de Reis,
   E11 Padrón. Booking-Links im HTML, nach Preis sortiert.
   **Oia und Santiago, die beiden kritischen, sind durch.**
@@ -164,12 +163,12 @@ Unterkünfte ~70 €/Nacht × 12 ≈ 840 € · Verpflegung ~25–35 €/Tag ·
 Gesamtbudget realistisch **1.400–1.900 €**.
 Bereits fix: Hinflug 258,00 € · Rückflug 235,00 € · Porto 186,83 € ·
 Vila do Conde 78,00 € · Esposende 74,00 € · Viana do Castelo 65,00 € ·
-Caminha 56,50 € · Oia 100,00 € · Vigo 57,00 € · Santiago 76,95 € ·
-Credencial 2,00 €.
+Caminha 56,50 € · Nigrán 50,00 € · Oia 100,00 € · Vigo 57,00 € ·
+Santiago 76,95 € · Credencial 2,00 €.
 Gekauft: Wandersocken FALKE TK2 2× 57,26 € · Wandershorts maamgic 2× 55,98 € ·
 Reiseapotheke & Hygiene 20,54 € (Compeed, Dr. Bronner's, Zahncreme, Deo) ·
 Papiertüten 5,49 € (Tagesportionen Medikamente) · USB-C-Ladegerät 9,99 €.
-Erfasst damit 1.338,54 €.
+Erfasst damit 1.388,54 €.
 
 ## Equipment-Kernpunkte
 
@@ -247,9 +246,6 @@ darauf auf, nicht auf der ausgebauten Fassung.
 ## Offene Punkte
 
 - **Passwort auf der Seite setzen** — beim nächsten Aufruf
-- **Nigrán (E6): Buchung prüfen — Datum und Bestätigung.** Der Screenshot war
-  die Übersicht mit „Letzter Schritt" und nannte als Anreise den 25.09.;
-  gebraucht wird die Nacht vom 24. auf den 25.
 - 4 Unterkünfte buchen: Arcade, Pontevedra, Caldas de Reis, Padrón —
   E1 bis E5, E7 und E12 sind durch, damit auch die beiden kritischen
 - **Vigo: Bestätigungsmail prüfen.** Der Screenshot war die Buchungsübersicht

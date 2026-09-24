@@ -132,6 +132,28 @@ function unterkuenfte(): array
             'quelle' => 'bestaetigung',
         ],
         [
+            'seq' => 6, 'stage_seq' => 6,
+            'name' => 'HOTEL HOLIDAY camino de Santiago por la costa en playa América',
+            'art' => 'Hotel',
+            'zimmer' => 'Einzelbelegung',
+            'strasse' => 'Carretera Vigo–Baiona (por la costa) 17', 'plz' => '36350',
+            'ort' => 'Nigrán', 'land' => 'ES',
+            'telefon' => null,
+            'von' => '2026-09-24', 'bis' => '2026-09-25', 'naechte' => 1,
+            'preis' => 50.00, 'buchungsnr' => null,
+            'checkin' => null, 'checkout' => null,
+            'lage' => 'An der Praia América, direkt an der Küstenstraße — rund 7 km hinter '
+                    . 'Baiona und damit schon in Laufrichtung. Genau da, wo der Küstenweg '
+                    . 'entlangläuft, statt hinter der Ponte da Ramallosa über den Monte San '
+                    . 'Román zu steigen.',
+            'hinweis' => 'Nicht geplant gewesen: das Quartier hier macht aus einem halben Tag '
+                       . '(14 km) und dem längsten Tag der Reise (27 km) zwei normale von 21 und '
+                       . '20 km. Das Datum stand auf der Übersicht als 25.09. und wurde '
+                       . 'telefonisch auf die Nacht vom 24. geändert. Eine Buchungsnummer gibt '
+                       . 'es nicht.',
+            'quelle' => 'bestaetigung',
+        ],
+        [
             'seq' => 7, 'stage_seq' => 7,
             'name' => 'Alda Estación Vigo',
             'art' => null,

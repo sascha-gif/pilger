@@ -1029,8 +1029,9 @@ Etappenabsatz **und** in `db/unterkuenfte.php` plus einer Migration. Nach dem
 Camino gehört die Etappenkarte aus der Tabelle erzeugt, dann ist es wieder eine
 Stelle.
 
-Noch offen und deshalb nicht in der Tabelle: **Baiona, Arcade, Pontevedra,
-Caldas de Reis, Padrón.**
+Noch offen und deshalb nicht in der Tabelle: **Arcade, Pontevedra, Caldas de
+Reis, Padrón.** Baiona ist keins mehr — dort wird nicht übernachtet, das Bett
+steht in Nigrán, siehe unten.
 
 ---
 
@@ -1058,29 +1059,29 @@ sonst im Plan. Der Kartenpunkt ist ebenfalls der Nigrán-Stützpunkt der Linie,
 keine nachgeschlagene Adresse — einen genaueren gibt es hier nicht, und
 Nominatim und Co. sind von hier aus nicht erreichbar.
 
-**Warum nichts als „gebucht" dasteht.** Zwei Dinge stimmen an der Vorlage
-nicht, und beide gehören gesehen, bevor er losgeht:
+**Das Datum war zuerst falsch.** Auf der Vorlage stand als Anreise der 25.09.
+— das ist die Nacht *nach* E7, und die ist in Vigo gebucht. Gebraucht wurde die
+Nacht Do, 24.09. → Fr, 25.09. Das ist **telefonisch geändert** worden, und er
+hat dort übernachtet; bestätigt ist es damit so gut, wie es geht.
 
-1. Der Screenshot war die **Buchungsübersicht** mit dem Knopf „Letzter Schritt"
-   — nicht die Bestätigung, keine Buchungsnummer. Ob die Buchung überhaupt
-   zustande kam, ist damit offen. Beim Hotel in Vigo war es genau dasselbe, und
-   auch dort fehlt die Nummer bis heute.
-2. Als Anreise stand dort **Fr, 25.09.** Das ist die Nacht *nach* E7, und die
-   ist in Vigo gebucht. Gebraucht wird die Nacht **Do, 24.09. → Fr, 25.09.**
+Eine **Buchungsnummer gibt es trotzdem nicht**: die Vorlage war die
+Buchungs*übersicht* mit dem Knopf „Letzter Schritt", nicht die Bestätigung.
+Beim Hotel in Vigo war es genau dasselbe, und dort fehlt die Nummer bis heute.
+Das steht in der Etappennotiz und in `lodgings`, sonst wundert sich später
+jemand, warum ausgerechnet bei diesen beiden Nächten keine dasteht.
 
-Deshalb steht auf der Etappenkarte „Zimmer gefunden, Buchung noch nicht
-bestätigt", in der Kostentabelle „zu prüfen" und **kein Betrag**. Ein Haken, wo
-keiner hingehört, ist schlimmer als eine offene Zeile — nach 21 km vor einer
-verschlossenen Tür zu stehen, weil die Seite „gebucht" sagte, wäre der
+Solange das offen war, stand auf der Etappenkarte „Zimmer gefunden, Buchung
+noch nicht bestätigt", in den Kosten „zu prüfen" und **kein Betrag** — und in
+`lodgings` gar nichts, weil eine Zeile mit dem falschen Datum schlechter
+gewesen wäre als keine. Das ist die Regel für den nächsten Fall auch: ein
+Haken, wo keiner hingehört, ist schlimmer als eine offene Zeile. Nach 21 km vor
+einer verschlossenen Tür zu stehen, weil die Seite „gebucht" sagte, wäre der
 schlechteste denkbare Fehler dieses Projekts.
 
-In `lodgings` steht die Nacht aus demselben Grund **noch nicht**: eine Zeile
-mit dem falschen Datum wäre schlechter als gar keine. Sobald die Bestätigung
-da ist, gehört sie in `db/unterkuenfte.php` plus Migration.
-
-Der Status `warn` („zu prüfen") in `cost_items` ist mit dieser Änderung
-dazugekommen — er liegt zwischen `open` (gar nichts da) und `ok` (gebucht) und
-ist kräftiger eingefärbt als beide, damit er nicht übersehen wird.
+Dafür gibt es in `cost_items` jetzt den Status `warn` („zu prüfen"). Er liegt
+zwischen `open` (gar nichts da) und `ok` (gebucht) und ist kräftiger eingefärbt
+als beide, damit er nicht übersehen wird — für die vier Orte, die noch
+kommen.
 
 ---
 

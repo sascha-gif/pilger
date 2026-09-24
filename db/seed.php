@@ -265,26 +265,27 @@ function seed_database(Database $db): void
                 'seq' => 6, 'code' => 'E6 · 24.09.', 'date_label' => '24.09.2026',
                 'title' => 'Oia → Nigrán', 'title_suffix' => null,
                 'dist' => '21 km · Praia América',
-                'target' => '<b style="color:#b26a00">Zimmer gefunden, Buchung noch nicht bestätigt:</b> '
-                    . 'HOTEL HOLIDAY camino de Santiago por la costa en playa América ★★★ · '
-                    . 'Einzelbelegung · <b>50,00 €</b> (inkl. 4,55 € MwSt)',
+                'target' => '<b style="color:#2e7d32">Gebucht:</b> HOTEL HOLIDAY camino de Santiago '
+                    . 'por la costa en playa América ★★★ · Einzelbelegung · <b>50,00 €</b> '
+                    . '(inkl. 4,55 € MwSt)',
                 'note' => '<b>Carretera Vigo–Baiona (por la costa) 17, 36350 Nigrán</b> — direkt an der '
                     . 'Küstenstraße, an der <b>Praia América</b>, rund 7 km hinter Baiona und damit '
                     . 'schon ein gutes Stück in Laufrichtung. Genau dort läuft die Küstenvariante '
                     . 'entlang: hinter der Ponte da Ramallosa am Wasser bleiben statt über den Monte '
-                    . 'San Román zu steigen.<br>'
-                    . '<b>Dadurch werden aus 14 und 27 km jetzt rund 21 und 20</b> — der halbe Tag '
+                    . 'San Román zu steigen — den Anstieg sparst du dir damit. '
+                    . '<a href="https://www.google.com/maps/search/?api=1&amp;query='
+                    . 'HOTEL%20HOLIDAY%2C%20Carretera%20Vigo-Baiona%2017%2C%20Nigr%C3%A1n" '
+                    . 'target="_blank" rel="noopener">Karte</a><br>'
+                    . '<b>Dadurch werden aus 14 und 27 km rund 21 und 20</b> — der halbe Tag '
                     . 'und der längste Tag werden zu zwei normalen. Die Gesamtstrecke bleibt gleich. '
                     . 'Die längste Etappe des ganzen Camino liegt damit hinter dir: die 27 km von '
                     . 'gestern. Das Längste, was noch kommt, ist der letzte Tag nach Santiago.<br>'
-                    . '<small><b>Zwei Dinge prüfen:</b> Der Screenshot war die Buchungs<i>übersicht</i> '
-                    . 'mit „Letzter Schritt", nicht die Bestätigung — es gibt keine Buchungsnummer, '
-                    . 'also ist offen, ob die Buchung durchging. Und als Anreise stand dort '
-                    . '<b>Fr, 25.09.</b>; gebraucht wird die Nacht <b>Do, 24.09. → Fr, 25.09.</b> '
-                    . 'Der 25. ist die Nacht danach, und die ist in Vigo gebucht.</small>',
+                    . '<small>Das Datum stand auf der Übersicht als 25.09. und wurde <b>telefonisch '
+                    . 'auf die Nacht vom 24. auf den 25.</b> geändert. Eine Buchungsnummer gibt es '
+                    . 'nicht — die Vorlage war die Übersicht, nicht die Bestätigung.</small>',
                 'alt_note' => null,
-                'booking_url' => sprintf($bk, 'Nigr%C3%A1n%2C%20Pontevedra%2C%20Spain', '2026-09-24', '2026-09-25'),
-                'booking_label' => 'Booking Nigrán',
+                'booking_url' => null,
+                'booking_label' => null,
                 'km_big' => '123', 'km_sub' => 'noch bis SCQ', 'variant' => 'normal',
                 'lat' => 42.1500, 'lng' => -8.8100,
                 'map_eyebrow' => 'Etappe 6 · 24.09.', 'map_meta' => '21 km · noch 123 km',
@@ -571,7 +572,7 @@ function seed_database(Database $db): void
             ['Viana do Castelo (E3)', 'B&B HOTEL Viana do Castelo · Doppelzimmer', 65.00, 'ok', 'gebucht'],
             ['Caminha (E4)', 'Residencial Galo d\'Ouro · Einzelzimmer · inkl. 3,11 € MwSt und 1,50 € Übernachtungssteuer', 56.50, 'ok', 'gebucht'],
             ['Oia (E5)', 'Hotel-Restaurante Glasgow ★★★, Viladesuso · Einzelzimmer · inkl. 9,09 € MwSt', 100.00, 'ok', 'gebucht'],
-            ['Nigrán (E6)', 'HOTEL HOLIDAY playa América ★★★ · 50,00 € · Bestätigung fehlt, Datum prüfen', null, 'warn', 'zu prüfen'],
+            ['Nigrán (E6)', 'HOTEL HOLIDAY playa América ★★★ · Einzelbelegung · inkl. 4,55 € MwSt', 50.00, 'ok', 'gebucht'],
             ['Vigo (E7)', 'Alda Estación Vigo · Calle Alfonso XIII 19 · inkl. 5,18 € MwSt', 57.00, 'ok', 'gebucht'],
             ['Arcade (E8)', '~ Pension', null, 'open', 'offen'],
             ['Pontevedra (E9)', '~ Hostal casco vello', null, 'open', 'offen'],
