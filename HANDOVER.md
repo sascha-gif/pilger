@@ -1034,6 +1034,56 @@ Caldas de Reis, Padrón.**
 
 ---
 
+## E6 endet in Nigrán, nicht in Baiona
+
+Gebucht — oder jedenfalls fast, siehe unten — ist die Nacht in **Playa
+América**. Das gehört zur Gemeinde Nigrán und liegt an der Carretera
+Vigo–Baiona, also **zwischen Baiona und Vigo**, in Laufrichtung. Der Weg
+dorthin stand schon vorher im Plan, als Küstenvariante von E7: „Wer am Wasser
+bleibt, geht über Nigrán, Praia América und Saiáns nach Vigo." Genau dort ist
+jetzt das Bett.
+
+**Das macht die beiden Tage erst vernünftig.** Vorher standen 14 km und 27 km
+nebeneinander — ein halber Tag und der längste der ganzen Reise. Jetzt sind es
+rund 21 und 20. Die Summe bleibt, 266 km stimmen weiter. Damit liegt die
+längste Etappe des Camino hinter ihm (E5, 27 km); das Längste, was noch kommt,
+ist der letzte Tag nach Santiago mit 25 km. Die Markierung „längste Etappe" ist
+deshalb von E7 auf E5 gewandert, „kürzeste Etappe" ist von E6 verschwunden —
+kürzeste ist jetzt E9 mit 15 km.
+
+**Die Kilometer sind geschätzt, nicht gemessen.** Gerechnet aus der Küstenlinie
+in `db/kuestenroute.php`: Baiona → Panxón/Nigrán sind gut ein Viertel des
+Stücks Baiona → Vigo, also rund 7 der 27 km. Dieselbe Art Schätzung wie überall
+sonst im Plan. Der Kartenpunkt ist ebenfalls der Nigrán-Stützpunkt der Linie,
+keine nachgeschlagene Adresse — einen genaueren gibt es hier nicht, und
+Nominatim und Co. sind von hier aus nicht erreichbar.
+
+**Warum nichts als „gebucht" dasteht.** Zwei Dinge stimmen an der Vorlage
+nicht, und beide gehören gesehen, bevor er losgeht:
+
+1. Der Screenshot war die **Buchungsübersicht** mit dem Knopf „Letzter Schritt"
+   — nicht die Bestätigung, keine Buchungsnummer. Ob die Buchung überhaupt
+   zustande kam, ist damit offen. Beim Hotel in Vigo war es genau dasselbe, und
+   auch dort fehlt die Nummer bis heute.
+2. Als Anreise stand dort **Fr, 25.09.** Das ist die Nacht *nach* E7, und die
+   ist in Vigo gebucht. Gebraucht wird die Nacht **Do, 24.09. → Fr, 25.09.**
+
+Deshalb steht auf der Etappenkarte „Zimmer gefunden, Buchung noch nicht
+bestätigt", in der Kostentabelle „zu prüfen" und **kein Betrag**. Ein Haken, wo
+keiner hingehört, ist schlimmer als eine offene Zeile — nach 21 km vor einer
+verschlossenen Tür zu stehen, weil die Seite „gebucht" sagte, wäre der
+schlechteste denkbare Fehler dieses Projekts.
+
+In `lodgings` steht die Nacht aus demselben Grund **noch nicht**: eine Zeile
+mit dem falschen Datum wäre schlechter als gar keine. Sobald die Bestätigung
+da ist, gehört sie in `db/unterkuenfte.php` plus Migration.
+
+Der Status `warn` („zu prüfen") in `cost_items` ist mit dieser Änderung
+dazugekommen — er liegt zwischen `open` (gar nichts da) und `ok` (gebucht) und
+ist kräftiger eingefärbt als beide, damit er nicht übersehen wird.
+
+---
+
 ## Was bewusst nicht gebaut wurde
 
 - **Kein Speichern des Originalfotos.** Bilder werden auf 1600 px verkleinert.

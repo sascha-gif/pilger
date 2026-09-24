@@ -235,7 +235,7 @@ function seed_database(Database $db): void
             [
                 'seq' => 5, 'code' => 'E5 · 23.09.', 'date_label' => '23.09.2026',
                 'title' => 'Caminha → Oia', 'title_suffix' => '(Spanien)',
-                'dist' => '27 km · Fähre/Taxiboot über den Minho · ab hier 2 Stempel/Tag',
+                'dist' => '27 km · längste Etappe · Fähre/Taxiboot über den Minho · ab hier 2 Stempel/Tag',
                 'target' => '<b style="color:#2e7d32">Gebucht:</b> Hotel-Restaurante Glasgow ★★★, Viladesuso · '
                     . 'Einzelzimmer · <b>100,00 €</b> (90,91 + 9,09 MwSt)',
                 'note' => '<b>Achtung, die Etappe ist länger als geplant.</b> Viladesuso gehört zur Gemeinde '
@@ -258,29 +258,42 @@ function seed_database(Database $db): void
                 'booking_label' => null,
                 'km_big' => '144', 'km_sub' => 'Grenze ↦ ESP', 'variant' => 'special',
                 'lat' => 42.03204, 'lng' => -8.85833,
-                'map_eyebrow' => 'Etappe 5 · 23.09.', 'map_meta' => '27 km · noch 144 km · ab hier 2 Stempel/Tag',
+                'map_eyebrow' => 'Etappe 5 · 23.09.', 'map_meta' => '27 km · noch 144 km · längste Etappe',
                 'map_hub' => 0, 'map_name' => 'Oia',
             ],
             [
                 'seq' => 6, 'code' => 'E6 · 24.09.', 'date_label' => '24.09.2026',
-                'title' => 'Oia → Baiona', 'title_suffix' => null,
-                'dist' => '14 km · kürzeste Etappe',
-                'target' => '<b>Budget-Ziel:</b> Hostal Altstadt (statt Parador) · <b>eigenes Zimmer</b> · ca. 65–95 €',
-                'note' => 'Kurz, weil das Bett schon 4 km hinter Oia stand. Nach dem langen Tag davor '
-                    . 'ein Geschenk — Baiona ist früh erreicht. Parador wäre das teure Highlight, '
-                    . 'als bewusste Ausnahme behaltbar.',
+                'title' => 'Oia → Nigrán', 'title_suffix' => null,
+                'dist' => '21 km · Praia América',
+                'target' => '<b style="color:#b26a00">Zimmer gefunden, Buchung noch nicht bestätigt:</b> '
+                    . 'HOTEL HOLIDAY camino de Santiago por la costa en playa América ★★★ · '
+                    . 'Einzelbelegung · <b>50,00 €</b> (inkl. 4,55 € MwSt)',
+                'note' => '<b>Carretera Vigo–Baiona (por la costa) 17, 36350 Nigrán</b> — direkt an der '
+                    . 'Küstenstraße, an der <b>Praia América</b>, rund 7 km hinter Baiona und damit '
+                    . 'schon ein gutes Stück in Laufrichtung. Genau dort läuft die Küstenvariante '
+                    . 'entlang: hinter der Ponte da Ramallosa am Wasser bleiben statt über den Monte '
+                    . 'San Román zu steigen.<br>'
+                    . '<b>Dadurch werden aus 14 und 27 km jetzt rund 21 und 20</b> — der halbe Tag '
+                    . 'und der längste Tag werden zu zwei normalen. Die Gesamtstrecke bleibt gleich. '
+                    . 'Die längste Etappe des ganzen Camino liegt damit hinter dir: die 27 km von '
+                    . 'gestern. Das Längste, was noch kommt, ist der letzte Tag nach Santiago.<br>'
+                    . '<small><b>Zwei Dinge prüfen:</b> Der Screenshot war die Buchungs<i>übersicht</i> '
+                    . 'mit „Letzter Schritt", nicht die Bestätigung — es gibt keine Buchungsnummer, '
+                    . 'also ist offen, ob die Buchung durchging. Und als Anreise stand dort '
+                    . '<b>Fr, 25.09.</b>; gebraucht wird die Nacht <b>Do, 24.09. → Fr, 25.09.</b> '
+                    . 'Der 25. ist die Nacht danach, und die ist in Vigo gebucht.</small>',
                 'alt_note' => null,
-                'booking_url' => sprintf($bk, 'Baiona%2C%20Pontevedra%2C%20Spain', '2026-09-24', '2026-09-25'),
-                'booking_label' => 'Booking Baiona',
-                'km_big' => '130', 'km_sub' => 'noch bis SCQ', 'variant' => 'normal',
-                'lat' => 42.120152, 'lng' => -8.852366,
-                'map_eyebrow' => 'Etappe 6 · 24.09.', 'map_meta' => '14 km · noch 130 km',
-                'map_hub' => 0, 'map_name' => 'Baiona',
+                'booking_url' => sprintf($bk, 'Nigr%C3%A1n%2C%20Pontevedra%2C%20Spain', '2026-09-24', '2026-09-25'),
+                'booking_label' => 'Booking Nigrán',
+                'km_big' => '123', 'km_sub' => 'noch bis SCQ', 'variant' => 'normal',
+                'lat' => 42.1500, 'lng' => -8.8100,
+                'map_eyebrow' => 'Etappe 6 · 24.09.', 'map_meta' => '21 km · noch 123 km',
+                'map_hub' => 0, 'map_name' => 'Nigrán',
             ],
             [
                 'seq' => 7, 'code' => 'E7 · 25.09.', 'date_label' => '25.09.2026',
-                'title' => 'Baiona → Vigo', 'title_suffix' => null,
-                'dist' => '27 km · längste Etappe',
+                'title' => 'Nigrán → Vigo', 'title_suffix' => null,
+                'dist' => '20 km · am Wasser entlang',
                 'target' => '<b style="color:#2e7d32">Gebucht:</b> Alda Estación Vigo · <b>57,00 €</b> '
                     . '(inkl. 5,18 € MwSt)',
                 'note' => '<b>Calle Alfonso XIII 19, 36201</b> — 200 m vom Bahnhof Vigo-Urzáiz, mitten im '
@@ -558,7 +571,7 @@ function seed_database(Database $db): void
             ['Viana do Castelo (E3)', 'B&B HOTEL Viana do Castelo · Doppelzimmer', 65.00, 'ok', 'gebucht'],
             ['Caminha (E4)', 'Residencial Galo d\'Ouro · Einzelzimmer · inkl. 3,11 € MwSt und 1,50 € Übernachtungssteuer', 56.50, 'ok', 'gebucht'],
             ['Oia (E5)', 'Hotel-Restaurante Glasgow ★★★, Viladesuso · Einzelzimmer · inkl. 9,09 € MwSt', 100.00, 'ok', 'gebucht'],
-            ['Baiona (E6)', '~ Hostal', null, 'open', 'offen'],
+            ['Nigrán (E6)', 'HOTEL HOLIDAY playa América ★★★ · 50,00 € · Bestätigung fehlt, Datum prüfen', null, 'warn', 'zu prüfen'],
             ['Vigo (E7)', 'Alda Estación Vigo · Calle Alfonso XIII 19 · inkl. 5,18 € MwSt', 57.00, 'ok', 'gebucht'],
             ['Arcade (E8)', '~ Pension', null, 'open', 'offen'],
             ['Pontevedra (E9)', '~ Hostal casco vello', null, 'open', 'offen'],

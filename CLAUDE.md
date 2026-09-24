@@ -76,9 +76,9 @@ Gewicht 93 kg (Start 12.01.) → Ziel ~88 kg bis Abflug
 | E2 | 20.09. | Vila do Conde → Esposende | 24 | 222 |
 | E3 | 21.09. | Esposende → Viana do Castelo | 25 | 197 |
 | E4 | 22.09. | Viana do Castelo → Caminha (Fährfahrplan checken!) | 26 | 171 |
-| E5 | 23.09. | Caminha → Viladesuso/Oia (Fähre über den Minho, Grenze ESP, ab hier 2 Stempel/Tag) | 27 | 144 |
-| E6 | 24.09. | Viladesuso → Baiona | 14 | 130 |
-| E7 | 25.09. | Baiona → Vigo (längste Etappe) | 27 | 103 |
+| E5 | 23.09. | Caminha → Viladesuso/Oia (Fähre über den Minho, Grenze ESP, ab hier 2 Stempel/Tag) — **längste Etappe** | 27 | 144 |
+| E6 | 24.09. | Viladesuso → Nigrán / Praia América | 21 | 123 |
+| E7 | 25.09. | Nigrán → Vigo (Küstenweg über Saiáns) | 20 | 103 |
 | E8 | 26.09. | Vigo → Arcade (Austern) | 22 | 81 |
 | E9 | 27.09. | Arcade → Pontevedra | 15 | 66 |
 | E10 | 28.09. | Pontevedra → Caldas de Reis (Thermalort) | 22 | 44 |
@@ -135,8 +135,17 @@ danach läuft sie mit der Costa zusammen.
   Laufrichtung für E8. **Vorlage war die Buchungsübersicht, nicht die
   Bestätigung** („Letzter Schritt", keine Buchungsnummer) — Bestätigungsmail
   prüfen und die Nummer nachtragen.
-- **Offen:** 5 Etappenorte — E6 Baiona, E8 Arcade, E9 Pontevedra,
-  E10 Caldas de Reis, E11 Padrón. Booking-Links im HTML, nach Preis sortiert.
+- **Zu prüfen:** Nigrán (E6), HOTEL HOLIDAY camino de Santiago por la costa en
+  playa América ★★★, Einzelbelegung, 50,00 € (inkl. 4,55 € MwSt). Carretera
+  Vigo–Baiona (por la costa) 17, 36350 Nigrán — an der Praia América, rund 7 km
+  hinter Baiona und damit schon in Laufrichtung. **Zwei Dinge stimmen daran
+  nicht:** die Vorlage war die Buchungs*übersicht* mit „Letzter Schritt", nicht
+  die Bestätigung (keine Buchungsnummer — ob sie durchging, ist offen), und als
+  Anreise stand dort **Fr, 25.09.**, während die Nacht **Do, 24.09. → Fr,
+  25.09.** gebraucht wird. Der 25. ist die Nacht danach, und die ist in Vigo
+  gebucht. Deshalb steht auf der Seite „zu prüfen" und kein Betrag als bezahlt.
+- **Offen:** 4 Etappenorte — E8 Arcade, E9 Pontevedra, E10 Caldas de Reis,
+  E11 Padrón. Booking-Links im HTML, nach Preis sortiert.
   **Oia und Santiago, die beiden kritischen, sind durch.**
 - Budget-Ausrichtung: Pension/Hostal statt Hotel, ca. 50–110 €/Nacht
 - **Nur Unterkünfte mit eigenem Zimmer** — kein Bett im Schlafsaal. Steht in
@@ -238,7 +247,10 @@ darauf auf, nicht auf der ausgebauten Fassung.
 ## Offene Punkte
 
 - **Passwort auf der Seite setzen** — beim nächsten Aufruf
-- 5 Unterkünfte buchen: Baiona, Arcade, Pontevedra, Caldas de Reis, Padrón —
+- **Nigrán (E6): Buchung prüfen — Datum und Bestätigung.** Der Screenshot war
+  die Übersicht mit „Letzter Schritt" und nannte als Anreise den 25.09.;
+  gebraucht wird die Nacht vom 24. auf den 25.
+- 4 Unterkünfte buchen: Arcade, Pontevedra, Caldas de Reis, Padrón —
   E1 bis E5, E7 und E12 sind durch, damit auch die beiden kritischen
 - **Vigo: Bestätigungsmail prüfen.** Der Screenshot war die Buchungsübersicht
   mit „Letzter Schritt", nicht die Bestätigung — und ohne Buchungsnummer.

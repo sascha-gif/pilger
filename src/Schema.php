@@ -210,6 +210,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/031_unterkuenfte.php';
             migration_031($db);
         });
+
+        // E6 endet in Nigran, nicht in Baiona — und E7 faengt dort an.
+        $apply('032_nigran', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/032_nigran.php';
+            migration_032($db);
+        });
     }
 
     /** @return array<int,string> */

@@ -229,6 +229,9 @@ details.pcat[open] > summary::after{transform:rotate(-135deg) translate(-2px,-2p
 .ctbl input.cost:focus{outline:2px solid var(--atlantic);border-color:var(--atlantic)}
 .ctbl .st{font-family:"Spline Sans Mono",monospace;font-size:11px;letter-spacing:.05em}
 .st.ok{color:var(--ok)}.st.open{color:var(--warn)}.st.est{color:var(--stone)}
+/* „zu prüfen" ist nicht dasselbe wie „offen": ein Haus ist gefunden, nur die
+   Bestätigung fehlt. Kräftiger als offen, damit es nicht untergeht. */
+.st.warn{color:#c2410c;font-weight:600}
 .ctot{display:flex;justify-content:space-between;align-items:baseline;padding:16px 12px;border-top:2px solid var(--granite)}
 .ctot .lbl{font-family:"Fraunces",serif;font-size:19px;font-weight:600}
 .ctot .val{font-family:"Spline Sans Mono",monospace;font-size:22px;font-weight:600;color:var(--granite)}
