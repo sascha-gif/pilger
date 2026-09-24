@@ -99,6 +99,7 @@ Port geöffnet werden. Details in `docs/DEPLOYMENT.md`.
 | Container-Stack (Dockerfile, compose) | **fertig**, wird bei jedem Push geprüft |
 | Selbstaktualisierung (systemd-Zeitgeber) | **fertig**, läuft |
 | Google Health: Schritte, Kalorien, Puls | **fertig**, wartet auf die Freigabe in der Cloud Console |
+| Journal (`/journal.php`) | **Prototyp**, verlinkt im Seitenfuß — siehe unten |
 | Live auf pilger.milsh.com | **fertig** |
 
 Getestet gegen SQLite wurde vollständig: Rendern, Speichern, Neuladen, Anmelden,
@@ -146,8 +147,9 @@ public/            Document-Root
   upload.php       Annahme von Fotos und Sprachaufnahmen (multipart)
   media.php        Auslieferung derselben — nur nach Anmeldung
   gesundheit.php   Rückkehr von Google nach der OAuth-Anmeldung
+  journal.php      das Journal — dieselben Daten, zum Lesen statt zum Bedienen
   sw.js            Service Worker, hält die Seite ohne Netz lesbar
-  assets/          app.css, app.js, tagebuch.js
+  assets/          app.css, app.js, tagebuch.js, journal.css, journal.js
 src/               Anwendungscode
   bootstrap.php    Konfiguration, DB, Sitzung, data_path()
   Auth.php         Zutritt: Passwort, Merken-Cookie, Bremse
@@ -867,6 +869,67 @@ Wieder einblenden heißt: den jeweiligen Commit rückgängig machen, mehr nicht.
 
 Die Sprungziele (`#packliste`, `#kosten`, …) haben sich nie geändert — nur die
 Nummern davor.
+
+## Das Journal — Prototyp
+
+`pilger.milsh.com/journal.php`, verlinkt unten im Seitenfuß der Hauptseite.
+
+Der Abschnitt „Tagebuch" auf der Hauptseite ist ein **Werkzeug**: aufnehmen,
+hochladen, abhaken, Warteschlange leeren. Das Journal ist das Gegenteil — eine
+Seite **ohne einen einzigen Knopf**, zum Lesen von vorn bis hinten, auch für
+jemanden, der nicht dabei war. Gleiche Datenbank, gleiche Fotos, andere Absicht.
+
+**Was es zeigt.** Titelseite mit Kilometern, Etappen, notierten Tagen und
+Bildern. Darunter je Tag ein Kapitel: das erste Foto bildschirmfüllend als
+Aufmacher, Wochentag und Datum, Etappe und Ziel, eine Zahlenzeile aus
+`health_days` plus Wetter und Höhenmetern, der Text der Einträge, eine Karte
+auf den Zielort und zum Schluss die übrigen Fotos als Mosaik. Oben klebt eine
+Tagesleiste, die mitläuft und sagt, wo man gerade ist.
+
+**Reihenfolge andersherum.** Im Tagebuch steht der neueste Tag oben, weil man
+ihn gerade geschrieben hat. Ein Journal liest man von vorn — deshalb `ksort()`
+statt der Sortierung aus `Tagebuch::eintraege()`. Innerhalb eines Tages ebenso:
+die frühe Notiz zuerst.
+
+**Eigene Datei, eigenes CSS.** `journal.css` erbt nichts von `app.css`. Das ist
+Absicht: die Hauptseite ist ein Bedienpanel und soll eins bleiben, das Journal
+darf großzügig sein — breite Bilder, eine schmale Lesespalte von 38 rem,
+Initiale am Absatzanfang. Beide Dateien anzufassen, wenn sich am Journal etwas
+ändert, wäre der sichere Weg, die Hauptseite kaputtzumachen.
+
+**Zwei Kleinigkeiten, die schon einmal schiefgingen:**
+
+- Das Mosaik ist `column-count`, kein Grid. Mit Grid hinterlassen hochkant
+  fotografierte Bilder Löcher, sobald sie zwei Zeilen hoch sind. Am Telefon
+  eine Spalte, sonst zwei.
+- Die Zahlen auf der Titelseite sind am Telefon 2 × 2, nicht 4 × 1. Vier
+  nebeneinander schoben die vierte aus dem Bild — sichtbar war nur noch ein
+  Strich am rechten Rand.
+
+**Wenn Leaflet nicht lädt**, steht im Kartenkasten der Ortsname und „Karte
+braucht Internet" statt eines leeren Rahmens. `journal.js` räumt den Satz weg,
+bevor es die Karte hineinbaut. Karten entstehen erst, wenn das Kapitel in die
+Nähe des Bildschirms kommt — zwölf Leaflet-Instanzen auf einmal macht kein
+Telefon mit.
+
+**Zutritt und Sichtbarkeit.** Die Seite hängt an derselben `gate.php` wie alles
+andere, dazu `noindex, nofollow`. Sie ist also vorerst nur für ihn lesbar.
+
+**Was für die fertige Fassung noch fehlt:**
+
+- **Wo ein Foto entstanden ist.** Die Metadaten stehen im Bild — aber die
+  Verkleinerung im Browser (Canvas) wirft EXIF weg, bevor das Bild den Server
+  sieht. Die Koordinaten müssen also **vorher** im Browser aus der Datei
+  gelesen und als eigenes Feld mitgeschickt werden, dann können die Fotos als
+  Punkte auf der Tageskarte liegen.
+- **Videos.** Dieselbe Warteschlange, dieselbe Ablage, aber `media.php` müsste
+  Bereichsanfragen beantworten, sonst springt kein Player.
+- **Ein Text über die Tage hinweg.** Bisher baut Claude jede Notiz für sich
+  aus. Ein Journal verträgt mehr: Rückgriffe auf vorgestern, ein Kapitelanfang,
+  der weiß, was vorher war. Dieselbe Regel gilt weiter — nur was in den Daten
+  steht oder auf den Bildern zu sehen ist.
+- **Für die Familie lesbar machen.** Ein zweiter, langer Link ohne Passwort,
+  der nur auf das Journal zeigt, nicht auf die Bedienseite.
 
 ## Was bewusst nicht gebaut wurde
 

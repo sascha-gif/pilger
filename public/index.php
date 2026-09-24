@@ -984,6 +984,8 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
   <div class="wrap">
     <span><?= h($s['footer_left'] ?? '') ?></span>
     <span><?= h($s['footer_right'] ?? '') ?></span>
+    <?php /* Das Journal: dieselben Eintraege, nur zum Lesen statt zum Bedienen. */ ?>
+    <span class="jlink"><a href="journal.php">Das Journal &rarr;</a></span>
     <?php
       /* Welcher Stand läuft gerade? Ohne diese Zeile ist „ist es schon
          deployt?" eine Frage, die niemand von außen beantworten kann.

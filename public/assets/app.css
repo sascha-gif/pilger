@@ -159,6 +159,11 @@ section:has(> .wrap > details.block:not([open])){padding:26px 0}
 
 /* GPX-Import unter der Karte. Zugeklappt eine Zeile — die Karte ist zum
    Ansehen da, nicht zum Hochladen. */
+/* Der Weg ins Journal. Steht im Fuss, weil die Hauptseite zum Arbeiten da ist
+   und das Journal zum Lesen — man geht einmal hinueber, nicht staendig. */
+footer .jlink a{font-weight:600;text-decoration:none}
+footer .jlink a:hover{text-decoration:underline}
+
 .gpxbox{margin-top:10px;border-top:1px solid var(--line);padding-top:10px}
 .gpxbox > summary{list-style:none;cursor:pointer;font-family:"Spline Sans Mono",monospace;
                   font-size:11px;color:var(--atlantic);-webkit-tap-highlight-color:transparent}

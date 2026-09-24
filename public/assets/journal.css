@@ -1,0 +1,154 @@
+/* Das Journal.
+   Die Hauptseite ist ein Werkzeug — eng gesetzt, viele Zahlen, überall Knöpfe.
+   Hier ist das Gegenteil gefragt: grosse Bilder, viel Luft, eine Spalte Text,
+   die man am Stueck liest. Deshalb eigenes Stylesheet statt app.css dazu. */
+
+:root{
+  color-scheme:light only;
+  --granite:#232a2e; --atlantic:#1f5d6c; --flecha:#f4b400;
+  --paper:#f6f0e2; --paper-2:#fbf7ec; --ink:#1d2326;
+  --stone:#857c6c; --line:#ddd3bd;
+  --spalte:38rem;          /* Lesebreite: rund 70 Zeichen */
+  --breit:min(1180px, 92vw);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;background:var(--paper)}
+body{font-family:"Public Sans",system-ui,sans-serif;background:var(--paper);color:var(--ink);
+     line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{display:block;max-width:100%}
+a{color:var(--atlantic)}
+
+/* ---------- Titelseite ---------------------------------------------------
+   Einmal ganz dunkel, bevor es hell wird. Die Muschel liegt riesig und fast
+   unsichtbar dahinter — dasselbe Zeichen wie auf der Hauptseite, nur ruhiger. */
+.jcover{min-height:100svh;background:var(--granite);color:var(--paper);
+        display:flex;align-items:center;position:relative;overflow:hidden;padding:80px 0 110px}
+.jshell{position:absolute;right:-16%;top:50%;transform:translateY(-50%);
+        width:min(760px,95vw);opacity:.055;pointer-events:none}
+.jcover-in{width:var(--breit);margin:0 auto;position:relative;z-index:2}
+.jkicker{font-family:"Spline Sans Mono",monospace;font-size:12px;letter-spacing:.34em;
+         text-transform:uppercase;color:var(--flecha);margin-bottom:26px}
+.jcover h1{font-family:"Fraunces",serif;font-weight:900;font-size:clamp(52px,13vw,132px);
+           line-height:.92;letter-spacing:-.02em}
+.jcover h1 em{font-style:italic;font-weight:400;color:var(--flecha);font-size:.52em;
+              display:inline-block;padding:0 0 0 .08em}
+.jdaten{font-family:"Spline Sans Mono",monospace;font-size:13px;color:#b3ad9c;margin-top:30px}
+/* Raster statt Flexbox: bei zwei Reihen haengt sonst hinter der letzten Zahl
+   der ersten Reihe eine Trennlinie in der Luft. */
+.jzahlen{display:grid;grid-template-columns:repeat(4,1fr);margin-top:44px;
+         border-top:1px solid #3a444a;border-bottom:1px solid #3a444a}
+.jzahlen > div{padding:20px 24px 20px 0}
+.jzahlen > div + div{border-left:1px solid #3a444a;padding-left:24px}
+.jzahlen b{display:block;font-family:"Fraunces",serif;font-size:34px;font-weight:600;line-height:1}
+.jzahlen span{display:block;font-family:"Spline Sans Mono",monospace;font-size:10.5px;
+              letter-spacing:.16em;text-transform:uppercase;color:#b3ad9c;margin-top:7px}
+.jprototyp{margin-top:30px;display:inline-block;font-family:"Spline Sans Mono",monospace;
+           font-size:11px;letter-spacing:.1em;color:var(--granite);background:var(--flecha);
+           padding:5px 12px;border-radius:2px}
+.jrunter{position:absolute;left:50%;bottom:34px;transform:translateX(-50%);z-index:2;
+         color:var(--flecha);text-decoration:none;font-size:26px;line-height:1;
+         animation:jwink 2.4s ease-in-out infinite}
+@keyframes jwink{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,9px)}}
+
+/* ---------- Tagesleiste --------------------------------------------------
+   Klebt oben und sagt, wo man ist. Waagerecht scrollbar, weil zwoelf Tage auf
+   ein Telefon nicht nebeneinander passen. */
+.jleiste{position:sticky;top:0;z-index:30;display:flex;gap:2px;overflow-x:auto;
+         background:rgba(35,42,46,.97);backdrop-filter:blur(8px);
+         border-bottom:1px solid #3a444a;scrollbar-width:none}
+.jleiste::-webkit-scrollbar{display:none}
+.jleiste a{flex:0 0 auto;text-decoration:none;color:#bfc4c2;padding:11px 16px;
+           border-bottom:2px solid transparent;text-align:center;transition:color .15s}
+.jleiste a b{display:block;font-family:"Fraunces",serif;font-size:17px;font-weight:600}
+.jleiste a span{display:block;font-family:"Spline Sans Mono",monospace;font-size:9.5px;
+                letter-spacing:.1em;color:#7f8a8b;margin-top:1px}
+.jleiste a:hover{color:var(--flecha)}
+.jleiste a.da{color:var(--flecha);border-bottom-color:var(--flecha)}
+.jleiste a.da span{color:var(--flecha)}
+
+/* ---------- Kapitel ---------------------------------------------------- */
+.jkap{padding:0 0 clamp(70px,11vw,130px)}
+.jkap + .jkap{border-top:1px solid var(--line)}
+
+/* Das Aufmacherbild laeuft ueber die ganze Breite — der Rest der Seite haelt
+   Lesebreite, damit der Wechsel etwas bedeutet. */
+.jheld{position:relative;margin-bottom:clamp(34px,5vw,58px)}
+.jheld img{width:100%;height:clamp(300px,62vh,620px);object-fit:cover}
+.jheld figcaption{position:absolute;left:0;right:0;bottom:0;padding:44px 22px 16px;
+                  background:linear-gradient(to top,rgba(35,42,46,.82),transparent);
+                  color:#f6f0e2;font-size:13px;font-family:"Spline Sans Mono",monospace}
+.jkap:first-of-type .jheld{margin-top:0}
+
+.jkopf,.jzeile,.jtext,.jkarte{width:var(--spalte);max-width:92vw;margin-left:auto;margin-right:auto}
+.jkopf{margin-bottom:26px}
+.jtagzahl{font-family:"Spline Sans Mono",monospace;font-size:11.5px;letter-spacing:.14em;
+          text-transform:uppercase;color:var(--stone)}
+.jtagzahl b{color:var(--flecha);font-weight:600}
+.jkopf h2{font-family:"Fraunces",serif;font-size:clamp(30px,5.4vw,46px);font-weight:600;
+          line-height:1.08;letter-spacing:-.01em;margin:8px 0 6px}
+.jetappe{font-family:"Spline Sans Mono",monospace;font-size:12px;color:var(--stone)}
+
+/* Die Zahlen des Tages. Nicht als Tabelle — das hier ist kein Bericht. */
+.jzeile{display:flex;flex-wrap:wrap;gap:0 30px;margin-bottom:34px;padding:16px 0;
+        border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.jzeile b{display:block;font-family:"Fraunces",serif;font-size:21px;font-weight:600;line-height:1.15}
+.jzeile span{display:block;font-family:"Spline Sans Mono",monospace;font-size:10px;
+             letter-spacing:.14em;text-transform:uppercase;color:var(--stone);margin-top:4px}
+
+.jtext{font-size:18.5px;line-height:1.72}
+.jtext p{margin-bottom:1.15em}
+/* Der erste Buchstabe gross. Ein Journal darf das. */
+.jtext > p:first-of-type::first-letter{float:left;font-family:"Fraunces",serif;font-weight:600;
+  font-size:3.3em;line-height:.82;padding:6px 10px 0 0;color:var(--atlantic)}
+
+.jkarte{height:230px;margin-top:38px;border:1px solid var(--line);background:var(--paper-2);
+        display:flex;align-items:center;justify-content:center}
+.jkarte .leaflet-container{background:#dfe6e3}
+/* Ohne Netz laedt Leaflet nicht. Dann steht hier ein Satz statt eines
+   leeren Kastens — ein leerer Kasten sieht nach Fehler aus. */
+.jkarte .jkartenot{font-family:"Spline Sans Mono",monospace;font-size:11.5px;
+                   color:var(--stone);text-align:center;padding:0 18px}
+
+/* ---------- Bildmosaik ---------------------------------------------------
+   Spalten statt Raster. Im Raster muessen alle Bilder dieselbe Zellenhoehe
+   fuellen — also beschneiden, und bei ungerader Mischung aus hoch und quer
+   bleiben Loecher stehen. Mit Textspalten fliessen sie ineinander, behalten
+   ihre echten Seitenverhaeltnisse und es entsteht kein Loch.
+
+   Auf dem Telefon nur eine Spalte: ein Reisebild will gross sein. */
+.jmosaik{width:var(--breit);margin:clamp(38px,6vw,64px) auto 0;
+         column-count:2;column-gap:10px}
+.jmosaik figure{position:relative;overflow:hidden;background:var(--paper-2);
+                break-inside:avoid;margin:0 0 10px}
+.jmosaik img{width:100%;height:auto;transition:transform .5s ease}
+.jmosaik figure:hover img{transform:scale(1.03)}
+.jmosaik figcaption{position:absolute;left:0;right:0;bottom:0;padding:26px 12px 9px;
+                    background:linear-gradient(to top,rgba(35,42,46,.8),transparent);
+                    color:#f6f0e2;font-size:11.5px;font-family:"Spline Sans Mono",monospace}
+
+.jleer{width:var(--spalte);max-width:92vw;margin:90px auto;text-align:center;color:var(--stone)}
+.jleer p{margin-bottom:12px}
+
+.jfuss{background:var(--granite);color:#b3ad9c;padding:52px 0;text-align:center;
+       font-family:"Spline Sans Mono",monospace;font-size:12px}
+.jfuss p + p{margin-top:10px}
+.jfuss a{color:var(--flecha)}
+
+/* ---------- Unterwegs ----------------------------------------------------
+   Gelesen wird das hier auf einem Telefon, im Gehen oder abends im Bett. */
+@media (max-width:640px){
+  :root{--spalte:100%}
+  .jcover{padding:64px 0 92px}
+  .jcover-in{width:88vw}
+  .jzahlen{grid-template-columns:repeat(2,1fr)}
+  .jzahlen > div{padding:14px 0 14px 18px;border-left:1px solid #3a444a}
+  .jzahlen > div:nth-child(odd){padding-left:0;border-left:0}
+  .jzahlen > div:nth-child(1),.jzahlen > div:nth-child(2){padding-top:18px}
+  .jzahlen > div:nth-child(3),.jzahlen > div:nth-child(4){border-top:1px solid #3a444a;padding-bottom:18px}
+  .jzahlen b{font-size:27px}
+  .jkopf,.jzeile,.jtext,.jkarte{width:auto;margin-left:22px;margin-right:22px}
+  .jtext{font-size:17.5px}
+  .jmosaik{width:auto;margin-left:14px;margin-right:14px;column-count:1}
+  .jmosaik figure{margin-bottom:14px}
+  .jheld img{height:54vh}
+}
