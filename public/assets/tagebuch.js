@@ -285,6 +285,194 @@
     }, Promise.resolve()).then(function () { return fertig; });
   }
 
+
+  /* ================= Wo ein Bild entstanden ist ========================= */
+
+  /* Die Koordinaten stehen im Bild selbst, im EXIF-Block. Gelesen werden
+     muessen sie **hier**, vor dem Verkleinern: die Leinwand malt Pixel ab,
+     die Metadaten bleiben dabei liegen. Danach sind sie fort — das Handy hat
+     das Original noch, der Server sieht es nie.
+
+     Gelesen wird nur der Anfang der Datei. Der EXIF-Block steht im ersten
+     Segment nach dem Dateikopf und ist auf 64 KB begrenzt; ein halbes
+     Megabyte ist reichlich und kostet auf dem Telefon nichts.
+
+     Alles hier drin darf scheitern, ohne dass jemand etwas merkt: kommt
+     nichts heraus, geht das Bild ohne Koordinaten raus — so wie bisher. */
+
+  var EXIF_BLICK = 512 * 1024;
+
+  /* Groesse je EXIF-Typ. 5 = RATIONAL (zwei LONGs), 2 = ASCII, 4 = LONG. */
+  var EXIF_GROESSE = { 1: 1, 2: 1, 3: 2, 4: 4, 5: 8, 6: 1, 7: 1, 8: 2, 9: 4, 10: 8, 11: 4, 12: 8 };
+
+  function exifFelder(d, offset, klein) {
+    var felder = {};
+    if (offset < 0 || offset + 2 > d.byteLength) return felder;
+    var anzahl = d.getUint16(offset, klein);
+    // Ein beschaedigter Block kann hier jede Zahl behaupten. Mehr als 512
+    // Eintraege schreibt keine Kamera.
+    if (anzahl > 512) return felder;
+    for (var i = 0; i < anzahl; i++) {
+      var e = offset + 2 + i * 12;
+      if (e + 12 > d.byteLength) break;
+      felder[d.getUint16(e, klein)] = {
+        typ: d.getUint16(e + 2, klein),
+        n:   d.getUint32(e + 4, klein),
+        pos: e + 8
+      };
+    }
+    return felder;
+  }
+
+  /* Bis vier Bytes steht der Wert im Eintrag selbst, darueber ein Verweis —
+     gerechnet ab dem Anfang des TIFF-Kopfes, nicht ab dem Dateianfang. */
+  function exifWertPos(d, basis, f, klein) {
+    if (!f) return -1;
+    var g = (EXIF_GROESSE[f.typ] || 0) * f.n;
+    if (!g) return -1;
+    if (g <= 4) return f.pos;
+    var o = basis + d.getUint32(f.pos, klein);
+    return (o >= 0 && o + g <= d.byteLength) ? o : -1;
+  }
+
+  function exifBrueche(d, basis, f, klein) {
+    var o = exifWertPos(d, basis, f, klein);
+    if (o < 0 || f.typ !== 5) return null;
+    var raus = [];
+    for (var i = 0; i < f.n; i++) {
+      var zaehler = d.getUint32(o + i * 8, klein);
+      var nenner  = d.getUint32(o + i * 8 + 4, klein);
+      raus.push(nenner ? zaehler / nenner : 0);
+    }
+    return raus;
+  }
+
+  function exifText(d, basis, f, klein) {
+    var o = exifWertPos(d, basis, f, klein);
+    if (o < 0 || f.typ !== 2) return '';
+    var s = '';
+    for (var i = 0; i < f.n; i++) {
+      var c = d.getUint8(o + i);
+      if (!c) break;
+      s += String.fromCharCode(c);
+    }
+    return s.trim();
+  }
+
+  /* Grad, Minuten, Sekunden — so steht es im Bild — werden zu einer Zahl.
+     Sechs Nachkommastellen sind rund zehn Zentimeter; mehr ist Unfug. */
+  function exifGrad(teile, richtung) {
+    if (!teile || teile.length < 3) return null;
+    var g = teile[0] + teile[1] / 60 + teile[2] / 3600;
+    if (richtung === 'S' || richtung === 'W') g = -g;
+    if (!isFinite(g)) return null;
+    return Math.round(g * 1e6) / 1e6;
+  }
+
+  function exifAusTiff(d, basis) {
+    if (basis + 8 > d.byteLength) return null;
+    var ordnung = d.getUint16(basis);
+    var klein;
+    if (ordnung === 0x4949)      { klein = true; }
+    else if (ordnung === 0x4D4D) { klein = false; }
+    else                         { return null; }
+    if (d.getUint16(basis + 2, klein) !== 0x002A) return null;
+
+    var ifd0 = exifFelder(d, basis + d.getUint32(basis + 4, klein), klein);
+    var raus = { lat: null, lng: null, zeit: null };
+
+    /* ---- Koordinaten (eigener Unterblock, Verweis in Feld 0x8825) ---- */
+    var gpsZeiger = ifd0[0x8825];
+    if (gpsZeiger && gpsZeiger.typ === 4) {
+      var gps = exifFelder(d, basis + d.getUint32(gpsZeiger.pos, klein), klein);
+      var lat = exifGrad(exifBrueche(d, basis, gps[2], klein), exifText(d, basis, gps[1], klein));
+      var lng = exifGrad(exifBrueche(d, basis, gps[4], klein), exifText(d, basis, gps[3], klein));
+      // Genau 0/0 liegt im Atlantik vor Afrika und heisst in der Praxis
+      // „kein Empfang gehabt" — das ist keine Koordinate, das ist ein Loch.
+      if (lat !== null && lng !== null
+          && Math.abs(lat) <= 90 && Math.abs(lng) <= 180
+          && (lat !== 0 || lng !== 0)) {
+        raus.lat = lat;
+        raus.lng = lng;
+      }
+    }
+
+    /* ---- Aufnahmezeit (Unterblock, Verweis in Feld 0x8769) ----------- */
+    var exifZeiger = ifd0[0x8769];
+    if (exifZeiger && exifZeiger.typ === 4) {
+      var unter = exifFelder(d, basis + d.getUint32(exifZeiger.pos, klein), klein);
+      // „2026:09:24 08:31:12" — Doppelpunkte im Datum, so will es das Format.
+      var roh = exifText(d, basis, unter[0x9003], klein) || exifText(d, basis, unter[0x9004], klein);
+      var m = /^(\d{4}):(\d{2}):(\d{2})[ T](\d{2}):(\d{2}):(\d{2})/.exec(roh);
+      if (m) {
+        // Dazu der Zeitversatz, falls die Kamera ihn geschrieben hat. Ohne
+        // ihn bleibt die Zeit ortlos — besser als gar keine, und der Server
+        // liest sie dann als das, was auf der Uhr stand.
+        var versatz = exifText(d, basis, unter[0x9011], klein);
+        var vm = /^([+-]\d{2}:\d{2})$/.exec(versatz);
+        raus.zeit = m[1] + '-' + m[2] + '-' + m[3] + 'T' + m[4] + ':' + m[5] + ':' + m[6]
+                  + (vm ? vm[1] : '');
+      }
+    }
+
+    return (raus.lat !== null || raus.zeit) ? raus : null;
+  }
+
+  /* JPEG ist eine Kette von Segmenten. Gesucht ist APP1 (0xFFE1), das mit
+     „Exif\0\0" anfaengt. Bei 0xFFDA fangen die Bilddaten an — danach kommt
+     nichts mehr, was uns hilft. */
+  function exifAusJpeg(puffer) {
+    var d = new DataView(puffer);
+    if (d.byteLength < 4 || d.getUint16(0) !== 0xFFD8) return null;
+    var p = 2;
+    while (p + 4 <= d.byteLength) {
+      if (d.getUint8(p) !== 0xFF) return null;          // aus dem Tritt geraten
+      var marke = d.getUint8(p + 1);
+      if (marke === 0xD8 || (marke >= 0xD0 && marke <= 0xD9)) { p += 2; continue; }
+      if (marke === 0xDA) return null;                  // Bilddaten
+      var laenge = d.getUint16(p + 2);
+      if (laenge < 2) return null;
+      if (marke === 0xE1 && p + 10 <= d.byteLength
+          && d.getUint32(p + 4) === 0x45786966          // „Exif"
+          && d.getUint16(p + 8) === 0x0000) {
+        return exifAusTiff(d, p + 10);
+      }
+      p += 2 + laenge;
+    }
+    return null;
+  }
+
+  /* Das Ergebnis je Bild: { lat, lng, zeit } oder null. Nie ein Fehler. */
+  function bildHerkunft(datei) {
+    if (!datei || !/^image\//.test(datei.type || '') || !datei.slice || !window.FileReader) {
+      return Promise.resolve(null);
+    }
+    return new Promise(function (ok) {
+      var leser = new FileReader();
+      leser.onload  = function () {
+        var raus = null;
+        try { raus = exifAusJpeg(leser.result); } catch (e) { raus = null; }
+        ok(raus);
+      };
+      leser.onerror = function () { ok(null); };
+      try {
+        leser.readAsArrayBuffer(datei.slice(0, EXIF_BLICK));
+      } catch (e) {
+        ok(null);
+      }
+    });
+  }
+
+  /* Erst lesen, dann verkleinern — in dieser Reihenfolge, sonst ist es weg.
+     Heraus kommen zwei Listen mit demselben Index. */
+  function bilderVorbereiten(roh, melde) {
+    return Promise.all(roh.map(bildHerkunft)).then(function (orte) {
+      return verkleinereAlle(roh, melde).then(function (dateien) {
+        return { dateien: dateien, orte: orte };
+      });
+    });
+  }
+
   /* ================= Hochladen ========================================== */
 
   /* Was schiefging, so genau wie möglich — dieser Text landet in der
@@ -394,6 +582,8 @@
         entry: felder.entry || '',
         client_id: felder.client_id || '',
         aufgenommen: felder.aufgenommen || '',
+        lat: felder.lat || '',
+        lng: felder.lng || '',
         name: dateiname,
         daten: daten
       });
@@ -446,10 +636,18 @@
         // Handyfoto in der Warteschlange. Die sollen nicht ewig weiterscheitern.
         return verkleinere(datei).then(function (klein) {
           p.fotos[i] = klein;
+          // Die Zeit aus dem Bild ist die bessere: `lastModified` ist das,
+          // was das Dateisystem zuletzt angefasst hat, und das kann das
+          // Kopieren aus der Galerie gewesen sein.
+          var ort = (p.orte || [])[i] || null;
           var felder = {
             art: 'foto', stage: p.stage, entry: entryId || '',
             client_id: p.id + '-f' + i,
-            aufgenommen: klein.lastModified ? new Date(klein.lastModified).toISOString() : ''
+            aufgenommen: (ort && ort.zeit)
+              ? ort.zeit
+              : (klein.lastModified ? new Date(klein.lastModified).toISOString() : ''),
+            lat: (ort && ort.lat !== null && ort.lat !== undefined) ? String(ort.lat) : '',
+            lng: (ort && ort.lng !== null && ort.lng !== undefined) ? String(ort.lng) : ''
           };
           var name = klein.name || ('bild' + i + '.jpg');
 
@@ -742,16 +940,23 @@
 
       // Die Merkmale gleich vormerken, sonst gilt dasselbe Bild waehrend des
       // Verkleinerns noch als neu.
+      var abIndex = wahlQuellen.length;
       neu.forEach(function (datei) {
-        wahlQuellen.push({ name: datei.name, size: datei.size, lastModified: datei.lastModified });
+        wahlQuellen.push({ name: datei.name, size: datei.size, lastModified: datei.lastModified, ort: null });
       });
 
-      verkleinereAlle(neu, function (i, von) {
+      bilderVorbereiten(neu, function (i, von) {
         sag(von === 1 ? 'Bild wird vorbereitet …' : 'Bilder werden vorbereitet … (' + i + ' von ' + von + ')');
       }).then(function (fertig) {
-        fertig.forEach(function (datei) { gewaehlteFotos.push(datei); });
+        fertig.dateien.forEach(function (datei) { gewaehlteFotos.push(datei); });
+        // Die Herkunft gehoert zum Original, nicht zur verkleinerten Fassung —
+        // deshalb liegt sie neben der Auswahl und wird beim Entfernen eines
+        // Bildes mit weggeschnitten.
+        fertig.orte.forEach(function (ort, i) {
+          if (wahlQuellen[abIndex + i]) wahlQuellen[abIndex + i].ort = ort;
+        });
         malWahl();
-        sag(fertig.length === 1 ? 'Bild bereit.' : fertig.length + ' Bilder bereit.');
+        sag(fertig.dateien.length === 1 ? 'Bild bereit.' : fertig.dateien.length + ' Bilder bereit.');
       });
     });
   }
@@ -848,6 +1053,7 @@
         sekunden: fertigeAufnahme ? fertigeAufnahme.sekunden : null,
         audioEndung: fertigeAufnahme ? fertigeAufnahme.endung : null,
         fotos: gewaehlteFotos,
+        orte: wahlQuellen.map(function (q) { return q.ort || null; }),
         erstellt: new Date().toISOString(),
         versuche: 0
       };
@@ -963,15 +1169,15 @@
     if (!roh.length) return;
 
     eingabe.disabled = true;
-    verkleinereAlle(roh, function (i, von) {
+    bilderVorbereiten(roh, function (i, von) {
       sag(von === 1 ? 'Bild wird vorbereitet …' : 'Bilder werden vorbereitet … (' + i + ' von ' + von + ')');
-    }).then(function (dateien) {
+    }).then(function (fertig) {
       eingabe.disabled = false;
-      schickeNachtrag(karte, dateien);
+      schickeNachtrag(karte, fertig.dateien, fertig.orte);
     });
   });
 
-  function schickeNachtrag(karte, dateien) {
+  function schickeNachtrag(karte, dateien, orte) {
     stelleEin({
       id: kennung(),
       entryId: Number(karte.dataset.id),
@@ -980,6 +1186,7 @@
       text: null,
       audio: null,
       fotos: dateien,
+      orte: orte || [],
       erstellt: new Date().toISOString(),
       versuche: 0
     }, function () {

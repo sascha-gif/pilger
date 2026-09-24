@@ -151,6 +151,30 @@ function json_out(array $payload, int $status = 200): void
 }
 
 /**
+ * Eine Koordinate, wie sie vom Gerät kommt — oder nichts.
+ *
+ * Gelesen wird sie im Browser aus dem Bild selbst, und was von dort kommt,
+ * wird nicht geglaubt, sondern geprüft: Breite bis 90, Länge bis 180, und
+ * genau 0/0 ist keine Position, sondern ein Gerät ohne Empfang. Sechs
+ * Nachkommastellen sind rund zehn Zentimeter — mehr zu speichern täuscht eine
+ * Genauigkeit vor, die ein Handy-GPS nie hat.
+ */
+function koordinate(mixed $wert, float $grenze): ?float
+{
+    if ($wert === null || $wert === '' || !is_scalar($wert)) {
+        return null;
+    }
+    if (!is_numeric($wert)) {
+        return null;
+    }
+    $zahl = (float) $wert;
+    if (!is_finite($zahl) || abs($zahl) > $grenze) {
+        return null;
+    }
+    return round($zahl, 6);
+}
+
+/**
  * `post_max_size = 72M` als Zahl. Die INI-Kurzschreibweise kennt K, M und G,
  * und `ini_get()` gibt sie unverändert zurück — vergleichen lässt sich damit
  * nichts.

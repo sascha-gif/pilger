@@ -193,7 +193,9 @@ try {
                     isset($body['entry']) && $body['entry'] !== '' ? (int) $body['entry'] : null,
                     isset($body['client_id']) ? substr((string) $body['client_id'], 0, 64) : null,
                     isset($body['aufgenommen']) && $body['aufgenommen'] !== ''
-                        ? substr((string) $body['aufgenommen'], 0, 32) : null
+                        ? substr((string) $body['aufgenommen'], 0, 32) : null,
+                    koordinate($body['lat'] ?? null, 90.0),
+                    koordinate($body['lng'] ?? null, 180.0)
                 );
             } finally {
                 // nimmFoto verschiebt die Datei; bleibt sie liegen, weg damit.

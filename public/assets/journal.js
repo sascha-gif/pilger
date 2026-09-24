@@ -48,7 +48,17 @@
 
     var lat = parseFloat(el.dataset.lat);
     var lng = parseFloat(el.dataset.lng);
-    if (isNaN(lat) || isNaN(lng)) return;
+    var hatZiel = !isNaN(lat) && !isNaN(lng);
+
+    /* Wo die Bilder des Tages entstanden sind — aus dem Bild gelesen, nicht
+       geraten. Hat keines Koordinaten, ist die Liste leer und es bleibt bei
+       der Etappe. */
+    var fotos = [];
+    try {
+      if (el.dataset.fotos) fotos = JSON.parse(el.dataset.fotos) || [];
+    } catch (e) { fotos = []; }
+
+    if (!hatZiel && !fotos.length) return;
 
     try {
       el.innerHTML = '';        // der Rueckfalltext hat seine Schuldigkeit getan
@@ -56,16 +66,37 @@
       var karte = L.map(el, {
         scrollWheelZoom: false, dragging: false, zoomControl: false,
         doubleClickZoom: false, boxZoom: false, keyboard: false, attributionControl: false
-      }).setView([lat, lng], 10);
+      }).setView(hatZiel ? [lat, lng] : fotos[0], 10);
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 16 }).addTo(karte);
 
       if (linie.length > 1) {
         L.polyline(linie, { color: '#f4b400', weight: 3, opacity: 0.85 }).addTo(karte);
       }
-      L.circleMarker([lat, lng], {
-        radius: 8, color: '#232a2e', weight: 3, fillColor: '#f4b400', fillOpacity: 1
-      }).addTo(karte).bindTooltip(el.dataset.name || '', { permanent: true, direction: 'right' });
+
+      // Erst die Bilder, dann das Ziel — der grosse Punkt soll obenauf liegen.
+      fotos.forEach(function (punkt) {
+        L.circleMarker(punkt, {
+          radius: 4, color: '#fff', weight: 1.5, fillColor: '#c2410c', fillOpacity: 0.95
+        }).addTo(karte);
+      });
+
+      if (hatZiel) {
+        L.circleMarker([lat, lng], {
+          radius: 8, color: '#232a2e', weight: 3, fillColor: '#f4b400', fillOpacity: 1
+        }).addTo(karte).bindTooltip(el.dataset.name || '', { permanent: true, direction: 'right' });
+      }
+
+      /* Liegen die Bilder weit vom Etappenziel weg — der Weg dorthin ist ja
+         ein ganzer Tag —, muessen sie trotzdem alle ins Bild. Etwas Rand
+         dazu, sonst kleben die Punkte am Rahmen. */
+      if (fotos.length) {
+        var alle = fotos.slice();
+        if (hatZiel) alle.push([lat, lng]);
+        try {
+          karte.fitBounds(L.latLngBounds(alle).pad(0.35), { maxZoom: 13 });
+        } catch (e) { /* ein einzelner Punkt reicht fitBounds nicht — dann eben nicht */ }
+      }
     } catch (err) {
       el.innerHTML = '<p style="padding:18px;font-family:monospace;font-size:12px;color:#857c6c">'
         + 'Karte nicht verfügbar.</p>';

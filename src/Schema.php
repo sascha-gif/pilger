@@ -198,6 +198,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/029_vigo.php';
             migration_029($db);
         });
+
+        // Fotos wissen, wo sie entstanden sind.
+        $apply('030_foto_koordinaten', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/030_foto_koordinaten.php';
+            migration_030($db);
+        });
     }
 
     /** @return array<int,string> */

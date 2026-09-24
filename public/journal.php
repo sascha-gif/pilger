@@ -210,15 +210,37 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
       <?php endforeach; ?>
     </div>
 
-    <?php if ($st && $st['lat'] !== null): ?>
+    <?php
+      /* Wo die Bilder des Tages entstanden sind. Die Koordinaten stehen im
+         Bild und werden auf dem Handy gelesen, bevor es verkleinert wird —
+         hat ein Bild keine, fehlt hier eben ein Punkt. Erfunden wird keiner. */
+      $fotoPunkte = [];
+      foreach ($k['fotos'] as $f) {
+          if ($f['lat'] !== null && $f['lng'] !== null) {
+              $fotoPunkte[] = [(float) $f['lat'], (float) $f['lng']];
+          }
+      }
+    ?>
+    <?php if (($st && $st['lat'] !== null) || $fotoPunkte): ?>
       <?php /* Der Satz darin ist der Rueckfall: laedt Leaflet nicht (kein Netz),
                steht hier etwas statt eines leeren Kastens. journal.js raeumt
                ihn weg, bevor die Karte hineinkommt. */ ?>
-      <div class="jkarte" data-lat="<?= h((string) $st['lat']) ?>" data-lng="<?= h((string) $st['lng']) ?>"
-           data-name="<?= h((string) ($st['map_name'] ?? $st['title'])) ?>">
-        <p class="jkartenot"><?= h((string) ($st['map_name'] ?? $st['title'])) ?><br>
+      <div class="jkarte"
+           <?php if ($st && $st['lat'] !== null): ?>
+             data-lat="<?= h((string) $st['lat']) ?>" data-lng="<?= h((string) $st['lng']) ?>"
+             data-name="<?= h((string) ($st['map_name'] ?? $st['title'])) ?>"
+           <?php endif; ?>
+           <?php if ($fotoPunkte): ?>
+             data-fotos="<?= h(json_encode($fotoPunkte)) ?>"
+           <?php endif; ?>>
+        <p class="jkartenot"><?= h((string) ($st['map_name'] ?? $st['title'] ?? 'Unterwegs')) ?><br>
           <span style="opacity:.7">Karte braucht Internet</span></p>
       </div>
+      <?php if ($fotoPunkte): ?>
+        <p class="jkartennote"><?= count($fotoPunkte) === 1
+          ? 'Ein Bild dieses Tages weiß, wo es entstanden ist.'
+          : count($fotoPunkte) . ' Bilder dieses Tages wissen, wo sie entstanden sind.' ?></p>
+      <?php endif; ?>
     <?php endif; ?>
 
     <?php if ($fotos): ?>

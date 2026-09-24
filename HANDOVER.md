@@ -917,11 +917,8 @@ andere, dazu `noindex, nofollow`. Sie ist also vorerst nur für ihn lesbar.
 
 **Was für die fertige Fassung noch fehlt:**
 
-- **Wo ein Foto entstanden ist.** Die Metadaten stehen im Bild — aber die
-  Verkleinerung im Browser (Canvas) wirft EXIF weg, bevor das Bild den Server
-  sieht. Die Koordinaten müssen also **vorher** im Browser aus der Datei
-  gelesen und als eigenes Feld mitgeschickt werden, dann können die Fotos als
-  Punkte auf der Tageskarte liegen.
+- ~~Wo ein Foto entstanden ist~~ — **gebaut**, siehe „Fotos wissen jetzt, wo
+  sie entstanden sind". Für die Bilder von vorher bleibt es leer.
 - **Videos.** Dieselbe Warteschlange, dieselbe Ablage, aber `media.php` müsste
   Bereichsanfragen beantworten, sonst springt kein Player.
 - **Ein Text über die Tage hinweg.** Bisher baut Claude jede Notiz für sich
@@ -930,6 +927,49 @@ andere, dazu `noindex, nofollow`. Sie ist also vorerst nur für ihn lesbar.
   steht oder auf den Bildern zu sehen ist.
 - **Für die Familie lesbar machen.** Ein zweiter, langer Link ohne Passwort,
   der nur auf das Journal zeigt, nicht auf die Bedienseite.
+
+## Fotos wissen jetzt, wo sie entstanden sind
+
+Die Koordinaten stehen im Bild selbst, im EXIF-Block. Auf dem Server kamen sie
+nie an — und das lag nicht am Server: **das Handy verkleinert das Bild vor dem
+Hochladen über eine Leinwand, und die malt nur Pixel ab.** Die Metadaten
+bleiben dabei liegen. Was ankam, war ein sauberes JPEG ohne jede Herkunft.
+
+Gelesen wird jetzt **vor** dem Verkleinern, im Browser, aus den ersten 512 KB
+der Datei (`bildHerkunft()` in `tagebuch.js`). Der EXIF-Block steht im ersten
+Segment nach dem Dateikopf und ist auf 64 KB begrenzt — mehr zu lesen bringt
+nichts. Heraus kommen Breite, Länge und die Aufnahmezeit; mitgeschickt werden
+sie als eigene Felder `lat`, `lng` und `aufgenommen`.
+
+**Zwei Wege, und das mit Absicht.** Der Server sieht sich die Datei ebenfalls
+an (`Tagebuch::gpsAusExif()`), falls das Gerät nichts geschickt hat. Das ist
+kein doppelter Boden aus Vorsicht, sondern deckt einen echten Fall ab: Bilder
+unter 600 KB und JPEGs, die die lange Kante schon einhalten, werden gar nicht
+erst verkleinert — bei denen liegt der EXIF-Block noch in der Datei, die auf
+dem Server ankommt. Der Wert vom Gerät hat Vorrang.
+
+**Die Zeit aus dem Bild ist die bessere.** Bisher stand in `taken_at`, was
+`lastModified` sagte — und das kann das Kopieren aus der Galerie gewesen sein,
+nicht der Moment der Aufnahme. Steht `DateTimeOriginal` im Bild, gewinnt das,
+samt Zeitversatz, wenn die Kamera ihn geschrieben hat.
+
+**Was nicht gespeichert wird:** genau 0/0. Das liegt im Atlantik vor Afrika und
+heißt in der Praxis „das Gerät hatte keinen Empfang". Ebenso alles außerhalb
+±90 / ±180. Gerundet wird auf sechs Nachkommastellen — rund zehn Zentimeter;
+mehr täuscht eine Genauigkeit vor, die ein Handy-GPS nie hat.
+
+Im Journal liegen die Bilder eines Tages als kleine rote Punkte auf der
+Tageskarte, das Etappenziel bleibt der große gelbe. Sind die Punkte weit vom
+Ziel weg — ein Wandertag ist ja lang —, zieht sich der Ausschnitt so weit auf,
+dass alle hineinpassen. Hat kein Bild des Tages Koordinaten, steht auch keine
+Legende darunter.
+
+**Die Bilder von vorher haben nichts davon.** Ihre Originale liegen noch auf
+dem Telefon, mit allem drin — auf dem Server ist die Herkunft nie angekommen
+und lässt sich dort auch nicht rekonstruieren. Wer sie nachtragen will,
+bräuchte einen Weg, die Originale noch einmal einzulesen.
+
+---
 
 ## Was bewusst nicht gebaut wurde
 

@@ -331,8 +331,10 @@ final class Tagebuch
      * Das Original wird bewusst nicht behalten — 12 Tage Handyfotos in voller
      * Größe sprengen jedes Volume, und für ein Reisetagebuch reicht 1600 px.
      */
-    public function nimmFoto(array $datei, ?int $stageId, ?int $entryId, ?string $clientId, ?string $aufgenommen): array
-    {
+    public function nimmFoto(
+        array $datei, ?int $stageId, ?int $entryId, ?string $clientId,
+        ?string $aufgenommen, ?float $lat = null, ?float $lng = null
+    ): array {
         $vorhanden = $clientId ? $this->nachClientId('photos', $clientId) : null;
         if ($vorhanden !== null) {
             return $vorhanden;
@@ -341,6 +343,15 @@ final class Tagebuch
         $ordner = data_path('fotos');
         $basis  = date('Ymd-His') . '-' . bin2hex(random_bytes(6));
         $roh    = $datei['tmp_name'];
+
+        /* Der Browser liest die Koordinaten vor dem Verkleinern aus und
+           schickt sie mit — das ist der Normalfall. Es gibt aber Bilder, die
+           gar nicht verkleinert werden: alles unter 600 KB und jedes JPEG,
+           das die lange Kante schon einhaelt. Bei denen steht der EXIF-Block
+           noch in der Datei, die hier liegt. Also nachsehen. */
+        if ($lat === null || $lng === null) {
+            [$lat, $lng] = self::gpsAusExif($roh);
+        }
 
         $info = @getimagesize($roh);
         $bild = $info ? self::ladeBild($roh, (int) $info[2]) : null;
@@ -354,7 +365,7 @@ final class Tagebuch
             if (!self::ablegen($roh, $ordner . '/' . $name)) {
                 throw new RuntimeException('Das Bild konnte nicht gespeichert werden.');
             }
-            return $this->merkeFoto($name, null, $stageId, $entryId, $clientId, $aufgenommen, null, null, $ordner . '/' . $name);
+            return $this->merkeFoto($name, null, $stageId, $entryId, $clientId, $aufgenommen, null, null, $lat, $lng, $ordner . '/' . $name);
         }
 
         $bild = self::dreheNachExif($bild, $roh);
@@ -372,17 +383,18 @@ final class Tagebuch
         imagedestroy($gross);
         imagedestroy($klein);
 
-        return $this->merkeFoto($name, $thumb, $stageId, $entryId, $clientId, $aufgenommen, $breite, $hoehe, $ordner . '/' . $name);
+        return $this->merkeFoto($name, $thumb, $stageId, $entryId, $clientId, $aufgenommen, $breite, $hoehe, $lat, $lng, $ordner . '/' . $name);
     }
 
     private function merkeFoto(
         string $name, ?string $thumb, ?int $stageId, ?int $entryId, ?string $clientId,
-        ?string $aufgenommen, ?int $breite, ?int $hoehe, string $pfad
+        ?string $aufgenommen, ?int $breite, ?int $hoehe, ?float $lat, ?float $lng, string $pfad
     ): array {
         $this->db->run(
-            'INSERT INTO photos (stage_id, entry_id, client_id, file, thumb, width, height, bytes, taken_at, created_at)
-             VALUES (?,?,?,?,?,?,?,?,?,?)',
-            [$stageId, $entryId, $clientId, $name, $thumb, $breite, $hoehe, @filesize($pfad) ?: null, $aufgenommen, date('c')]
+            'INSERT INTO photos (stage_id, entry_id, client_id, file, thumb, width, height, bytes, taken_at, lat, lng, created_at)
+             VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
+            [$stageId, $entryId, $clientId, $name, $thumb, $breite, $hoehe, @filesize($pfad) ?: null,
+             $aufgenommen, $lat, $lng, date('c')]
         );
         return $this->foto((int) $this->db->pdo()->lastInsertId());
     }
@@ -929,6 +941,64 @@ final class Tagebuch
             default        => false,
         };
         return $bild === false ? null : $bild;
+    }
+
+    /**
+     * Koordinaten aus der Datei, die noch hier liegt — der zweite Weg.
+     *
+     * `exif_read_data` gibt Grad, Minuten und Sekunden als Brüche
+     * („41/1", „8/1", „5723/100"), dazu die Himmelsrichtung als eigenes Feld.
+     * Süd und West sind negativ. Genau 0/0 liegt im Atlantik vor Afrika und
+     * heißt in der Praxis: das Gerät hatte keinen Empfang.
+     *
+     * @return array{0: ?float, 1: ?float}
+     */
+    private static function gpsAusExif(string $pfad): array
+    {
+        if (!function_exists('exif_read_data')) {
+            return [null, null];
+        }
+        $exif = @exif_read_data($pfad);
+        if (!is_array($exif)) {
+            return [null, null];
+        }
+
+        $grad = static function (mixed $teile, mixed $richtung): ?float {
+            if (!is_array($teile) || count($teile) < 3) {
+                return null;
+            }
+            $bruch = static function (mixed $b): ?float {
+                if (is_numeric($b)) {
+                    return (float) $b;
+                }
+                if (!is_string($b) || !str_contains($b, '/')) {
+                    return null;
+                }
+                [$z, $n] = array_pad(explode('/', $b, 2), 2, '1');
+                return ((float) $n) != 0.0 ? ((float) $z) / ((float) $n) : null;
+            };
+            $g = $bruch($teile[0]);
+            $m = $bruch($teile[1]);
+            $sk = $bruch($teile[2]);
+            if ($g === null || $m === null || $sk === null) {
+                return null;
+            }
+            $wert = $g + $m / 60 + $sk / 3600;
+            if (in_array(strtoupper((string) $richtung), ['S', 'W'], true)) {
+                $wert = -$wert;
+            }
+            return is_finite($wert) ? round($wert, 6) : null;
+        };
+
+        $lat = $grad($exif['GPSLatitude'] ?? null, $exif['GPSLatitudeRef'] ?? '');
+        $lng = $grad($exif['GPSLongitude'] ?? null, $exif['GPSLongitudeRef'] ?? '');
+
+        if ($lat === null || $lng === null
+            || abs($lat) > 90 || abs($lng) > 180
+            || ($lat === 0.0 && $lng === 0.0)) {
+            return [null, null];
+        }
+        return [$lat, $lng];
     }
 
     /** Handyfotos liegen sonst quer — die Lage steht im EXIF, nicht im Bild. */

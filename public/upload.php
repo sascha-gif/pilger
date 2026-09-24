@@ -29,6 +29,9 @@ $clientId = substr((string) ($_POST['client_id'] ?? ''), 0, 64);
 $sekunden = isset($_POST['sekunden']) ? (int) $_POST['sekunden'] : null;
 $wann     = isset($_POST['aufgenommen']) && $_POST['aufgenommen'] !== ''
     ? substr((string) $_POST['aufgenommen'], 0, 32) : null;
+// Wo das Bild entstanden ist — vom Gerät gelesen, bevor es verkleinert wurde.
+$lat      = koordinate($_POST['lat'] ?? null, 90.0);
+$lng      = koordinate($_POST['lng'] ?? null, 180.0);
 
 $datei = $_FILES['datei'] ?? null;
 if (!is_array($datei) || ($datei['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
@@ -84,7 +87,7 @@ try {
     }
 
     if ($art === 'foto') {
-        $foto = $tagebuch->nimmFoto($datei, $stageId, $entryId, $clientId ?: null, $wann);
+        $foto = $tagebuch->nimmFoto($datei, $stageId, $entryId, $clientId ?: null, $wann, $lat, $lng);
         json_out(['ok' => true, 'art' => 'foto', 'foto' => $foto]);
     }
 

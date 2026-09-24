@@ -217,6 +217,10 @@ kein Netz, und ein Eintrag, der erst beim Hochladen entsteht, wäre dann weg.
 Bilder gehören zum Eintrag, nicht nur zum Anlegen: mehrere auf einmal, in
 mehreren Griffen nacheinander, und auch später noch am fertigen Eintrag.
 
+Wo ein Bild entstanden ist, wird **auf dem Handy** aus dem Bild gelesen — vor
+dem Verkleinern, weil die Leinwand die Metadaten sonst wegwirft. Fehlen sie,
+fehlen sie; geraten wird nichts. Bilder von vor dem 24.09. haben keine.
+
 Transkription (Whisper) und Ausbau (Claude) sind optional; ohne hinterlegte
 Schlüssel bleibt die Aufnahme trotzdem erhalten und abspielbar.
 
