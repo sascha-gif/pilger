@@ -898,6 +898,21 @@
       ' ausgewählt — mit „Eintrag speichern" übernehmen.';
     wahlEl.appendChild(kopf);
 
+    /* Wie viele davon wissen, wo sie entstanden sind. Das steht hier, weil man
+       es sonst erst im Journal merkt — und dann ist das Bild schon oben und
+       das Original vielleicht vom Telefon geloescht. Steht hier „0 mit Ort",
+       ist entweder der Ort am Handy aus oder die Bilder kommen aus einer App,
+       die ihn wegschneidet. */
+    var mitOrt = wahlQuellen.filter(function (q) { return q.ort && q.ort.lat !== null; }).length;
+    var ortszeile = document.createElement('p');
+    ortszeile.className = 'tb-wahl-ort' + (mitOrt ? '' : ' leer');
+    ortszeile.textContent = mitOrt === gewaehlteFotos.length
+      ? (gewaehlteFotos.length === 1 ? 'Mit Ort — landet auf der Tageskarte.'
+                                     : 'Alle mit Ort — landen auf der Tageskarte.')
+      : (mitOrt === 0 ? 'Keins davon hat einen Ort im Bild.'
+                      : mitOrt + ' von ' + gewaehlteFotos.length + ' mit Ort.');
+    wahlEl.appendChild(ortszeile);
+
     var strecke = document.createElement('div');
     strecke.className = 'tb-wahl-bilder';
     gewaehlteFotos.forEach(function (datei, i) {

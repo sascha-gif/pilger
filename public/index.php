@@ -777,6 +777,23 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
                     <?= bild_kachel($f, false) ?>
                   <?php endforeach; ?>
                 </div>
+                <?php
+                  /* Wie viele der Bilder wissen, wo sie entstanden sind. Steht
+                     hier, damit man es am Eintrag sieht und nicht erst im
+                     Journal — und weil ein „0 von 5" sofort verraet, dass am
+                     Handy der Ort aus war. Bilder von vor dem 24.09. haben
+                     keinen; das wird hier nicht beklagt. */
+                  $mitOrt = 0;
+                  foreach ($fotos as $f) {
+                      if ($f['lat'] !== null && $f['lng'] !== null) { $mitOrt++; }
+                  }
+                ?>
+                <?php if ($mitOrt): ?>
+                  <p class="tbort"><?= $mitOrt === count($fotos)
+                    ? (count($fotos) === 1 ? 'Mit Ort.' : 'Alle mit Ort.')
+                    : $mitOrt . ' von ' . count($fotos) . ' mit Ort.' ?>
+                    <a href="journal.php">Im Journal auf der Karte &rarr;</a></p>
+                <?php endif; ?>
               <?php endif; ?>
 
               <?php if ($e['status_note']): ?><p class="tbnotiz"><?= h((string) $e['status_note']) ?></p><?php endif; ?>

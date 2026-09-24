@@ -975,6 +975,20 @@ dem Telefon, mit allem drin — auf dem Server ist die Herkunft nie angekommen
 und lässt sich dort auch nicht rekonstruieren. Wer sie nachtragen will,
 bräuchte einen Weg, die Originale noch einmal einzulesen.
 
+**An zwei Stellen steht, ob es geklappt hat.** Schon bei der Auswahl, bevor
+irgendetwas hochgeht: „Alle mit Ort" oder „1 von 2 mit Ort" oder „Keins davon
+hat einen Ort im Bild". Und am fertigen Eintrag noch einmal, mit einem Link ins
+Journal. Das ist kein Schmuck: hinterher lässt es sich nicht mehr feststellen,
+und steht dort „keins", liegt es fast immer daran, dass am Telefon der
+Standort für die Kamera aus ist — das gehört gesehen, solange das Original noch
+da ist.
+
+**Wenn nach einem Deploy gar nichts ankommt**, lohnt der Blick auf den Service
+Worker. Die Seite selbst wird netzwerk-zuerst geholt, die Dateien darunter
+hängen am `?v=`-Zeitstempel — ein Neuladen holt also beides frisch. Eine Seite,
+die seit Stunden offen im Browser steht, läuft aber weiter mit dem Code von
+vorhin.
+
 ---
 
 ## Wo geschlafen wurde — als Tabelle, nicht als Absatz
