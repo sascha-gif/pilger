@@ -1140,10 +1140,27 @@ Position aus** suchen: Albergue, Turismo, Kirche, Concello, Café/Bar, Apotheke.
 **Zwei Stufen, damit es auch ohne Erlaubnis funktioniert.** Unangetastet geht
 der Link als `?api=1&query=…` ohne Koordinate raus — Google Maps nimmt dann von
 sich aus den Standort des Geräts, was meistens reicht und keine Rückfrage
-kostet. Wer „Meine Position nehmen" drückt, bekommt es genau: die Koordinate
-wird einmal geholt und als `/@lat,lng,15z` in **alle** Blöcke der Seite
-geschrieben. Sie bleibt im Speicher der Seite, wird nicht gesendet, nicht
-gespeichert, und beim nächsten Laden wieder gefragt.
+kostet. Wer den Knopf drückt, bekommt es genau: die Koordinate wird einmal
+geholt und als `/@lat,lng,15z` in **alle** Blöcke der Seite geschrieben. Sie
+bleibt im Speicher der Seite, wird nicht gesendet, nicht gespeichert, und beim
+nächsten Laden wieder gefragt.
+
+**Der Knopf hat sich nicht von selbst erklärt, und der Fehlschlag war grün.**
+Beides ist am 25.09. abends aufgefallen, als Safari den Standort verweigerte:
+auf dem Bildschirm stand eine Absage — in der Farbe, die auf dieser Seite
+„hat geklappt" bedeutet. Wer das liest, hält es für einen Erfolg und wundert
+sich, warum nichts anders ist. Ein Fehlschlag in Grün ist schlimmer als gar
+keine Meldung.
+
+Jetzt: `.snah-stand` kennt drei Stände — grün für gelungen, grau für „läuft
+gerade", **rot für schiefgegangen**. Die Absage nennt außerdem den Weg, es
+einzuschalten (Adresszeile → „aA" → Website-Einstellungen → Standort), und
+sagt in der Zeile darunter das Wichtigste: **die Knöpfe funktionieren
+trotzdem.** Der Standort macht die Suche genauer, er ist keine Bedingung.
+
+Dazu eine Zeile über den Knöpfen, die erklärt, wozu das Ding überhaupt da ist.
+„Meine Position nehmen" sagte nicht, was es bewirkt — jetzt heißt es
+„genauer: mein Standort", und darunter steht ein Satz dazu.
 
 Der Kasten steht am **laufenden Tag offen** und an allen anderen zugeklappt.
 Wer unterwegs einen Stempel sucht, soll nicht erst eine Überschrift antippen.

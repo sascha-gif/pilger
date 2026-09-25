@@ -495,8 +495,15 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
                           wir ihn genau. */ ?>
                 <div class="snah" data-snah>
                   <p class="snah-kopf">In der Nähe suchen
-                    <button type="button" class="snah-pos" data-snah-pos>Meine Position nehmen</button>
+                    <button type="button" class="snah-pos" data-snah-pos>genauer: mein Standort</button>
                   </p>
+                  <?php /* Der Knopf hat sich nicht von selbst erklaert — „Meine
+                           Position nehmen" sagt nicht, wozu. Er ist eine
+                           Verbesserung, keine Bedingung: ohne ihn nimmt Google
+                           Maps selbst den Geraetestandort. */ ?>
+                  <p class="snah-was">Die Knöpfe suchen dort, wo du gerade bist — dafür fragt
+                    Google&nbsp;Maps selbst nach deinem Standort. Der Knopf oben setzt ihn
+                    stattdessen genau, falls die Suche danebenliegt.</p>
                   <div class="snah-knoepfe">
                     <?php foreach ([
                         ['Albergue',    'albergue de peregrinos'],

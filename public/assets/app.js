@@ -1029,12 +1029,16 @@
     });
   }
 
-  function sag(block, text, laeuft) {
+  /* `stand` ist einer von 'gut', 'laeuft', 'schief'. Ein Fehlschlag in Gruen
+     ist schlimmer als gar keine Meldung — dann liest man „hat geklappt" und
+     wundert sich hinterher. */
+  function sag(block, html, stand) {
     var p = block.querySelector('[data-snah-stand]');
     if (!p) return;
-    p.textContent = text || '';
-    p.hidden = !text;
-    p.classList.toggle('laeuft', !!laeuft);
+    p.innerHTML = html || '';
+    p.hidden = !html;
+    p.classList.remove('laeuft', 'schief');
+    if (stand === 'laeuft' || stand === 'schief') { p.classList.add(stand); }
   }
 
   bloecke.forEach(function (block) {
@@ -1049,7 +1053,7 @@
 
     knopf.addEventListener('click', function () {
       knopf.disabled = true;
-      sag(block, 'Position wird geholt …', true);
+      sag(block, 'Position wird geholt …', 'laeuft');
 
       navigator.geolocation.getCurrentPosition(function (pos) {
         var lat = pos.coords.latitude.toFixed(5);
@@ -1058,15 +1062,30 @@
         // einer Stelle, egal welche Etappe er gerade aufgeklappt hat.
         document.querySelectorAll('[data-snah]').forEach(function (b) {
           schreibe(b, lat, lng);
-          sag(b, 'Die Suchen gehen jetzt von deinem Standort aus.', false);
+          sag(b, 'Die Suchen gehen jetzt von deinem Standort aus.', 'gut');
           var k = b.querySelector('[data-snah-pos]');
           if (k) { k.textContent = 'Position aktualisieren'; k.disabled = false; }
         });
       }, function (fehler) {
         knopf.disabled = false;
-        sag(block, fehler && fehler.code === 1
-          ? 'Kein Zugriff auf den Standort — die Suchen laufen weiter über Google Maps selbst.'
-          : 'Standort nicht zu bekommen — die Suchen laufen weiter über Google Maps selbst.', false);
+
+        /* Wichtig ist der zweite Satz: es ist nichts kaputt. Ohne Koordinate
+           nimmt Google Maps von sich aus den Standort des Geräts, und das
+           reicht in aller Regel. Der Knopf macht die Suche nur genauer. */
+        var weiter = '<b>Die Knöpfe funktionieren trotzdem</b> — Google Maps nimmt dann selbst '
+                   + 'deinen Standort. Der Knopf hier macht es nur genauer.';
+
+        if (fehler && fehler.code === 1) {
+          sag(block,
+            'Safari gibt den Standort nicht heraus.<br>'
+            + '<b>Anschalten:</b> in der Adresszeile auf <b>„aA"</b> tippen → '
+            + '<i>Website-Einstellungen</i> → <i>Standort</i> → <i>Erlauben</i>. '
+            + 'Bleibt es aus: <i>Einstellungen → Apps → Safari → Standort</i>.<br>'
+            + weiter, 'schief');
+        } else {
+          sag(block, 'Der Standort war nicht zu bekommen — drinnen dauert das manchmal zu lange.'
+            + '<br>' + weiter, 'schief');
+        }
       }, { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 });
     });
   });

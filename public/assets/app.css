@@ -385,13 +385,18 @@ footer a{color:var(--flecha)}
 .snah-pos::before{content:"\1f4cd";margin-right:5px}
 .snah-pos:hover:not(:disabled){border-color:var(--flecha)}
 .snah-pos:disabled{opacity:.55;cursor:default}
+.snah-was{font-size:12px;line-height:1.5;color:var(--stone);margin:-4px 0 10px}
 .snah-knoepfe{display:flex;flex-wrap:wrap;gap:7px}
 .snah-knoepfe a{flex:1 1 auto;text-align:center;text-decoration:none;font-size:13.5px;
                 color:var(--granite);background:var(--paper-2);border:1px solid var(--line);
                 border-radius:2px;padding:10px 12px;white-space:nowrap}
 .snah-knoepfe a:hover,.snah-knoepfe a:focus{border-color:var(--flecha)}
-.snah-stand{margin-top:9px;font-size:12px;color:var(--ok)}
+.snah-stand{margin-top:9px;font-size:12px;line-height:1.5;color:var(--ok)}
 .snah-stand.laeuft{color:var(--stone)}
+/* Ein Fehlschlag in Gruen ist schlimmer als gar keine Meldung — dann liest man
+   „hat geklappt" und wundert sich hinterher, warum nichts anders ist. */
+.snah-stand.schief{color:#c2410c}
+.snah-stand.schief b{font-weight:600}
 .sfrage{font-size:13.5px;line-height:1.5;margin-bottom:10px}
 .sfrage b{font-weight:600}
 .sorte-ort{font-family:"Spline Sans Mono",monospace;font-size:10.5px;letter-spacing:.1em;
