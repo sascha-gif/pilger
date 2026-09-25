@@ -114,6 +114,18 @@ section:has(> .wrap > details.block:not([open])){padding:26px 0}
 .stage .target{font-size:14.5px}
 .stage .target b{font-weight:600}
 .stage .note{font-size:13.5px;color:var(--stone);margin-top:6px}
+/* Der Weg zum Bett. Zwei Flaechen zum Antippen, gross genug fuer einen
+   Daumen am Ende eines Wandertags: Karte und Telefon. */
+.bett{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.bett a{display:block;text-decoration:none;border:1px solid var(--line);border-radius:2px;
+        padding:9px 12px;font-size:13.5px;color:var(--ink);background:var(--paper-2)}
+.bett a:hover,.bett a:focus{border-color:var(--flecha)}
+.bett-karte{flex:1 1 15rem;min-width:0}
+.bett-karte::before{content:"\1f4cd";margin-right:8px}
+.bett-karte small{display:block;font-size:12px;color:var(--stone);margin-top:3px;
+                  margin-left:1.55em;line-height:1.35}
+.bett-tel{font-family:"Spline Sans Mono",monospace;font-size:12.5px;white-space:nowrap}
+.bett-tel::before{content:"\260e";margin-right:8px}
 .book{display:inline-flex;align-items:center;gap:7px;margin-top:12px;font-family:"Spline Sans Mono",monospace;font-size:12px;font-weight:600;color:var(--granite);background:var(--flecha);padding:9px 14px;text-decoration:none;border-radius:2px}
 .book:hover,.book:focus{filter:brightness(1.06)}
 .book::after{content:"↗"}

@@ -222,6 +222,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/033_nigran_gebucht.php';
             migration_033($db);
         });
+
+        // Ein Kartenlink je Etappe — als Knopf, nicht mitten im Fliesstext.
+        $apply('034_kartenlink', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/034_kartenlink.php';
+            migration_034($db);
+        });
     }
 
     /** @return array<int,string> */

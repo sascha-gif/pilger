@@ -169,6 +169,24 @@ function bett_art(array $u): string
 }
 
 /**
+ * Der Kartenlink zur Unterkunft.
+ *
+ * Gesucht wird mit **Name und Adresse zusammen**. Nur der Name reicht nicht —
+ * „Hello Esposende" und „Lemonade Stays" finden ohne Ort halb Europa —, und
+ * nur die Adresse setzt den Stift zwar richtig, sagt aber nicht, ob man vor
+ * dem richtigen Haus steht. Ist keine Adresse bekannt, tut es der Ort.
+ */
+function bett_karte(array $u): string
+{
+    $adresse = bett_adresse($u);
+    if ($adresse === '') {
+        $adresse = trim((string) $u['ort']);
+    }
+    $frage = trim(((string) $u['name']) . ($adresse !== '' ? ', ' . $adresse : ''));
+    return maps_link($frage, $frage);
+}
+
+/**
  * Straße, Postleitzahl, Ort — so viel davon, wie bekannt ist.
  */
 function bett_adresse(array $u): string

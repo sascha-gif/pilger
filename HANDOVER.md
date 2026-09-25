@@ -1085,6 +1085,48 @@ kommen.
 
 ---
 
+## Der Weg zum Bett — ein Knopf, kein Link im Fließtext
+
+Die Kartenlinks gab es schon. In jedem Etappenabsatz stand hinter der Adresse
+ein „Karte", bei den meisten noch eine Telefonnummer daneben. Gefunden hat er
+sie trotzdem nicht und stattdessen jedes Mal den Hotelnamen von Hand in Google
+Maps getippt.
+
+Das ist keine Nachlässigkeit, sondern eine Lehre über die Seite: es waren zwei
+Wörter in kleiner grauer Schrift, mitten in einem Absatz, am Ende eines
+Wandertags, auf einem Telefon. **Was benutzt werden soll, muss aussehen wie
+etwas, das man antippt** — und dort stehen, wo man es sucht, nämlich direkt
+unter der Buchung.
+
+Jetzt steht unter jeder gebuchten Etappe eine Fläche mit Namen und Adresse, die
+Google Maps öffnet, und daneben die Telefonnummer als Wählfläche. Gebaut wird
+beides in `bett_karte()` aus **`lodgings`** — also aus Feldern, nicht aus HTML.
+Es erscheint genau dann, wenn für die Etappe eine Unterkunft hinterlegt ist,
+und verschwindet von selbst, wenn nicht.
+
+Gesucht wird mit **Name und Adresse zusammen**. Nur der Name reicht nicht —
+„Hello Esposende" und „Lemonade Stays" finden ohne Ort halb Europa —, und nur
+die Adresse setzt den Stift zwar richtig, sagt aber nicht, ob man vor dem
+richtigen Haus steht.
+
+**Migration 034 räumt die alten Links aus dem Text.** Zwei Kartenlinks
+nebeneinander wären schlechter als einer: dann fragt man sich, ob sie auf
+dasselbe zeigen. Die Adresse als *Wort* bleibt im Satz stehen — sie gehört
+dorthin („76 m vom Ortszentrum, Rua da Corredoura 15") und sagt auch ohne Netz
+noch, wo es hingeht.
+
+In `db/seed.php` stehen die alten Links weiter drin, und das ist in Ordnung:
+eine frische Datenbank läuft nach dem Seed durch alle Migrationen, 034
+eingeschlossen. Geprüft ist das — Kaltstart und laufende Datenbank liefern für
+alle dreizehn Etappen Feld für Feld dasselbe.
+
+**Noch nicht aufgeräumt:** bei einigen Etappen fängt die Notiz mit derselben
+Adresse an, die zwei Zeilen darüber schon im Knopf steht. Das liest sich
+doppelt. Die Notizen umzuschreiben, während er unterwegs ist und jeden Abend
+darauf schaut, ist es aber nicht wert — das kann nach dem Camino weg.
+
+---
+
 ## Was bewusst nicht gebaut wurde
 
 - **Kein Speichern des Originalfotos.** Bilder werden auf 1600 px verkleinert.

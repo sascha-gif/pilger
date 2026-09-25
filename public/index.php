@@ -21,6 +21,7 @@ $travel    = $repo->travelCards();
 $ankunft   = $repo->planSteps('ankunft');
 $ziel      = $repo->planSteps('ziel');
 $stages    = $repo->stages();
+$betten    = $repo->unterkuenfte();
 $packCats  = $repo->packList();
 $progress  = $repo->packProgress();
 $tagebuch  = new Tagebuch($db, $repo);
@@ -420,6 +421,25 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
           </div>
 
           <?php if ($st['target']): ?><div class="target"><?= rich($st['target']) ?></div><?php endif; ?>
+
+          <?php /* Der Weg zum Bett, ohne den Namen in Google Maps abzutippen.
+                    Adresse und Telefonnummer kommen aus `lodgings`, nicht aus
+                    dem Fliesstext darunter — deshalb steht das hier auch nur,
+                    wenn wirklich etwas gebucht ist. */ ?>
+          <?php $bett = $betten[(int) $st['id']] ?? null; ?>
+          <?php if ($bett): ?>
+            <div class="bett">
+              <a class="bett-karte" href="<?= h(bett_karte($bett)) ?>" target="_blank" rel="noopener">
+                <?= h((string) $bett['name']) ?>
+                <?php $adresse = bett_adresse($bett); ?>
+                <?php if ($adresse !== ''): ?><small><?= h($adresse) ?></small><?php endif; ?>
+              </a>
+              <?php if ($bett['telefon']): ?>
+                <a class="bett-tel" href="tel:<?= h(str_replace(' ', '', (string) $bett['telefon'])) ?>"><?= h((string) $bett['telefon']) ?></a>
+              <?php endif; ?>
+            </div>
+          <?php endif; ?>
+
           <?php if ($st['note']): ?><div class="note"><?= rich($st['note']) ?></div><?php endif; ?>
           <?php if ($st['alt_note']): ?><div class="alt"><?= rich($st['alt_note']) ?></div><?php endif; ?>
 
