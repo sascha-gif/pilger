@@ -1282,6 +1282,52 @@ Umgestellt ist es noch nicht, weil der JSON-Rückfall für Bilder funktioniert.
 
 ---
 
+## Das Journal für die Familie — ein langer Link
+
+Unten im Seitenfuß, direkt beim Journal-Link: **„Zum Mitlesen für die
+Familie"**. Ein Knopf erzeugt einen Link mit einem 64-stelligen Geheimnis darin
+(`journal.php?g=…`), ein zweiter beendet die Freigabe. Ein neuer Link macht den
+alten sofort tot — das steht in der Rückfrage, bevor es passiert.
+
+Kein Konto, kein zweites Passwort, keine Benutzerverwaltung. Wer den Link hat,
+darf lesen; wer ihn nicht mehr haben soll, für den wird ein neuer erzeugt. Für
+fünf Leute in einer Familie ist alles andere zu viel Maschinerie.
+
+**Was der Gast darf, ist eng gezogen — und das ist der wichtige Teil:**
+
+| | Gast mit Link |
+|---|---|
+| Journal lesen | ja |
+| Bilder und Videos darin | ja |
+| **Sprachaufnahmen** | **nein, 403** |
+| Bedienseite (`index.php`) | nein, 401 |
+| Schnittstelle (`api.php`) | nein, 403 |
+| Datei ohne Marke | nein, 403 |
+
+Die Sprachaufnahmen sind der Punkt, an dem es nicht bequem sein darf: der
+Rohton ist das, was er unterwegs vor sich hin gesprochen hat. Die ausgebaute
+Fassung im Journal ist zum Lesen gedacht, die Aufnahme nicht. `media.php` lehnt
+`art=audio` für Gäste ab, auch mit gültiger Marke.
+
+**Zwei Dinge, die leicht zu übersehen sind:**
+
+- Verglichen wird mit `hash_equals`, nicht mit `===` — sonst ließe sich das
+  Geheimnis über die Antwortzeit Zeichen für Zeichen erraten.
+- Die Seite trägt `<meta name="referrer" content="no-referrer">`. Ohne das
+  schickt der Browser die komplette Adresse **samt Marke** im `Referer` an
+  jeden Kartenkachel-, Schrift- und Skript-Server mit. Der Link soll bei der
+  Familie bleiben und nicht in fremden Protokollen landen.
+
+Im Gastblick trägt jede Datei-Adresse die Marke mit (`media.php?g=…`), und der
+Fuß zeigt statt „Zurück zum Plan" den Satz „Ein privater Link. Bitte nicht
+weitergeben." — ein Link, der vor einer Tür endet, ist schlechter als keiner.
+
+**Geprüft** mit zwei getrennten Browsersitzungen: ohne Link und mit falschem
+Link steht die Tür, mit Link werden alle Bilder und das Video geladen, und
+jeder der oben genannten Grenzfälle antwortet mit dem erwarteten Fehlercode.
+
+---
+
 ## Was bewusst nicht gebaut wurde
 
 - **Kein Speichern des Originalfotos.** Bilder werden auf 1600 px verkleinert.

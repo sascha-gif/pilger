@@ -27,6 +27,12 @@ Speichern. Gesetzt wird es in der Oberfläche beim ersten Aufruf. Solange keins
 da ist, zeigt die Seite nichts als die Einrichtung. Zurücksetzen geht nur an der
 Datenbank (`settings.auth_hash` und `auth_tokens` löschen).
 
+**Eine Ausnahme: das Journal.** Unten im Seitenfuß lässt sich ein langer Link
+erzeugen, mit dem die Familie mitlesen kann — ohne Passwort, nur mit dem
+Geheimnis in der Adresse. Der Gast sieht das Journal samt Bildern und Videos,
+**aber keine Sprachaufnahmen**, nicht die Bedienseite und nicht die
+Schnittstelle. Ein neuer Link macht den alten sofort tot.
+
 ## Eckdaten
 
 - Route: Porto → Santiago de Compostela, Caminho da Costa (Variante: Senda Litoral)

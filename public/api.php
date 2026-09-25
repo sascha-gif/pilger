@@ -349,6 +349,21 @@ try {
             }
             json_out(['ok' => true, 'art' => 'foto', 'foto' => $eintrag, 'weg' => 'stueckweise']);
 
+        /* ---- Der lange Link fuers Journal --------------------------------- */
+        case 'journal.freigabe':
+            $tagebuch = new Tagebuch($db, $repo);
+            $wie = (string) ($body['wie'] ?? 'neu');
+
+            if ($wie === 'aus') {
+                // Der alte Link ist damit tot. Wer ihn hat, sieht nichts mehr.
+                $tagebuch->setzeEinstellung('journal_token', null);
+                json_out(['ok' => true, 'an' => false, 'link' => null]);
+            }
+
+            $token = bin2hex(random_bytes(32));
+            $tagebuch->setzeEinstellung('journal_token', $token);
+            json_out(['ok' => true, 'an' => true, 'link' => journal_link($token)]);
+
         case 'schluessel.pruefen':
             $tagebuch = new Tagebuch($db, $repo);
             json_out(['ok' => true, 'pruefe' => $tagebuch->pruefeAlles()]);

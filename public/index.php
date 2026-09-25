@@ -22,6 +22,8 @@ $ankunft   = $repo->planSteps('ankunft');
 $ziel      = $repo->planSteps('ziel');
 $stages    = $repo->stages();
 $betten    = $repo->unterkuenfte();
+/* Steht hier eine Marke, ist das Journal für die Familie freigegeben. */
+$journalToken = (string) ($db->value('SELECT svalue FROM settings WHERE skey = ?', ['journal_token']) ?? '');
 $packCats  = $repo->packList();
 $progress  = $repo->packProgress();
 $tagebuch  = new Tagebuch($db, $repo);
@@ -1084,6 +1086,28 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
     <span><?= h($s['footer_right'] ?? '') ?></span>
     <?php /* Das Journal: dieselben Eintraege, nur zum Lesen statt zum Bedienen. */ ?>
     <span class="jlink"><a href="journal.php">Das Journal &rarr;</a></span>
+
+    <?php /* Der lange Link zum Weitergeben. Er steht hier unten beim Journal
+             und nicht in den Einstellungen — hier sucht man ihn. */ ?>
+    <div class="teilen" id="teilen" data-an="<?= $journalToken !== '' ? '1' : '0' ?>">
+      <p class="teilen-kopf">Zum Mitlesen für die Familie</p>
+      <p class="teilen-aus"<?= $journalToken !== '' ? ' hidden' : '' ?>>
+        Noch nicht freigegeben. Wer den Link bekommt, kann das Journal lesen —
+        Bilder und Videos inbegriffen, <b>Sprachaufnahmen nicht</b>. Kein Konto,
+        kein Passwort; der Link allein genügt, und er lässt sich jederzeit wieder
+        ungültig machen.
+      </p>
+      <div class="teilen-an"<?= $journalToken === '' ? ' hidden' : '' ?>>
+        <input type="text" id="teilenLink" readonly
+               value="<?= $journalToken !== '' ? h(journal_link($journalToken)) : '' ?>">
+        <button type="button" class="tb-mini" id="teilenKopie">Kopieren</button>
+      </div>
+      <div class="teilen-knoepfe">
+        <button type="button" class="tb-mini" id="teilenAn"><?= $journalToken !== '' ? 'Neuen Link erzeugen' : 'Link erzeugen' ?></button>
+        <button type="button" class="tb-mini" id="teilenAus"<?= $journalToken === '' ? ' hidden' : '' ?>>Freigabe beenden</button>
+      </div>
+      <p class="teilen-hinweis" id="teilenHinweis"></p>
+    </div>
     <?php
       /* Welcher Stand läuft gerade? Ohne diese Zeile ist „ist es schon
          deployt?" eine Frage, die niemand von außen beantworten kann.

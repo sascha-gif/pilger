@@ -1597,3 +1597,87 @@
     });
   }
 })();
+
+/* ================= Das Journal weitergeben ============================= */
+
+/* Ein Geheimnis in der Adresse, sonst nichts. Kein Konto, kein Passwort, das
+   jemand weiterreicht und danach nicht mehr zu ändern ist: wer den Link hat,
+   darf lesen; wer ihn nicht mehr haben soll, für den wird ein neuer erzeugt
+   und der alte ist tot. */
+(function () {
+  'use strict';
+
+  var kasten = document.getElementById('teilen');
+  if (!kasten) return;
+
+  var feld    = document.getElementById('teilenLink');
+  var an      = document.getElementById('teilenAn');
+  var aus     = document.getElementById('teilenAus');
+  var kopie   = document.getElementById('teilenKopie');
+  var hinweis = document.getElementById('teilenHinweis');
+  var reihe   = kasten.querySelector('.teilen-an');
+  var leer    = kasten.querySelector('.teilen-aus');
+
+  function sag(text, fehler) {
+    hinweis.textContent = text || '';
+    hinweis.classList.toggle('fehler', !!fehler);
+  }
+
+  function zeige(link) {
+    var da = !!link;
+    reihe.hidden = !da;
+    leer.hidden = da;
+    aus.hidden = !da;
+    an.textContent = da ? 'Neuen Link erzeugen' : 'Link erzeugen';
+    if (da) { feld.value = link; }
+  }
+
+  function frage(wie) {
+    // Ein neuer Link macht den alten tot — das gehoert gesagt, bevor es
+    // passiert, und nicht danach.
+    if (wie === 'neu' && aus.hidden === false
+        && !window.confirm('Der bisherige Link hört damit auf zu funktionieren. Weiter?')) {
+      return;
+    }
+    if (wie === 'aus'
+        && !window.confirm('Die Freigabe endet. Wer den Link hat, sieht nichts mehr. Weiter?')) {
+      return;
+    }
+
+    an.disabled = aus.disabled = true;
+    sag(wie === 'aus' ? 'wird beendet …' : 'wird erzeugt …');
+
+    fetch('api.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'journal.freigabe', wie: wie })
+    }).then(function (r) { return r.json(); }).then(function (d) {
+      an.disabled = aus.disabled = false;
+      if (!d || !d.ok) { throw new Error((d && d.error) || 'Das hat nicht geklappt.'); }
+      zeige(d.link);
+      sag(d.an ? 'Fertig — der Link steht oben.' : 'Freigabe beendet.');
+    }).catch(function (err) {
+      an.disabled = aus.disabled = false;
+      sag(err.message, true);
+    });
+  }
+
+  if (an)  { an.addEventListener('click', function () { frage('neu'); }); }
+  if (aus) { aus.addEventListener('click', function () { frage('aus'); }); }
+
+  if (kopie) {
+    kopie.addEventListener('click', function () {
+      feld.select();
+      feld.setSelectionRange(0, 99999);      // iOS nimmt select() allein nicht
+      var fertig = function () { sag('Kopiert — jetzt einfügen, wo du magst.'); };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(feld.value).then(fertig, function () {
+          sag('Kopieren ging nicht — der Link ist markiert, kopier ihn von Hand.', true);
+        });
+      } else {
+        // Ohne Zwischenablage-Zugriff bleibt der Link wenigstens markiert.
+        sag('Der Link ist markiert — kopier ihn von Hand.');
+      }
+    });
+  }
+})();

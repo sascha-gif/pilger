@@ -10,14 +10,20 @@ declare(strict_types=1);
 
 require dirname(__DIR__) . '/src/bootstrap.php';
 
-if (!may_write()) {
+$id  = (int) ($_GET['id'] ?? 0);
+$art = (string) ($_GET['art'] ?? 'foto');
+
+/* Zwei Wege herein. Angemeldet: alles. Mit dem langen Journal-Link: **nur
+   Bilder und Videos**. Eine Sprachaufnahme ist der Rohton, den er unterwegs
+   vor sich hin gesprochen hat — der geht die Familie nichts an, auch wenn sie
+   den Link hat. */
+$gast = ($art !== 'audio') && journal_gast($db);
+
+if (!may_write() && !$gast) {
     http_response_code(403);
     header('Content-Type: text/plain; charset=utf-8');
     exit('Nicht angemeldet.');
 }
-
-$id  = (int) ($_GET['id'] ?? 0);
-$art = (string) ($_GET['art'] ?? 'foto');
 
 $tagebuch = new Tagebuch($db, $repo);
 

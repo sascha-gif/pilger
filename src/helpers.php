@@ -147,6 +147,51 @@ function bild_kachel(array $f, bool $gross): string
         . '</figure>';
 }
 
+/**
+ * Der lange Link fürs Journal — die Familie soll mitlesen können.
+ *
+ * Ein Geheimnis in der Adresse, sonst nichts. Kein Konto, kein Passwort, das
+ * jemand weitergibt und danach nicht mehr ändern kann: wer den Link hat, darf
+ * lesen; wer ihn nicht mehr haben soll, für den wird ein neuer erzeugt und der
+ * alte ist tot.
+ *
+ * **Was der Gast darf, ist eng gezogen.** Nur das Journal und nur die Bilder
+ * und Videos darin. Nicht die Bedienseite, nicht die Schnittstelle, nichts zu
+ * ändern — und ausdrücklich **keine Sprachaufnahmen**: der Rohton ist das,
+ * was er unterwegs vor sich hin gesprochen hat, und das geht niemanden sonst
+ * etwas an.
+ *
+ * Verglichen wird mit `hash_equals`, damit sich das Geheimnis nicht über die
+ * Antwortzeit Zeichen für Zeichen erraten lässt.
+ */
+function journal_gast(Database $db): bool
+{
+    static $gast = null;
+    if ($gast !== null) {
+        return $gast;
+    }
+
+    $mit = (string) ($_GET['g'] ?? '');
+    if ($mit === '' || !preg_match('~^[0-9a-f]{64}$~', $mit)) {
+        return $gast = false;
+    }
+
+    $soll = $db->value('SELECT svalue FROM settings WHERE skey = ?', ['journal_token']);
+    if (!is_string($soll) || $soll === '') {
+        return $gast = false;
+    }
+    return $gast = hash_equals($soll, $mit);
+}
+
+/** Der Link zum Weitergeben — absolut, weil er in eine Nachricht kopiert wird. */
+function journal_link(string $token): string
+{
+    $schema = (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https'
+        || ($_SERVER['HTTPS'] ?? '') === 'on') ? 'https' : 'http';
+    $host = (string) ($_SERVER['HTTP_HOST'] ?? 'pilger.milsh.com');
+    return $schema . '://' . $host . '/journal.php?g=' . $token;
+}
+
 /** 95 Sekunden sind „1:35". */
 function sekunden_kurz(int $s): string
 {

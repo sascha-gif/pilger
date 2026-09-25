@@ -14,7 +14,14 @@
 declare(strict_types=1);
 
 require dirname(__DIR__) . '/src/bootstrap.php';
-require APP_ROOT . '/src/gate.php';
+
+/* Zwei Wege herein: angemeldet wie überall, oder mit dem langen Link, den die
+   Familie bekommt. Der Gast sieht diese Seite und die Bilder darin, sonst
+   nichts — keine Bedienseite, keine Schnittstelle, keine Sprachaufnahmen. */
+$gast = journal_gast($db);
+if (!$gast) {
+    require APP_ROOT . '/src/gate.php';
+}
 
 $s          = $repo->settings();
 $stages     = $repo->stages();
@@ -94,6 +101,10 @@ $journalKarte = [
     }, $kapitel))),
 ];
 
+/* Der Gast trägt die Marke an jeder Datei mit — ohne sie liefert `media.php`
+   nichts aus. Für den angemeldeten Blick bleibt sie leer. */
+$mark = $gast ? 'g=' . rawurlencode((string) $_GET['g']) . '&amp;' : '';
+
 $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 3-1 5 0 5 2 1 3-2 6-5 8 11 4 20 14 23 27 1 4-2 8-6 8H16c-4 0-7-4-6-8 3-13 12-23 23-27-3-2-6-5-5-8 0-2 2-3 5-2-2-3-3-6-2-8 1-2 3-2 5 0-1-4-1-7 0-8 2-1 4 0 5 3 1-4 2-6 4-6z';
 ?>
 <!DOCTYPE html>
@@ -103,6 +114,11 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="light only">
 <meta name="robots" content="noindex, nofollow">
+<?php /* Wichtig, solange die Marke in der Adresse steht: ohne das schickt der
+         Browser sie im Referer an jeden Kartenkachel-, Schrift- und
+         Skript-Server mit. Der Link soll bei der Familie bleiben und nicht in
+         fremden Protokollen landen. */ ?>
+<meta name="referrer" content="no-referrer">
 <title>Journal — Camino Portugués da Costa 2026</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -168,10 +184,10 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
           <?php /* `preload="none"`: ein Kapitel aufzuschlagen soll nicht das
                    ganze Video ziehen. Geladen wird beim Drücken. */ ?>
           <video controls playsinline preload="none"
-                 <?= $held['thumb'] ? 'poster="media.php?art=klein&amp;id=' . (int) $held['id'] . '"' : '' ?>
-                 src="media.php?art=foto&amp;id=<?= (int) $held['id'] ?>"></video>
+                 <?= $held['thumb'] ? 'poster="media.php?' . $mark . 'art=klein&amp;id=' . (int) $held['id'] . '"' : '' ?>
+                 src="media.php?<?= $mark ?>art=foto&amp;id=<?= (int) $held['id'] ?>"></video>
         <?php else: ?>
-          <img src="media.php?art=foto&amp;id=<?= (int) $held['id'] ?>" alt=""
+          <img src="media.php?<?= $mark ?>art=foto&amp;id=<?= (int) $held['id'] ?>" alt=""
                loading="<?= $n === 1 ? 'eager' : 'lazy' ?>" decoding="async">
         <?php endif; ?>
         <?php if ($held['caption']): ?>
@@ -293,10 +309,10 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
           <figure class="<?= $hoch ? 'hoch' : 'quer' ?><?= ($f['kind'] ?? 'foto') === 'video' ? ' istvideo' : '' ?>">
             <?php if (($f['kind'] ?? 'foto') === 'video'): ?>
               <video controls playsinline preload="none"
-                     <?= $f['thumb'] ? 'poster="media.php?art=klein&amp;id=' . (int) $f['id'] . '"' : '' ?>
-                     src="media.php?art=foto&amp;id=<?= (int) $f['id'] ?>"></video>
+                     <?= $f['thumb'] ? 'poster="media.php?' . $mark . 'art=klein&amp;id=' . (int) $f['id'] . '"' : '' ?>
+                     src="media.php?<?= $mark ?>art=foto&amp;id=<?= (int) $f['id'] ?>"></video>
             <?php else: ?>
-              <img src="media.php?art=foto&amp;id=<?= (int) $f['id'] ?>" alt="" loading="lazy" decoding="async">
+              <img src="media.php?<?= $mark ?>art=foto&amp;id=<?= (int) $f['id'] ?>" alt="" loading="lazy" decoding="async">
             <?php endif; ?>
             <?php if ($f['caption']): ?><figcaption><?= h((string) $f['caption']) ?></figcaption><?php endif; ?>
           </figure>
@@ -311,7 +327,13 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
 
 <footer class="jfuss">
   <p>Camino Portugués da Costa · 2026</p>
-  <p><a href="index.php">Zurück zum Plan</a></p>
+  <?php if ($gast): ?>
+    <?php /* Der Gast hat keinen Zutritt zur Bedienseite — ein Link, der vor
+             einer Tür endet, ist schlechter als keiner. */ ?>
+    <p>Ein privater Link. Bitte nicht weitergeben.</p>
+  <?php else: ?>
+    <p><a href="index.php">Zurück zum Plan</a></p>
+  <?php endif; ?>
 </footer>
 
 <script type="application/json" id="journal-karte"><?= json_encode($journalKarte, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?></script>
