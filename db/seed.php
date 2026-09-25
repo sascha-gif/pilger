@@ -327,7 +327,23 @@ function seed_database(Database $db): void
                 'dist' => '22 km',
                 'target' => '<b>Budget-Ziel:</b> Pension vor der Brücke · <b>eigenes Zimmer</b> · ca. 55–75 €',
                 'note' => 'Arcade = Austern &amp; Meeresfrüchte — Proteinspeicher füllen.',
-                'alt_note' => null,
+                'alt_note' => '<b>Wenn in Arcade nichts frei ist:</b> In <b>Redondela</b> aufhören — rund '
+                    . '<b>13 km</b> hinter Vigo statt 22, und damit rund 9 km vor Arcade. Dort trifft '
+                    . 'der Küstenweg auf den Caminho Central, deshalb gibt es dort deutlich mehr '
+                    . 'Pilgerbetten als im Dorf Arcade. Der nächste Tag wird dann rund <b>24 km</b> '
+                    . 'statt 15. '
+                    . sprintf('<a href="%s" target="_blank" rel="noopener">Booking Redondela</a>',
+                        sprintf($bk, 'Redondela%2C%20Pontevedra%2C%20Spain', '2026-09-26', '2026-09-27'))
+                    . '<br><b>Und wenn gar nichts geht:</b> Vigo, Redondela, Arcade und Pontevedra liegen '
+                    . 'an <b>derselben Bahnlinie</b>. Schlaf dort, wo ein Bett frei ist, und fahr '
+                    . 'morgens an genau die Stelle zurück, an der du aufgehört hast — gelaufen wird '
+                    . 'dadurch kein Meter weniger. <small>Abfahrtszeiten am Bahnhof oder am Empfang '
+                    . 'erfragen; hier stehen keine, die wären erfunden.</small><br>'
+                    . '<small><b>Nicht alles steht auf den Portalen.</b> Viele galicische '
+                    . '<i>pensións</i> und <i>hostales</i> nehmen nur telefonisch an. Der Empfang '
+                    . 'deiner Unterkunft ruft für Pilger vor — danach zu fragen ist hier völlig '
+                    . 'üblich. Und ein <i>Albergue</i> ist nicht automatisch Schlafsaal: viele '
+                    . 'private haben eine <i>habitación individual</i>.</small>',
                 'booking_url' => sprintf($bk, 'Arcade%2C%20Pontevedra%2C%20Spain', '2026-09-26', '2026-09-27'),
                 'booking_label' => 'Booking Arcade',
                 'km_big' => '81', 'km_sub' => 'noch bis SCQ', 'variant' => 'normal',

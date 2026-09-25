@@ -240,6 +240,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/036_videos.php';
             migration_036($db);
         });
+
+        // Redondela als Ausweichquartier, falls Arcade voll ist.
+        $apply('037_redondela', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/037_redondela.php';
+            migration_037($db);
+        });
     }
 
     /** @return array<int,string> */

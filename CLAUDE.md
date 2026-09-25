@@ -152,6 +152,14 @@ danach läuft sie mit der Costa zusammen.
 - **Offen:** 4 Etappenorte — E8 Arcade, E9 Pontevedra, E10 Caldas de Reis,
   E11 Padrón. Booking-Links im HTML, nach Preis sortiert.
   **Oia und Santiago, die beiden kritischen, sind durch.**
+- **Falls in Arcade (E8) nichts frei ist:** in **Redondela** aufhören — rund
+  13 km hinter Vigo statt 22, dort trifft der Küstenweg auf den Caminho Central
+  und es gibt deutlich mehr Pilgerbetten als im Dorf Arcade. Der Folgetag wird
+  dann rund 24 km statt 15. Steht als Alternative auf der Etappenkarte; der
+  Plan wird erst umgestellt, wenn wirklich dort gebucht ist.
+  Vigo, Redondela, Arcade und Pontevedra liegen an **derselben Bahnlinie** —
+  wer am Ort nichts findet, schläft eine Station weiter und fährt morgens an
+  dieselbe Stelle zurück, ohne einen Meter zu überspringen.
 - Budget-Ausrichtung: Pension/Hostal statt Hotel, ca. 50–110 €/Nacht
 - **Nur Unterkünfte mit eigenem Zimmer** — kein Bett im Schlafsaal. Steht in
   jedem Budget-Ziel. Die Booking-Links können das nicht erzwingen: den Filter
