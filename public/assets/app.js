@@ -958,3 +958,75 @@
     console.error(err);
   }
 })();
+
+/* ================= Stempel in der Nähe ================================= */
+
+/* Zwischen zwei Orten — im Gewerbegebiet, an der Landstraße — hilft eine
+   Suche im Zielort gar nichts. Die Knöpfe hier suchen deshalb von dort, wo er
+   gerade steht.
+
+   Ohne Zutun geht der Link so raus, wie er im HTML steht: `?api=1&query=…`
+   ohne Koordinate. Google Maps nimmt dann von sich aus den Standort des
+   Geräts — das reicht meistens und kostet keine Rückfrage. Wer den Knopf
+   drückt, bekommt es genau: dann wird die Position einmal geholt und in die
+   Links geschrieben (`/@lat,lng,15z`).
+
+   Die Position bleibt im Speicher dieser Seite. Sie wird nicht gesendet, nicht
+   gespeichert und beim nächsten Laden wieder gefragt. */
+(function () {
+  'use strict';
+
+  var bloecke = document.querySelectorAll('[data-snah]');
+  if (!bloecke.length) return;
+
+  function schreibe(block, lat, lng) {
+    block.querySelectorAll('[data-snah-suche]').forEach(function (a) {
+      var q = encodeURIComponent(a.dataset.snahSuche);
+      a.href = (lat === null)
+        ? 'https://www.google.com/maps/search/?api=1&query=' + q
+        : 'https://www.google.com/maps/search/' + q + '/@' + lat + ',' + lng + ',15z';
+    });
+  }
+
+  function sag(block, text, laeuft) {
+    var p = block.querySelector('[data-snah-stand]');
+    if (!p) return;
+    p.textContent = text || '';
+    p.hidden = !text;
+    p.classList.toggle('laeuft', !!laeuft);
+  }
+
+  bloecke.forEach(function (block) {
+    var knopf = block.querySelector('[data-snah-pos]');
+    if (!knopf) return;
+
+    if (!navigator.geolocation) {
+      // Dann bleibt es beim Link ohne Koordinate — der tut es auch.
+      knopf.remove();
+      return;
+    }
+
+    knopf.addEventListener('click', function () {
+      knopf.disabled = true;
+      sag(block, 'Position wird geholt …', true);
+
+      navigator.geolocation.getCurrentPosition(function (pos) {
+        var lat = pos.coords.latitude.toFixed(5);
+        var lng = pos.coords.longitude.toFixed(5);
+        // Alle Blöcke auf der Seite, nicht nur diesen — er steht ja nur an
+        // einer Stelle, egal welche Etappe er gerade aufgeklappt hat.
+        document.querySelectorAll('[data-snah]').forEach(function (b) {
+          schreibe(b, lat, lng);
+          sag(b, 'Die Suchen gehen jetzt von deinem Standort aus.', false);
+          var k = b.querySelector('[data-snah-pos]');
+          if (k) { k.textContent = 'Position aktualisieren'; k.disabled = false; }
+        });
+      }, function (fehler) {
+        knopf.disabled = false;
+        sag(block, fehler && fehler.code === 1
+          ? 'Kein Zugriff auf den Standort — die Suchen laufen weiter über Google Maps selbst.'
+          : 'Standort nicht zu bekommen — die Suchen laufen weiter über Google Maps selbst.', false);
+      }, { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 });
+    });
+  });
+})();

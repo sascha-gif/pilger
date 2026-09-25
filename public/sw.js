@@ -11,7 +11,7 @@
    2. Gespeichert wird nur, was per GET kommt. api.php und upload.php laufen
       über POST und fassen wir nie an. */
 
-var VERSION = 'pilger-v4';
+var VERSION = 'pilger-v5';
 var SEITE = VERSION + '-seite';
 var ZEUG  = VERSION + '-zeug';
 var BILD  = VERSION + '-bild';

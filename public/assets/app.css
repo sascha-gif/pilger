@@ -339,6 +339,32 @@ footer a{color:var(--flecha)}
 .sorte .adr{font-family:"Spline Sans Mono",monospace;font-size:11.5px}
 .sfuss{font-size:12.5px;color:var(--stone);margin-top:10px;padding-top:8px;border-top:1px dashed var(--line)}
 
+/* In der Nähe suchen — der wichtigste Teil, deshalb steht er oben und sieht
+   aus wie Knöpfe. Zielort-Suchen helfen nicht, wenn man zwischen zwei Orten
+   im Gewerbegebiet steht. */
+.snah{margin:10px 0 12px;padding:12px;background:#efe9d8;border:1px solid var(--line)}
+.snah-kopf{display:flex;flex-wrap:wrap;align-items:center;gap:8px;
+           font-family:"Spline Sans Mono",monospace;font-size:10.5px;letter-spacing:.1em;
+           text-transform:uppercase;color:var(--stone);margin-bottom:10px}
+.snah-pos{font-family:"Spline Sans Mono",monospace;font-size:10.5px;letter-spacing:.06em;
+          border:1px solid var(--line);background:var(--paper-2);color:var(--granite);
+          padding:5px 9px;border-radius:2px;cursor:pointer;text-transform:none}
+.snah-pos::before{content:"\1f4cd";margin-right:5px}
+.snah-pos:hover:not(:disabled){border-color:var(--flecha)}
+.snah-pos:disabled{opacity:.55;cursor:default}
+.snah-knoepfe{display:flex;flex-wrap:wrap;gap:7px}
+.snah-knoepfe a{flex:1 1 auto;text-align:center;text-decoration:none;font-size:13.5px;
+                color:var(--granite);background:var(--paper-2);border:1px solid var(--line);
+                border-radius:2px;padding:10px 12px;white-space:nowrap}
+.snah-knoepfe a:hover,.snah-knoepfe a:focus{border-color:var(--flecha)}
+.snah-stand{margin-top:9px;font-size:12px;color:var(--ok)}
+.snah-stand.laeuft{color:var(--stone)}
+.sfrage{font-size:13.5px;line-height:1.5;margin-bottom:10px}
+.sfrage b{font-weight:600}
+.sorte-ort{font-family:"Spline Sans Mono",monospace;font-size:10.5px;letter-spacing:.1em;
+           text-transform:uppercase;color:var(--stone);margin-top:12px}
+.sorte-ort + ul{margin-top:4px}
+
 /* Wetter und Höhenprofil je Etappe */
 .tagdaten{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:2px 0 10px}
 .tagdaten > span{display:none;align-items:center;gap:8px;background:#efe9d8;border:1px solid var(--line);

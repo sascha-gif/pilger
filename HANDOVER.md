@@ -1127,6 +1127,52 @@ darauf schaut, ist es aber nicht wert — das kann nach dem Camino weg.
 
 ---
 
+## Stempel suchen, wo man steht — nicht, wo man hinwill
+
+Die Stempelsuche gab es von Anfang an, aber sie war auf den **Zielort**
+gerichtet: „Albergue de Peregrinos Vigo". Das hilft am Abend. Es hilft nicht um
+halb drei, wenn man seit zwanzig Minuten durch ein Gewerbegebiet läuft, noch
+acht Kilometer vor sich hat und heute noch zwei Stempel braucht.
+
+Deshalb steht jetzt oben im Kasten eine Reihe Knöpfe, die **von der aktuellen
+Position aus** suchen: Albergue, Turismo, Kirche, Concello, Café/Bar, Apotheke.
+
+**Zwei Stufen, damit es auch ohne Erlaubnis funktioniert.** Unangetastet geht
+der Link als `?api=1&query=…` ohne Koordinate raus — Google Maps nimmt dann von
+sich aus den Standort des Geräts, was meistens reicht und keine Rückfrage
+kostet. Wer „Meine Position nehmen" drückt, bekommt es genau: die Koordinate
+wird einmal geholt und als `/@lat,lng,15z` in **alle** Blöcke der Seite
+geschrieben. Sie bleibt im Speicher der Seite, wird nicht gesendet, nicht
+gespeichert, und beim nächsten Laden wieder gefragt.
+
+Der Kasten steht am **laufenden Tag offen** und an allen anderen zugeklappt.
+Wer unterwegs einen Stempel sucht, soll nicht erst eine Überschrift antippen.
+
+**Eine offizielle Stempelkarte gibt es nicht.** Weder die Xunta noch das
+Pilgerbüro veröffentlichen eine Liste von Stempelstellen — es gibt die
+offizielle Liste der **öffentlichen Albergues**, und die stempeln alle, aber
+das ist etwas anderes. Die dichtesten Sammlungen stehen in den Wander-Apps
+(Buen Camino, Wise Pilgrim, Camino Ninja) und auf gronze.com, und die sind von
+Hand gepflegt, nicht amtlich. Von hier aus ließ sich keine davon abrufen — der
+Ausgangsproxy sperrt sie —, also steht in der Datenbank **keine abgeschriebene
+Liste**. Was dort steht, sind Suchen; die zeigen, was es gerade gibt.
+
+**Das Concello ist dazugekommen** (Migration 035, nur für die spanischen
+Etappen). In Galicien ist das Rathaus die verlässlichere Adresse als die
+Kirche: es hat Öffnungszeiten, liegt im Ortskern und stempelt ohne
+Gegenleistung. In Portugal heißt es *Câmara Municipal* und ist dort nicht die
+übliche Anlaufstelle — deshalb steht es da nicht.
+
+**Der eigentliche Rat steht im Fußtext**, und der ist wichtiger als jede
+Suchfunktion: zwei Stempel am Tag bekommt man fast nebenbei. Einen von der
+eigenen Unterkunft beim Einchecken — dafür muss man nirgends hin —, einen von
+der Kaffeepause unterwegs. In Spanien hängt es kaum jemand ins Fenster, aber
+die meisten Bars am Weg haben einen im Tresen; man muss fragen. Dafür steht der
+Satz dabei: **„¿Tienen sello para la credencial, por favor?"** Das Albergue
+stempelt immer, auch ohne dort zu schlafen und ohne etwas zu kaufen.
+
+---
+
 ## Was bewusst nicht gebaut wurde
 
 - **Kein Speichern des Originalfotos.** Bilder werden auf 1600 px verkleinert.

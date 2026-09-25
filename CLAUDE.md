@@ -216,6 +216,15 @@ Wer da schludert, bekommt in Santiago keine Compostela — deshalb hat jeder Tag
 auf der Seite seine Kästchen, und ein abgehakter Tag mit fehlendem Stempel sagt
 das deutlich.
 
+**Eine offizielle Karte der Stempelstellen gibt es nicht** — weder von der
+Xunta noch vom Pilgerbüro. Auf der Seite stehen deshalb Suchen und keine
+abgeschriebene Liste: am laufenden Tag aufgeklappt, mit Knöpfen, die **von der
+aktuellen Position aus** suchen (Albergue, Turismo, Kirche, Concello, Café/Bar,
+Apotheke). In der Praxis kommen die zwei Stempel fast nebenbei: einen gibt die
+Unterkunft beim Einchecken, einen die Kaffeepause unterwegs — in Spanien hängt
+es kaum jemand ins Fenster, man muss fragen: *„¿Tienen sello para la credencial,
+por favor?"* Das Albergue stempelt immer, auch ohne dort zu schlafen.
+
 ## Tagebuch
 
 Sprachnotiz oder getippt, dazu Fotos je Etappe. Alles landet zuerst in der

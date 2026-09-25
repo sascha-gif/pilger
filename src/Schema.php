@@ -228,6 +228,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/034_kartenlink.php';
             migration_034($db);
         });
+
+        // Das Concello stempelt auch — in Galicien die verlaesslichste Adresse.
+        $apply('035_stempel_concello', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/035_stempel_concello.php';
+            migration_035($db);
+        });
     }
 
     /** @return array<int,string> */

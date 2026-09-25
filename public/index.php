@@ -455,10 +455,49 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
               <span class="swarn"<?= ($done && $da < $noetig) ? '' : ' hidden' ?>>Tag ist abgehakt, aber es fehlt ein Stempel.</span>
             </div>
 
-            <?php $orte = $stempelOrte[(int) $st['id']] ?? []; ?>
+            <?php
+              $orte = $stempelOrte[(int) $st['id']] ?? [];
+              /* Am laufenden Tag steht der Kasten offen. Wer unterwegs einen
+                 Stempel sucht, soll nicht erst eine Überschrift antippen
+                 müssen — an allen anderen Tagen bleibt er zugeklappt, sonst
+                 ist die Etappenliste nicht mehr zu überblicken. */
+              $heuteEtappe = ((string) ($st['date_from'] ?: $st['date_iso']) <= $heuteIso)
+                          && ((string) ($st['date_iso'] ?: $st['date_from']) >= $heuteIso);
+            ?>
             <?php if ($orte): ?>
-              <details class="sorte">
-                <summary>Wo gibt es den Stempel?</summary>
+              <details class="sorte"<?= $heuteEtappe ? ' open' : '' ?>>
+                <summary>Wo gibt es hier einen Stempel?</summary>
+
+                <?php /* Der wichtigste Teil: von hier aus suchen, nicht vom
+                          Zielort aus. Zwischen zwei Orten — im Gewerbegebiet,
+                          an der Landstraße — hilft eine Suche im Zielort gar
+                          nichts. Ohne Erlaubnis nimmt Google Maps von sich
+                          aus den Standort des Geräts; mit Erlaubnis setzen
+                          wir ihn genau. */ ?>
+                <div class="snah" data-snah>
+                  <p class="snah-kopf">In der Nähe suchen
+                    <button type="button" class="snah-pos" data-snah-pos>Meine Position nehmen</button>
+                  </p>
+                  <div class="snah-knoepfe">
+                    <?php foreach ([
+                        ['Albergue',    'albergue de peregrinos'],
+                        ['Turismo',     'oficina de turismo'],
+                        ['Kirche',      'igrexa'],
+                        ['Concello',    'concello'],
+                        ['Café / Bar',  'cafeteria'],
+                        ['Apotheke',    'farmacia'],
+                    ] as [$wort, $suche]): ?>
+                      <a href="https://www.google.com/maps/search/?api=1&amp;query=<?= h(rawurlencode($suche)) ?>"
+                         data-snah-suche="<?= h($suche) ?>" target="_blank" rel="noopener"><?= h($wort) ?></a>
+                    <?php endforeach; ?>
+                  </div>
+                  <p class="snah-stand" data-snah-stand hidden></p>
+                </div>
+
+                <p class="sfrage">Fragen kostet nichts — die wenigsten hängen es ins Fenster:<br>
+                  <b lang="es">„¿Tienen sello para la credencial, por favor?"</b></p>
+
+                <p class="sorte-ort">Im Zielort <b><?= h((string) ($st['map_name'] ?? $st['title'])) ?></b>:</p>
                 <ul>
                   <?php foreach ($orte as $o): ?>
                     <li class="<?= $o['art'] === 'fest' ? 'fest' : 'suche' ?>">
@@ -471,9 +510,14 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
                   <?php endforeach; ?>
                 </ul>
                 <p class="sfuss">
-                  Deine Unterkunft stempelt auch — und Cafés und Bars am Weg fast immer.
-                  Die Suchen führen in den Zielort; benannte Adressen sind geprüft, die Suchen
-                  zeigen dir, was es dort <b>gerade</b> gibt. Albergues machen zu und ziehen um.
+                  <b>Zwei am Tag bekommst du fast nebenbei:</b> einen von deiner Unterkunft — die
+                  stempelt beim Einchecken, dafür musst du nirgends hin — und einen von der
+                  Kaffeepause unterwegs. In Spanien hängt es kaum jemand ins Fenster, aber die
+                  meisten Bars am Weg haben einen im Tresen. Das <b>Albergue</b> stempelt immer,
+                  auch ohne dass du dort schläfst oder etwas kaufst.<br>
+                  <small>Die Suchen zeigen dir, was es <b>gerade</b> gibt — Albergues machen zu
+                  und ziehen um, deshalb stehen hier keine festen Adressen außer den zwei
+                  Gebäuden, die bleiben.</small>
                 </p>
               </details>
             <?php endif; ?>
