@@ -240,11 +240,17 @@ kein Netz, und ein Eintrag, der erst beim Hochladen entsteht, wäre dann weg.
 Bilder gehören zum Eintrag, nicht nur zum Anlegen: mehrere auf einmal, in
 mehreren Griffen nacheinander, und auch später noch am fertigen Eintrag.
 
-**Videos gehen genauso** — dieselbe Auswahl, dieselbe Warteschlange. Sie gehen
-in Brocken von 1,5 MB hoch, weil ein Handyvideo weder in `post_max_size` noch
-am Stück durch ein Mobilnetz passt; ein abgerissener Upload macht dort weiter,
-wo er war. Das Standbild greift das Handy selbst ab, im Container gibt es kein
-ffmpeg. Grenze 400 MB je Datei.
+**Videos gehen genauso** — dieselbe Auswahl, dieselbe Warteschlange. Das
+Standbild greift das Handy selbst ab, im Container gibt es kein ffmpeg. Grenze
+400 MB je Datei.
+
+**Bilder und Videos gehen in Brocken von 1 MB hoch.** Bei Videos, weil sie
+anders gar nicht durchpassen; bei Bildern, weil der Multipart-Weg auf diesem
+Server mit „Es kam keine Datei an" scheitert, während JSON durchgeht — woran
+das liegt, ist nie geklärt worden. Ein abgerissener Upload macht beim nächsten
+Versuch dort weiter, wo er war: die Marke liegt in der Warteschlange, und der
+Server sagt auf Nachfrage, wie viel schon da ist. Sprachnotizen gehen weiter
+über `upload.php` — die kommen an, und was funktioniert, wird nicht angefasst.
 
 Wo ein Bild entstanden ist, wird **auf dem Handy** aus dem Bild gelesen — vor
 dem Verkleinern, weil die Leinwand die Metadaten sonst wegwirft. Fehlen sie,

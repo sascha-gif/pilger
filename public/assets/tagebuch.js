@@ -670,7 +670,11 @@
      Also in Brocken von anderthalb Megabyte: jeder ist eine eigene Anfrage,
      die für sich gelingt, und was schon liegt, bleibt liegen. */
 
-  var STUECK = 1.5 * 1024 * 1024;
+  /* Ein Megabyte roh, als Base64 gut ein Drittel mehr. Die Grenze ist nicht
+     geraten: der JSON-Rückfall für Bilder geht auf diesem Server seit Tagen
+     mit rund einem Megabyte durch, während derselbe Inhalt als Multipart
+     abgewiesen wird. Was nachweislich ankommt, ist das Maß. */
+  var STUECK = 1024 * 1024;
 
   function alsBase64Roh(teil) {
     return alsBase64(teil).then(function (url) {
@@ -679,11 +683,40 @@
     });
   }
 
-  function sendeStueckweise(felder, datei, dateiname, melde) {
-    return sendeJson({ action: 'datei.anfang' }).then(function (d) {
+  /**
+   * @param merke   wird mit der Marke gerufen, sobald es eine gibt — das
+   *                Paket schreibt sie in die Warteschlange, damit ein
+   *                abgerissener Upload sie beim nächsten Versuch wiederfindet
+   * @param marke0  die Marke aus einem früheren Versuch, falls es eine gibt
+   */
+  function sendeStueckweise(felder, datei, dateiname, melde, merke, marke0) {
+    var gesamt = datei.size;
+
+    /* Eine Marke von vorhin? Dann erst fragen, wie viel davon schon liegt.
+       Genau dafür ist der stückweise Weg da: nach einem Abbruch bei 80 % nicht
+       wieder bei null anfangen. Ist beim Server nichts (mehr) da, liefert er
+       −1 und es geht von vorn los. */
+    var anfang = marke0
+      ? sendeJson({ action: 'datei.stand', marke: marke0 }).then(function (d) {
+          return (d.liegt >= 0 && d.liegt <= gesamt)
+            ? { marke: marke0, pos: d.liegt }
+            : sendeJson({ action: 'datei.anfang' }).then(function (n) {
+                return { marke: n.marke, pos: 0 };
+              });
+        }).catch(function () {
+          return sendeJson({ action: 'datei.anfang' }).then(function (n) {
+            return { marke: n.marke, pos: 0 };
+          });
+        })
+      : sendeJson({ action: 'datei.anfang' }).then(function (n) {
+          return { marke: n.marke, pos: 0 };
+        });
+
+    return anfang.then(function (d) {
       var marke = d.marke;
-      var gesamt = datei.size;
-      var pos = 0;
+      var pos = d.pos;
+      if (merke) { merke(marke); }
+      if (pos > 0 && melde) { melde(Math.round(pos / gesamt * 100)); }
 
       function weiter() {
         if (pos >= gesamt) {
@@ -784,26 +817,41 @@
           };
           var name = klein.name || ('bild' + i + (video ? '.mp4' : '.jpg'));
 
-          /* Videos gehen immer stückweise — am Stück passen sie weder in
-             `post_max_size` noch durch ein wackliges Netz. Standbild und
-             Länge hat das Gerät beim Auswählen schon abgegriffen. */
           if (video) {
             var vd = (p.videos || [])[i] || {};
             if (vd.standbild) { felder.standbild = vd.standbild; }
             if (vd.dauer !== null && vd.dauer !== undefined) { felder.dauer = String(vd.dauer); }
-            return sendeStueckweise(felder, klein, name, function (prozent) {
-              sag('Video geht raus … ' + prozent + ' %');
-            });
           }
 
-          return sendeDatei(felder, klein, name).catch(function (err) {
-            // Der Server hat die Anfrage bekommen, aber keine Datei darin
-            // gefunden. Dann ist der Weg kaputt und nicht die Datei — also
-            // denselben Inhalt noch einmal, diesmal als JSON.
-            if (!/Es kam keine Datei an/.test(err.message || '')) {
-              throw err;
-            }
-            sag('Der übliche Weg klemmt — Bild geht als JSON raus …');
+          /* Bilder gehen denselben Weg wie Videos: stückweise.
+
+             Nicht weil sie groß wären, sondern weil der andere Weg auf diesem
+             Server nicht funktioniert. Ein Bild als Multipart-Formular kam
+             seit Tagen mit „Es kam keine Datei an" zurück, während derselbe
+             Inhalt als JSON durchging — woran das liegt, ist immer noch nicht
+             geklärt. Statt weiter zu raten: den Weg nehmen, der nachweislich
+             ankommt. Ein Bild von 700 KB ist dabei ein einziges Stück, also
+             drei kurze Anfragen statt einer, die scheitert.
+
+             Der alte JSON-Weg bleibt als Rückfall stehen — eine einzige
+             Anfrage, auf diesem Server erprobt. */
+          var mehrTeile = klein.size > STUECK;
+          p.marken = p.marken || [];
+          return sendeStueckweise(
+            felder, klein, name,
+            mehrTeile ? function (prozent) {
+              sag((video ? 'Video' : 'Bild') + ' geht raus … ' + prozent + ' %');
+            } : null,
+            function (marke) {
+              // In die Warteschlange damit: bricht der Upload ab, findet der
+              // nächste Versuch die angefangene Übertragung wieder.
+              p.marken[i] = marke;
+              merke(p);
+            },
+            p.marken[i]
+          ).catch(function (err) {
+            if (video) { throw err; }   // Ein Video passt nicht in eine Anfrage.
+            sag('Der stückweise Weg klemmt — Bild geht am Stück raus …');
             return sendeFotoAlsJson(felder, klein, name);
           });
         }).then(function () {

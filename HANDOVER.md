@@ -1275,10 +1275,7 @@ hier auch kein ffmpeg gibt): vier Brocken, byte-gleich angekommen, Standbild
 und Länge erkannt, Zwischenspeicher leer, `206` mit `Content-Range` beim
 Abruf, und es spielt.
 
-**Für Fotos bleibt der alte Weg.** Wenn das „Es kam keine Datei an" auf dem
-Server nicht aufhört, wäre derselbe stückweise Weg die naheliegende Antwort —
-er schickt gar keine großen Rümpfe mehr und umgeht die Frage, woran es liegt.
-Umgestellt ist es noch nicht, weil der JSON-Rückfall für Bilder funktioniert.
+**Bilder gehen denselben Weg** — siehe unten, „Bilder gehen jetzt stückweise".
 
 ---
 
@@ -1325,6 +1322,45 @@ weitergeben." — ein Link, der vor einer Tür endet, ist schlechter als keiner.
 **Geprüft** mit zwei getrennten Browsersitzungen: ohne Link und mit falschem
 Link steht die Tür, mit Link werden alle Bilder und das Video geladen, und
 jeder der oben genannten Grenzfälle antwortet mit dem erwarteten Fehlercode.
+
+---
+
+## Bilder gehen jetzt stückweise — und Abbrüche gehen weiter
+
+**Das Problem, das damit erledigt ist.** Ein Bild als Multipart-Formular kam auf
+diesem Server seit Tagen mit **„Es kam keine Datei an"** zurück, während
+derselbe Inhalt als JSON durchging und Sprachnotizen über denselben Endpunkt
+anstandslos ankamen. Woran das liegt, ist bis heute nicht geklärt — die
+Diagnose in `upload.php` steht bereit, aber es kam nie ein Screenshot davon.
+
+Statt weiter zu raten: den Weg nehmen, der nachweislich ankommt. Bilder gehen
+jetzt wie Videos über `datei.anfang` / `datei.stueck` / `datei.fertig`. Ein Bild
+von 700 KB ist dabei **ein einziges Stück** — drei kurze Anfragen statt einer,
+die scheitert. Der alte JSON-Weg (`foto.daten`) bleibt als Rückfall stehen, weil
+er auf diesem Server erprobt ist; Multipart wird für Bilder gar nicht mehr
+versucht. Für **Sprachnotizen** bleibt `upload.php`: die gehen durch, und was
+funktioniert, wird nicht angefasst.
+
+**Die Stückgröße ist nicht geraten.** 1 MB roh, als Base64 gut ein Drittel mehr.
+Der JSON-Rückfall geht auf diesem Server seit Tagen mit rund einem Megabyte
+durch — was nachweislich ankommt, ist das Maß.
+
+**Und jetzt bricht ein Upload wirklich nicht mehr auf null zurück.** Das stand
+vorher schon in der Beschreibung, gebaut war es nicht: die Marke lebte nur
+innerhalb eines Versuchs, ein Fehlschlag warf die ganze Kette weg und der
+nächste Anlauf fing von vorn an. Jetzt wandert die Marke ins Paket in der
+Warteschlange. Beim nächsten Versuch fragt der Browser mit `datei.stand`, wie
+viel schon liegt, und schickt nur den Rest. Liefert der Server −1 — weil die
+angefangene Übertragung nach zwölf Stunden weggeräumt wurde —, geht es von
+vorn los.
+
+Eine Verwechslung kann daraus nicht entstehen: hat `datei.fertig` beim ersten
+Versuch schon durchgeschlagen und nur die Rückmeldung ist verlorengegangen,
+erkennt `nimmFoto`/`nimmVideo` die `client_id` wieder und legt nichts doppelt an.
+
+**Geprüft** an einem 4,8-MB-Video mit abgeschnittener Leitung mitten im zweiten
+Stück: nach dem Abriss `datei.stand`, dann nur noch die fehlenden vier Stücke
+statt aller fünf — und die Datei ist am Ende byte-gleich mit dem Original.
 
 ---
 
