@@ -21,6 +21,8 @@ $art = (string) ($_GET['art'] ?? 'foto');
 
 $tagebuch = new Tagebuch($db, $repo);
 
+$istVideo = false;
+
 if ($art === 'audio') {
     $eintrag = $tagebuch->eintrag($id);
     if ($eintrag === null || !$eintrag['audio_file']) {
@@ -34,8 +36,13 @@ if ($art === 'audio') {
         http_response_code(404);
         exit;
     }
-    $name = ($art === 'klein' && $foto['thumb']) ? $foto['thumb'] : $foto['file'];
-    $pfad = data_path('fotos') . '/' . basename((string) $name);
+    $klein = ($art === 'klein' && $foto['thumb']);
+    $name  = $klein ? $foto['thumb'] : $foto['file'];
+    $pfad  = data_path('fotos') . '/' . basename((string) $name);
+
+    /* Das Standbild eines Videos ist ein Bild und kein Video — sonst käme es
+       als `video/mp4` heraus und stünde im Mosaik als schwarzer Kasten. */
+    $istVideo = !$klein && (($foto['kind'] ?? 'foto') === 'video');
 }
 
 if (!is_readable($pfad)) {
@@ -44,21 +51,107 @@ if (!is_readable($pfad)) {
     exit('Datei nicht gefunden.');
 }
 
+/* `mp4` und `webm` gibt es in beiden Welten. Womit eine Datei ausgeliefert
+   wird, entscheidet deshalb nicht die Endung allein, sondern wofür sie
+   abgelegt wurde: eine Sprachnotiz ist Audio, ein Tagebuchvideo ist Video.
+   Ein Video als `audio/mp4` auszuliefern heißt, dass der Browser nur den Ton
+   abspielt. */
 $typen = [
     'jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'png' => 'image/png',
     'webp' => 'image/webp', 'heic' => 'image/heic', 'heif' => 'image/heif',
-    'webm' => 'audio/webm', 'ogg' => 'audio/ogg', 'oga' => 'audio/ogg',
-    'mp4' => 'audio/mp4', 'm4a' => 'audio/mp4', 'mp3' => 'audio/mpeg', 'wav' => 'audio/wav',
+    'mp3' => 'audio/mpeg', 'wav' => 'audio/wav', 'oga' => 'audio/ogg', 'm4a' => 'audio/mp4',
+    'mov' => 'video/quicktime', 'm4v' => 'video/mp4',
 ];
-$endung = strtolower((string) pathinfo($pfad, PATHINFO_EXTENSION));
+$doppelt = [
+    'mp4'  => ['audio/mp4',  'video/mp4'],
+    'webm' => ['audio/webm', 'video/webm'],
+    'ogg'  => ['audio/ogg',  'video/ogg'],
+];
 
-header('Content-Type: ' . ($typen[$endung] ?? 'application/octet-stream'));
-header('Content-Length: ' . filesize($pfad));
+$endung = strtolower((string) pathinfo($pfad, PATHINFO_EXTENSION));
+if (isset($doppelt[$endung])) {
+    $typ = $doppelt[$endung][$istVideo ? 1 : 0];
+} else {
+    $typ = $typen[$endung] ?? 'application/octet-stream';
+}
+
+$groesse = (int) filesize($pfad);
+
+header('Content-Type: ' . $typ);
 header('Cache-Control: private, max-age=31536000, immutable');
 header('X-Content-Type-Options: nosniff');
 header('Content-Disposition: inline; filename="' . basename($pfad) . '"');
-
-// Für Audio zurückspulen und springen zu können.
 header('Accept-Ranges: bytes');
 
-readfile($pfad);
+/* ---- Bereichsanfragen ---------------------------------------------------
+   Bisher stand hier `Accept-Ranges: bytes` und darunter ein `readfile()` —
+   die Zusage wurde also gegeben und nie eingelöst. Bei Audio fällt das kaum
+   auf: der Browser lädt die Datei eben ganz und spult im Speicher. Ein Video
+   auf dem iPhone fängt so aber gar nicht erst an. Safari holt zuerst ein
+   kleines Stück vom Anfang, und wer darauf mit der vollen Datei und einer 200
+   antwortet, bekommt einen schwarzen Rahmen.
+
+   Mehrteilige Bereiche („bytes=0-99,200-299") kommen von Videoplayern nicht
+   vor; darauf mit der ganzen Datei zu antworten ist erlaubt. */
+$von = 0;
+$bis = $groesse - 1;
+$teil = false;
+
+$roh = trim((string) ($_SERVER['HTTP_RANGE'] ?? ''));
+if ($roh !== '' && $groesse > 0 && preg_match('~^bytes=(\d*)-(\d*)$~', $roh, $m)) {
+    if ($m[1] === '' && $m[2] === '') {
+        // „bytes=-" sagt gar nichts.
+        http_response_code(416);
+        header('Content-Range: bytes */' . $groesse);
+        exit;
+    }
+    if ($m[1] === '') {
+        // „bytes=-500" — die letzten 500 Bytes.
+        $laenge = (int) $m[2];
+        $von = max(0, $groesse - $laenge);
+    } else {
+        $von = (int) $m[1];
+        if ($m[2] !== '') {
+            $bis = (int) $m[2];
+        }
+    }
+    $bis = min($bis, $groesse - 1);
+
+    if ($von > $bis || $von >= $groesse) {
+        http_response_code(416);
+        header('Content-Range: bytes */' . $groesse);
+        exit;
+    }
+    $teil = true;
+}
+
+if ($teil) {
+    http_response_code(206);
+    header('Content-Range: bytes ' . $von . '-' . $bis . '/' . $groesse);
+}
+header('Content-Length: ' . ($bis - $von + 1));
+
+/* Stückweise ausgeben. Ein `readfile()` zieht die ganze Datei durch den
+   Speicher — bei einem Handyvideo sind das schnell dreihundert Megabyte, und
+   dann stirbt PHP am `memory_limit` mitten in der Antwort. */
+$zeiger = fopen($pfad, 'rb');
+if ($zeiger === false) {
+    http_response_code(500);
+    exit;
+}
+if ($von > 0) {
+    fseek($zeiger, $von);
+}
+
+$offen = $bis - $von + 1;
+$haeppchen = 256 * 1024;
+while ($offen > 0 && !feof($zeiger) && !connection_aborted()) {
+    $stueck = fread($zeiger, (int) min($haeppchen, $offen));
+    if ($stueck === false || $stueck === '') {
+        break;
+    }
+    echo $stueck;
+    $offen -= strlen($stueck);
+    flush();
+}
+fclose($zeiger);

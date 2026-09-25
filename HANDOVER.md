@@ -1200,6 +1200,37 @@ hält sie unter der klebenden Leiste hervor, und bei
 
 ---
 
+## `media.php` beantwortet jetzt Bereichsanfragen
+
+Vorher stand dort `Accept-Ranges: bytes` und darunter ein `readfile()`. Die
+Zusage wurde also gegeben und nie eingelöst: egal was angefragt war, es kam die
+ganze Datei mit einer 200.
+
+Bei Audio fällt das kaum auf — der Browser lädt die Aufnahme eben ganz und
+spult im Speicher. **Ein Video auf dem iPhone fängt so gar nicht erst an.**
+Safari holt zuerst ein kleines Stück vom Anfang, und wer darauf mit der vollen
+Datei antwortet, bekommt einen schwarzen Rahmen. Das war der eigentliche Grund,
+warum Videos nicht einfach „auch gingen".
+
+Jetzt: `206` mit `Content-Range` für einen angefragten Bereich, `416` für einen
+unsinnigen, `200` sonst. Unterstützt sind offene (`bytes=500-`) und
+nachlaufende Bereiche (`bytes=-500`). Mehrteilige Bereiche kommen von
+Videoplayern nicht vor — darauf mit der ganzen Datei zu antworten ist erlaubt.
+
+Ausgegeben wird **stückweise** (256 KB), nicht mit `readfile()`: ein Handyvideo
+sind schnell dreihundert Megabyte, und die durch den Speicher zu ziehen killt
+PHP am `memory_limit` mitten in der Antwort.
+
+**Der Typ hängt nicht mehr an der Endung allein.** `mp4`, `webm` und `ogg` gibt
+es als Ton und als Bild; was ausgeliefert wird, entscheidet `photos.kind`. Ein
+Video als `audio/mp4` auszuliefern heißt, dass der Browser nur den Ton
+abspielt. Das Standbild eines Videos geht weiterhin als Bild heraus.
+
+Geprüft mit echten Anfragen über alle Fälle — offen, nachlaufend, über das
+Ende hinaus — samt byte-genauem Vergleich gegen die ganze Datei.
+
+---
+
 ## Was bewusst nicht gebaut wurde
 
 - **Kein Speichern des Originalfotos.** Bilder werden auf 1600 px verkleinert.
