@@ -1398,6 +1398,73 @@ Stornierung den Gesamtpreis, also ist das der Gesamtpreis.
 
 ---
 
+## Die letzten fünf Tage, neu geschnitten
+
+Die Nacht in Pontevedra fiel auf den 26., also auf das Ende von E8 — dessen
+Ziel aber Arcade ist, 15 km davor. Entschieden wurde: **weiterlaufen statt
+zurückfahren.** Die Strecke Arcade → Pontevedra geht nicht zu Fuß.
+
+Dadurch wird ein Tag frei, und der steckt jetzt im **letzten**:
+
+| Tag | vorher | jetzt |
+|---|---|---|
+| E9 · 27.09. | Arcade → Pontevedra, 15 | Pontevedra → Caldas de Reis, 22 |
+| E10 · 28.09. | Pontevedra → Caldas, 22 | Caldas de Reis → Padrón, 19 |
+| E11 · 29.09. | Caldas → Padrón, 19 | Padrón → O Milladoiro, 18 |
+| E12 · 30.09. | Padrón → Santiago, 25 | O Milladoiro → Santiago, **7** |
+
+Die Etappen wandern also um eine Stelle, und die alte E12 teilt sich. Fünf
+Etappen bleiben fünf — gelöscht wurde keine, was auch gut ist: an `stages.id`
+hängen Stempelkästchen, Unterkünfte und Fotos.
+
+**Der kurze letzte Tag ist der eigentliche Gewinn.** Sieben Kilometer, Ankunft
+gegen halb elf, danach Pilgerbüro und Pilgermesse um 12:00. Nach dem alten Plan
+kam er am 30. nach 25 km an — die Messe wäre nie zu schaffen gewesen. Dass das
+zwei Wochen lang so im Plan stand, ist mir erst bei dieser Umstellung
+aufgefallen.
+
+**251 von 266 km.** Beide Zahlen stehen auf der Seite: die Kennzahl oben sagt
+„251 km zu Fuß", der Seitenfuß „251 von 266 km". Die Fortschrittsanzeige
+rechnet mit 251, weil sie zeigt, was zu gehen ist. Die Stempel bleiben bei 21 —
+es sind weiterhin fünf Wandertage bis Santiago.
+
+**Was das für die Compostela heißt, steht in CLAUDE.md** und ist dort nicht
+beschönigt: die ununterbrochene Strecke vor Santiago beginnt in Pontevedra und
+ist 66 km lang, verlangt sind 100. Das war eine bewusste Entscheidung, keine
+Panne — und ein Plan, der etwas anderes behauptet, wäre wertlos.
+
+**Im Seed steht das nicht.** Der Seed hält den ursprünglichen Plan, die
+Migrationen sind die Geschichte der Änderungen daran — genau dafür sind sie da.
+Eine frische Datenbank läuft ohnehin durch alle hindurch; geprüft wird das mit
+dem Kaltstart-Vergleich, und der lief Feld für Feld über alle dreizehn
+Etappen, `cost_items`, `stamp_spots`, `lodgings`, `hero_facts` und den
+Seitenfuß.
+
+---
+
+## Der Kaltstart-Vergleich hat einen echten Fehler gefunden
+
+Beim Prüfen der Umstellung fiel auf: in der **laufenden** Datenbank suchte E6
+nach „Albergue de Peregrinos **Baiona**", in einer frischen nach Nigrán. Am 24.
+hat er also, während er in Nigrán stand, Suchknöpfe angeboten bekommen, die auf
+einen Ort sieben Kilometer zurück zeigten.
+
+**Die Ursache ist eine Kopie.** Migration 009 hat die Suchtexte einmal aus
+`stages.map_name` zusammengesetzt und als eigene Zeilen in `stamp_spots`
+abgelegt. Wird eine Etappe später umbenannt — Baiona → Nigrán in 032, und vier
+auf einmal in 039 —, ändert sich der Name, die Kopie aber nicht. Im Seed stand
+der neue Name längst, deshalb war die frische Datenbank richtig und die
+laufende falsch. Migration 040 schreibt alle Suchen aus dem aktuellen
+`map_name` neu.
+
+**Zwei Lehren.** Erstens: der Kaltstart-Vergleich ist mehr wert als ein Blick
+auf die Seite — auf der Seite sah alles plausibel aus. Zweitens: **sauber wäre
+es, die Suchen gar nicht zu speichern**, sondern beim Anzeigen aus `map_name`
+zu bilden. Dann kann so etwas nicht mehr auseinanderlaufen. Das ist ein Umbau
+an `stamp_spots` und war nicht die Nacht dafür — aber es ist der richtige Fix.
+
+---
+
 ## Was bewusst nicht gebaut wurde
 
 - **Kein Speichern des Originalfotos.** Bilder werden auf 1600 px verkleinert.

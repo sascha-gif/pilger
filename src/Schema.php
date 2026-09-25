@@ -252,6 +252,18 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/038_pontevedra.php';
             migration_038($db);
         });
+
+        // Die letzten fuenf Tage, wie sie wirklich laufen.
+        $apply('039_letzte_etappen', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/039_letzte_etappen.php';
+            migration_039($db);
+        });
+
+        // Die Stempelsuchen zeigten noch auf Baiona.
+        $apply('040_stempelorte_nachziehen', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/040_stempelorte_nachziehen.php';
+            migration_040($db);
+        });
     }
 
     /** @return array<int,string> */

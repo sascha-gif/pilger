@@ -193,6 +193,61 @@ function unterkuenfte(): array
             'quelle' => 'bestaetigung',
         ],
         [
+            'seq' => 9, 'stage_seq' => 9,
+            'name' => 'Apartamento Loft II Select Real Caldas de Reis',
+            'art' => 'Apartment',
+            'zimmer' => null,
+            'strasse' => 'Rúa Real 49', 'plz' => '36650',
+            'ort' => 'Caldas de Reis', 'land' => 'ES',
+            'telefon' => null,
+            'von' => '2026-09-27', 'bis' => '2026-09-28', 'naechte' => 1,
+            'preis' => 65.96, 'buchungsnr' => null,
+            'checkin' => null, 'checkout' => null,
+            'lage' => 'Rúa Real ist die Hauptstraße der Altstadt, mitten im Ortskern — kein '
+                    . 'Umweg, und der Weg führt am nächsten Morgen direkt daran vorbei.',
+            'hinweis' => 'Apartment, also vermutlich kein Empfang: der Stempel muss von woanders '
+                       . 'kommen. Die Buchungsnummer wurde nicht festgehalten.',
+            'quelle' => 'bestaetigung',
+        ],
+        [
+            'seq' => 10, 'stage_seq' => 10,
+            'name' => 'Huna Apartamentos',
+            'art' => 'Apartment',
+            'zimmer' => 'Apartment mit einem Schlafzimmer',
+            'strasse' => 'Travesía Iría 131', 'plz' => '15917',
+            'ort' => 'Padrón', 'land' => 'ES',
+            'telefon' => null,
+            'von' => '2026-09-28', 'bis' => '2026-09-29', 'naechte' => 1,
+            'preis' => 73.50, 'buchungsnr' => '5642460191',
+            'checkin' => 'mit dem Gastgeber abstimmen', 'checkout' => 'mit dem Gastgeber abstimmen',
+            'lage' => 'Postleitzahl und Straßenname deuten auf Iria Flavia, rund einen Kilometer '
+                    . 'nördlich des Ortskerns — also in Laufrichtung. Abends ist der Ort damit '
+                    . 'nicht vor der Tür: Essen und Stempel vorher erledigen.',
+            'hinweis' => 'Apartment, also vermutlich kein Empfang und kein Stempel. Check-in-Zeit '
+                       . 'mit dem Gastgeber abstimmen — nach 19 km kommt niemand zur Bürozeit an. '
+                       . 'Mit 9,4 die beste Bewertung der ganzen Reise.',
+            'quelle' => 'bestaetigung',
+        ],
+        [
+            'seq' => 11, 'stage_seq' => 11,
+            'name' => 'B&B HOTEL Santiago Milladoiro',
+            'art' => 'Hotel',
+            'zimmer' => 'Doppelzimmer',
+            'strasse' => 'Rúa das Palmeiras', 'plz' => '15895',
+            'ort' => 'O Milladoiro', 'land' => 'ES',
+            'telefon' => null,
+            'von' => '2026-09-29', 'bis' => '2026-09-30', 'naechte' => 1,
+            'preis' => 90.13, 'buchungsnr' => '2457423459923289565',
+            'checkin' => null, 'checkout' => null,
+            'lage' => 'O Milladoiro gehört zur Gemeinde Ames und liegt am Südrand von Santiago, '
+                    . 'auf dem Camino. Von hier sind es nur noch rund 7 km bis zur Praza do '
+                    . 'Obradoiro — deshalb steht das Bett überhaupt hier.',
+            'hinweis' => 'Ein Hotel mit Empfang, also die erste Unterkunft seit Vigo, die selbst '
+                       . 'stempelt. Bei der Buchung stand „Bestätigung ausstehend"; die Zusage '
+                       . 'des Hauses kam erst danach.',
+            'quelle' => 'bestaetigung',
+        ],
+        [
             'seq' => 12, 'stage_seq' => 12,
             'name' => 'Lemonade Stays',
             'art' => null,

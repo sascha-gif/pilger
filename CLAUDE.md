@@ -36,7 +36,8 @@ Schnittstelle. Ein neuer Link macht den alten sofort tot.
 ## Eckdaten
 
 - Route: Porto → Santiago de Compostela, Caminho da Costa (Variante: Senda Litoral)
-- 266 km, 12 Etappen, Ø ~25 km/Tag (real Ø ~22 km)
+- Route 266 km, **251 km davon zu Fuß**, 12 Etappen, Ø ~21 km/Tag.
+  Die 15 km Arcade → Pontevedra am 27.09. gehen nicht zu Fuß — siehe Etappen.
 - Zeitraum: 17.09.–01.10.2026
 - Kein Gepäcktransport — alles selbst tragen, Zielgewicht Rucksack < 8 kg
 
@@ -85,11 +86,16 @@ Gewicht 93 kg (Start 12.01.) → Ziel ~88 kg bis Abflug
 | E5 | 23.09. | Caminha → Viladesuso/Oia (Fähre über den Minho, Grenze ESP, ab hier 2 Stempel/Tag) — **längste Etappe** | 27 | 144 |
 | E6 | 24.09. | Viladesuso → Nigrán / Praia América | 21 | 123 |
 | E7 | 25.09. | Nigrán → Vigo (Küstenweg über Saiáns) | 20 | 103 |
-| E8 | 26.09. | Vigo → Arcade (Austern) | 22 | 81 |
-| E9 | 27.09. | Arcade → Pontevedra | 15 | 66 |
-| E10 | 28.09. | Pontevedra → Caldas de Reis (Thermalort) | 22 | 44 |
-| E11 | 29.09. | Caldas de Reis → Padrón | 19 | 25 |
-| E12 | 30.09. | Padrón → Santiago (Praza do Obradoiro) | 25 | 0 |
+| E8 | 26.09. | Vigo → Arcade (Austern), danach **Fahrt** nach Pontevedra | 22 | 66 |
+| — | 27.09. | *Arcade → Pontevedra, 15 km — **nicht zu Fuß**, wird gefahren* | — | — |
+| E9 | 27.09. | Pontevedra → Caldas de Reis (Thermalort) | 22 | 44 |
+| E10 | 28.09. | Caldas de Reis → Padrón | 19 | 25 |
+| E11 | 29.09. | Padrón → **O Milladoiro** | 18 | 7 |
+| E12 | 30.09. | O Milladoiro → Santiago (Praza do Obradoiro) | 7 | 0 |
+
+Der letzte Tag ist mit Absicht kurz: sieben Kilometer, Ankunft gegen halb elf,
+danach Pilgerbüro und **Pilgermesse um 12:00**. Nach dem ursprünglichen Plan —
+25 km am 30. — wäre die Messe nicht zu schaffen gewesen.
 
 Senda-Litoral-Variante möglich bis Viana do Castelo (Küste, flach, gelenkschonend);
 danach läuft sie mit der Costa zusammen.
@@ -160,12 +166,27 @@ danach läuft sie mit der Costa zusammen.
   zurückfahren und sie zu Fuß gehen — dann fehlt kein Meter. Dafür eine zweite
   Nacht dort (27.–28. ist ohnehin offen); am besten dieselbe Unterkunft
   verlängern, dann bleibt der Rucksack liegen.
-- **Offen:** 3 Etappenorte — die Nacht nach E9 (27.–28., Pontevedra),
-  E10 Caldas de Reis, E11 Padrón.
-- ⚠️ **Ab Vigo sind es 103 km, verlangt sind die letzten 100 zu Fuß.** Drei
-  Kilometer Luft. Ein Taxi **über die Strecke** frisst sie sofort auf — eine
-  Fahrt zum Quartier und morgens zurück an dieselbe Stelle kostet nichts davon.
-  Vigo, Redondela, Arcade und Pontevedra liegen an **derselben Bahnlinie**.
+- **Gebucht:** Caldas de Reis (E9), Apartamento Loft II Select Real,
+  27.–28.09., **65,96 €** (inkl. 6,00 € MwSt). Rúa Real 49, 36650 — die
+  Hauptstraße der Altstadt, mitten im Ortskern, kein Umweg. **Apartment, also
+  vermutlich kein Empfang und kein Stempel.** Keine Buchungsnummer festgehalten.
+- **Gebucht:** Padrón (E10), Huna Apartamentos, 28.–29.09., **73,50 €**
+  (inkl. 6,68 € MwSt und Übernachtungssteuer), Buchungsnr. 5642460191.
+  Travesía Iría 131, 15917 — Postleitzahl und Straßenname deuten auf **Iria
+  Flavia**, rund 1 km nördlich des Ortskerns, also in Laufrichtung; abends ist
+  der Ort nicht vor der Tür. Bewertung 9,4, die beste der Reise. Apartment →
+  **kein Stempel**, Check-in-Zeit mit dem Gastgeber abstimmen.
+- **Gebucht:** O Milladoiro (E11), B&B HOTEL Santiago Milladoiro ★★,
+  Doppelzimmer, 29.–30.09., **90,13 €**, Buchungsnr. 2457423459923289565.
+  Rúa das Palmeiras, 15895 — Gemeinde Ames, am Südrand von Santiago, rund 7 km
+  vor der Praza do Obradoiro. **Hotel mit Empfang, stempelt selbst.**
+- **Alle Nächte sind gebucht.** Keine offene mehr bis zum Flug.
+- ⚠️ **Die letzten 100 km sind nicht mehr durchgehend gelaufen.** Ab Vigo waren
+  es 103 km; die 15 km Arcade → Pontevedra werden gefahren, die ununterbrochene
+  Strecke vor Santiago beginnt damit in Pontevedra und ist **66 km** lang. Für
+  die Compostela verlangt sind 100. Im Stempelheft stehen Arcade und Pontevedra
+  am selben Tag, was sich wie ein 37-km-Tag liest. **Das ist bewusst so
+  entschieden** und nicht versehentlich passiert.
 - Budget-Ausrichtung: Pension/Hostal statt Hotel, ca. 50–110 €/Nacht
 - **Nur Unterkünfte mit eigenem Zimmer** — kein Bett im Schlafsaal. Steht in
   jedem Budget-Ziel. Die Booking-Links können das nicht erzwingen: den Filter
@@ -184,11 +205,12 @@ Gesamtbudget realistisch **1.400–1.900 €**.
 Bereits fix: Hinflug 258,00 € · Rückflug 235,00 € · Porto 186,83 € ·
 Vila do Conde 78,00 € · Esposende 74,00 € · Viana do Castelo 65,00 € ·
 Caminha 56,50 € · Nigrán 50,00 € · Oia 100,00 € · Vigo 57,00 € ·
-Pontevedra 103,50 € · Santiago 76,95 € · Credencial 2,00 €.
+Pontevedra 103,50 € · Caldas de Reis 65,96 € · Padrón 73,50 € ·
+O Milladoiro 90,13 € · Santiago 76,95 € · Credencial 2,00 €.
 Gekauft: Wandersocken FALKE TK2 2× 57,26 € · Wandershorts maamgic 2× 55,98 € ·
 Reiseapotheke & Hygiene 20,54 € (Compeed, Dr. Bronner's, Zahncreme, Deo) ·
 Papiertüten 5,49 € (Tagesportionen Medikamente) · USB-C-Ladegerät 9,99 €.
-Erfasst damit 1.492,04 €.
+Erfasst damit **1.721,63 €** — alle Unterkünfte gebucht.
 
 ## Equipment-Kernpunkte
 
@@ -286,8 +308,6 @@ darauf auf, nicht auf der ausgebauten Fassung.
 
 ## Offene Punkte
 
-- 3 Nächte buchen: **Pontevedra 27.–28.** (am besten die bestehende Buchung um
-  eine Nacht verlängern), Caldas de Reis, Padrón
 - **Vigo: Bestätigungsmail prüfen.** Der Screenshot war die Buchungsübersicht
   mit „Letzter Schritt", nicht die Bestätigung — und ohne Buchungsnummer.
 - **Fährfahrplan Caminha → A Guarda/Spanien prüfen** — am Vorabend des 22.09.
@@ -300,7 +320,9 @@ darauf auf, nicht auf der ausgebauten Fassung.
   Flüssiges > 100 ml brauchen auf dem Rückweg ohnehin Aufgabegepäck.
 - Compostela-Urkunde am **30.09.** holen, nicht am Abreisetag — Pilgerbüro
   Rúa das Carretas 33, 9:00–19:00. Pilgermesse 12:00 ebenfalls am 30.09.;
-  am 01.10. sitzt du zu der Zeit im Flieger.
+  am 01.10. sitzt du zu der Zeit im Flieger. Mit den 7 km am 30. geht sich
+  beides aus; Rucksack vorher an der Rezeption des Lemonade Stays abgeben,
+  das Zimmer gibt es erst ab 15:00.
 - Tagebuch-Schlüssel: **ob sie liegen, sagt die Seite selbst** — im Kasten
   „Sprachnotizen in Text verwandeln" stehen oben zwei Zeilen mit ✓ oder ○.
   Diese Liste hier ist dafür keine Quelle.
