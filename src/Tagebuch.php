@@ -383,6 +383,105 @@ final class Tagebuch
         return $this->merkeFoto($name, $thumb, $stageId, $entryId, $clientId, $aufgenommen, $breite, $hoehe, $lat, $lng, $ordner . '/' . $name);
     }
 
+    /**
+     * Ein Video ablegen.
+     *
+     * Anders als bei einem Foto wird hier **nichts umgerechnet**: im Container
+     * steckt kein ffmpeg, und eins dazuzunehmen hieße, ein Programm mit
+     * eigener Angriffsfläche an fremde Dateien zu lassen. Die Datei wandert so,
+     * wie sie kam, ins Volume.
+     *
+     * Das **Standbild** kommt vom Gerät — der Browser kann das Video ohnehin
+     * abspielen, also kann er auch ein Bild daraus abgreifen. Daraus entsteht
+     * hier das Vorschaubild, und daraus stammen auch Breite und Höhe: ohne die
+     * fiele das Video im Mosaik aus dem Raster.
+     *
+     * @param string  $quelle   fertig zusammengesetzte Datei aus `Stueckweise`
+     * @param ?string $standbild  Data-URL vom Gerät, darf fehlen
+     */
+    public function nimmVideo(
+        string $quelle, string $dateiname, ?int $stageId, ?int $entryId, ?string $clientId,
+        ?string $aufgenommen, ?float $lat = null, ?float $lng = null,
+        ?int $dauer = null, ?string $standbild = null
+    ): array {
+        $vorhanden = $clientId ? $this->nachClientId('photos', $clientId) : null;
+        if ($vorhanden !== null) {
+            return $vorhanden;
+        }
+
+        $endung = self::endung($dateiname, ['mp4', 'mov', 'm4v', 'webm'], 'mp4');
+        $basis  = date('Ymd-His') . '-' . bin2hex(random_bytes(6));
+        $name   = $basis . '.' . $endung;
+        $ziel   = data_path('videos') . '/' . $name;
+
+        if (!self::ablegen($quelle, $ziel)) {
+            throw new RuntimeException('Das Video konnte nicht gespeichert werden.');
+        }
+
+        [$thumb, $breite, $hoehe] = $this->standbild($standbild, $basis);
+
+        $this->db->run(
+            'INSERT INTO photos
+             (stage_id, entry_id, client_id, kind, file, thumb, width, height, bytes,
+              taken_at, lat, lng, dauer, created_at)
+             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+            [$stageId, $entryId, $clientId, 'video', $name, $thumb, $breite, $hoehe,
+             @filesize($ziel) ?: null, $aufgenommen, $lat, $lng, $dauer, date('c')]
+        );
+        return $this->foto((int) $this->db->pdo()->lastInsertId());
+    }
+
+    /**
+     * Aus der Data-URL des Geräts ein Vorschaubild machen.
+     *
+     * Misslingt das, ist das kein Grund, das Video wegzuwerfen — dann steht im
+     * Mosaik eben ein Kasten ohne Bild, und abspielen lässt es sich trotzdem.
+     *
+     * @return array{0: ?string, 1: ?int, 2: ?int}  Dateiname, Breite, Höhe
+     */
+    private function standbild(?string $datenUrl, string $basis): array
+    {
+        if ($datenUrl === null || $datenUrl === '') {
+            return [null, null, null];
+        }
+        $roh = $datenUrl;
+        if (str_starts_with($roh, 'data:') && str_contains($roh, ',')) {
+            $roh = substr($roh, strpos($roh, ',') + 1);
+        }
+        $bytes = base64_decode($roh, true);
+        if ($bytes === false || $bytes === '') {
+            return [null, null, null];
+        }
+
+        $tmp = tempnam(sys_get_temp_dir(), 'pilgerstand');
+        if ($tmp === false || file_put_contents($tmp, $bytes) === false) {
+            return [null, null, null];
+        }
+
+        try {
+            $info = @getimagesize($tmp);
+            $bild = $info ? self::ladeBild($tmp, (int) $info[2]) : null;
+            if ($bild === null) {
+                return [null, null, null];
+            }
+            $gross = self::skaliere($bild, self::MAX_KANTE);
+            $klein = self::skaliere($bild, self::MAX_THUMB);
+            $name  = $basis . '_k.jpg';
+            imagejpeg($klein, data_path('fotos') . '/' . $name, 78);
+
+            $breite = imagesx($gross);
+            $hoehe  = imagesy($gross);
+            imagedestroy($bild);
+            imagedestroy($gross);
+            imagedestroy($klein);
+            return [$name, $breite, $hoehe];
+        } finally {
+            if (is_file($tmp)) {
+                @unlink($tmp);
+            }
+        }
+    }
+
     private function merkeFoto(
         string $name, ?string $thumb, ?int $stageId, ?int $entryId, ?string $clientId,
         ?string $aufgenommen, ?int $breite, ?int $hoehe, ?float $lat, ?float $lng, string $pfad

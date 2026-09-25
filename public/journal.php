@@ -164,8 +164,16 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
 
     <?php if ($held): ?>
       <figure class="jheld">
-        <img src="media.php?art=foto&amp;id=<?= (int) $held['id'] ?>" alt=""
-             loading="<?= $n === 1 ? 'eager' : 'lazy' ?>" decoding="async">
+        <?php if (($held['kind'] ?? 'foto') === 'video'): ?>
+          <?php /* `preload="none"`: ein Kapitel aufzuschlagen soll nicht das
+                   ganze Video ziehen. Geladen wird beim Drücken. */ ?>
+          <video controls playsinline preload="none"
+                 <?= $held['thumb'] ? 'poster="media.php?art=klein&amp;id=' . (int) $held['id'] . '"' : '' ?>
+                 src="media.php?art=foto&amp;id=<?= (int) $held['id'] ?>"></video>
+        <?php else: ?>
+          <img src="media.php?art=foto&amp;id=<?= (int) $held['id'] ?>" alt=""
+               loading="<?= $n === 1 ? 'eager' : 'lazy' ?>" decoding="async">
+        <?php endif; ?>
         <?php if ($held['caption']): ?>
           <figcaption><?= h((string) $held['caption']) ?></figcaption>
         <?php endif; ?>
@@ -282,8 +290,14 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
         <?php foreach ($fotos as $f):
           $hoch = ((int) $f['height']) > ((int) $f['width']);
         ?>
-          <figure class="<?= $hoch ? 'hoch' : 'quer' ?>">
-            <img src="media.php?art=foto&amp;id=<?= (int) $f['id'] ?>" alt="" loading="lazy" decoding="async">
+          <figure class="<?= $hoch ? 'hoch' : 'quer' ?><?= ($f['kind'] ?? 'foto') === 'video' ? ' istvideo' : '' ?>">
+            <?php if (($f['kind'] ?? 'foto') === 'video'): ?>
+              <video controls playsinline preload="none"
+                     <?= $f['thumb'] ? 'poster="media.php?art=klein&amp;id=' . (int) $f['id'] . '"' : '' ?>
+                     src="media.php?art=foto&amp;id=<?= (int) $f['id'] ?>"></video>
+            <?php else: ?>
+              <img src="media.php?art=foto&amp;id=<?= (int) $f['id'] ?>" alt="" loading="lazy" decoding="async">
+            <?php endif; ?>
             <?php if ($f['caption']): ?><figcaption><?= h((string) $f['caption']) ?></figcaption><?php endif; ?>
           </figure>
         <?php endforeach; ?>

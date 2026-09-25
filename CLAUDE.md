@@ -234,6 +234,12 @@ kein Netz, und ein Eintrag, der erst beim Hochladen entsteht, wäre dann weg.
 Bilder gehören zum Eintrag, nicht nur zum Anlegen: mehrere auf einmal, in
 mehreren Griffen nacheinander, und auch später noch am fertigen Eintrag.
 
+**Videos gehen genauso** — dieselbe Auswahl, dieselbe Warteschlange. Sie gehen
+in Brocken von 1,5 MB hoch, weil ein Handyvideo weder in `post_max_size` noch
+am Stück durch ein Mobilnetz passt; ein abgerissener Upload macht dort weiter,
+wo er war. Das Standbild greift das Handy selbst ab, im Container gibt es kein
+ffmpeg. Grenze 400 MB je Datei.
+
 Wo ein Bild entstanden ist, wird **auf dem Handy** aus dem Bild gelesen — vor
 dem Verkleinern, weil die Leinwand die Metadaten sonst wegwirft. Fehlen sie,
 fehlen sie; geraten wird nichts. Bilder von vor dem 24.09. haben keine.

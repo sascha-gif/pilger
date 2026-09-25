@@ -1231,6 +1231,57 @@ Ende hinaus — samt byte-genauem Vergleich gegen die ganze Datei.
 
 ---
 
+## Videos
+
+Sie liegen in **derselben Tabelle wie die Fotos**, unterschieden durch
+`photos.kind`. Alles, was an einem Foto hängt, hängt auch an einem Video: der
+Eintrag, die Etappe, die Bildunterschrift, die Aufnahmezeit, die Koordinaten.
+Eine zweite Tabelle hieße, jede Abfrage und jede Anzeige zweimal zu schreiben,
+und Zeitleiste, Mosaik und Tageskarte müssten beides wieder zusammenführen.
+Die Dateien selbst liegen unter `videos/`, das Standbild bei den Bildern.
+
+**Hochgeladen wird stückweise** (`src/Stueckweise.php`, Brocken von 1,5 MB).
+Nicht aus Eleganz, sondern weil es anders nicht geht: im Container stehen
+`post_max_size = 72M`, davor sitzt ein Reverse-Proxy mit eigenen Grenzen, und
+dazwischen liegt ein portugiesisches Mobilnetz. Ein Handyvideo sind
+dreihundert Megabyte. Am Stück heißt: es geht nicht, und wenn doch, bricht es
+bei achtzig Prozent ab und fängt wieder bei null an. Jeder Brocken ist eine
+eigene Anfrage, die für sich gelingt; was liegt, bleibt liegen.
+
+Drei Aktionen: `datei.anfang` gibt eine zufällige Marke, `datei.stueck` hängt
+an, `datei.fertig` legt den Eintrag an. Die Marke wird streng geprüft
+(`^[0-9a-f]{32}$`) — ein Name vom Gerät gerät nie in einen Pfad. Es gibt eine
+Gesamtgrenze von 400 MB, sonst füllt ein Fehler in der Schleife die Platte, und
+angefangene Übertragungen räumen sich nach zwölf Stunden selbst weg.
+
+**Das Standbild kommt vom Gerät.** Im Container steckt kein ffmpeg, und eins
+dazuzunehmen hieße, ein Programm mit eigener Angriffsfläche an fremde Dateien
+zu lassen. Der Browser kann das Video ohnehin abspielen — also greift er eine
+Sekunde hinein ein Bild ab (das allererste ist oft schwarz) und liest die Länge
+mit. Daraus entstehen Vorschaubild, Breite und Höhe; ohne die fiele das Video
+im Mosaik aus dem Raster. Misslingt es, geht das Video trotzdem hoch.
+
+**`preload="none"` überall.** Ein Tagesblock mit fünf Videos würde beim
+Aufklappen sonst fünf Videos ziehen. Auf dem Camino ist das Netz knapp und das
+Datenvolumen auch; geladen wird beim Drücken.
+
+Im Tagebuch sind Videokacheln breiter als die 104 px der Bilder — sonst passt
+die Bedienleiste des Abspielers nicht hinein und man trifft den Knopf nicht.
+Beschnitten wird nichts: bei einem Bild ist ein Ausschnitt in Ordnung, bei
+einem Video fehlte dann der halbe Inhalt.
+
+**Geprüft** mit einem echten 4,8-MB-Video (im Browser aufgezeichnet, weil es
+hier auch kein ffmpeg gibt): vier Brocken, byte-gleich angekommen, Standbild
+und Länge erkannt, Zwischenspeicher leer, `206` mit `Content-Range` beim
+Abruf, und es spielt.
+
+**Für Fotos bleibt der alte Weg.** Wenn das „Es kam keine Datei an" auf dem
+Server nicht aufhört, wäre derselbe stückweise Weg die naheliegende Antwort —
+er schickt gar keine großen Rümpfe mehr und umgeht die Frage, woran es liegt.
+Umgestellt ist es noch nicht, weil der JSON-Rückfall für Bilder funktioniert.
+
+---
+
 ## Was bewusst nicht gebaut wurde
 
 - **Kein Speichern des Originalfotos.** Bilder werden auf 1600 px verkleinert.

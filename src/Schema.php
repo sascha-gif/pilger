@@ -234,6 +234,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/035_stempel_concello.php';
             migration_035($db);
         });
+
+        // Videos im Tagebuch — dieselbe Tabelle wie die Fotos.
+        $apply('036_videos', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/036_videos.php';
+            migration_036($db);
+        });
     }
 
     /** @return array<int,string> */

@@ -721,7 +721,7 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
         </button>
         <label class="tb-knopf datei">
           Fotos hinzufügen
-          <input type="file" id="tbFotos" accept="image/*" multiple hidden>
+          <input type="file" id="tbFotos" accept="image/*,video/*" multiple hidden>
         </label>
       </div>
 
@@ -895,7 +895,7 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
                 </label>
                 <label class="tb-mini datei">
                   Fotos hinzufügen
-                  <input type="file" class="tbe-fotos" accept="image/*" multiple hidden>
+                  <input type="file" class="tbe-fotos" accept="image/*,video/*" multiple hidden>
                 </label>
                 <button type="button" class="tb-mini loeschen">Löschen</button>
               </footer>

@@ -283,6 +283,72 @@ try {
                 'pruefe' => $tagebuch->pruefeAlles(),
             ]);
 
+        /* ---- Grosse Dateien in Stuecken -----------------------------------
+           Ein Handyvideo passt nicht in `post_max_size`, und auf einem
+           Mobilnetz bricht ein Upload am Stueck ohnehin irgendwann ab. Also
+           in Brocken: jeder fuer sich, was liegt bleibt liegen. */
+        case 'datei.anfang':
+            $st = new Stueckweise();
+            json_out(['ok' => true, 'marke' => $st->beginne(), 'max' => Stueckweise::MAX_BYTES]);
+
+        case 'datei.stueck':
+            $st    = new Stueckweise();
+            $marke = (string) ($body['marke'] ?? '');
+            $daten = (string) ($body['daten'] ?? '');
+            if ($daten === '') {
+                json_out(['ok' => false, 'error' => 'Das Stück war leer.'], 422);
+            }
+            try {
+                $liegt = $st->nimm($marke, $daten);
+            } catch (Throwable $e) {
+                json_out(['ok' => false, 'error' => $e->getMessage()], 422);
+            }
+            json_out(['ok' => true, 'liegt' => $liegt]);
+
+        case 'datei.stand':
+            $st = new Stueckweise();
+            json_out(['ok' => true, 'liegt' => $st->stand((string) ($body['marke'] ?? ''))]);
+
+        case 'datei.fertig':
+            /* Zusammengesetzt ist die Datei schon — hier wird nur noch
+               entschieden, was sie ist, und der Eintrag dazu angelegt. */
+            $st    = new Stueckweise();
+            $marke = (string) ($body['marke'] ?? '');
+            try {
+                $quelle = $st->fertig($marke);
+            } catch (Throwable $e) {
+                json_out(['ok' => false, 'error' => $e->getMessage()], 422);
+            }
+
+            $tagebuch = new Tagebuch($db, $repo);
+            $name     = substr((string) ($body['name'] ?? 'datei'), 0, 160);
+            $stageId  = isset($body['stage']) && $body['stage'] !== '' ? (int) $body['stage'] : null;
+            $entryId  = isset($body['entry']) && $body['entry'] !== '' ? (int) $body['entry'] : null;
+            $clientId = isset($body['client_id']) ? substr((string) $body['client_id'], 0, 64) : null;
+            $wann     = isset($body['aufgenommen']) && $body['aufgenommen'] !== ''
+                ? substr((string) $body['aufgenommen'], 0, 32) : null;
+            $lat      = koordinate($body['lat'] ?? null, 90.0);
+            $lng      = koordinate($body['lng'] ?? null, 180.0);
+
+            try {
+                if (($body['art'] ?? 'foto') === 'video') {
+                    $eintrag = $tagebuch->nimmVideo(
+                        $quelle, $name, $stageId, $entryId, $clientId, $wann, $lat, $lng,
+                        isset($body['dauer']) && $body['dauer'] !== '' ? (int) $body['dauer'] : null,
+                        isset($body['standbild']) ? (string) $body['standbild'] : null
+                    );
+                } else {
+                    $eintrag = $tagebuch->nimmFoto(
+                        ['tmp_name' => $quelle, 'name' => $name],
+                        $stageId, $entryId, $clientId, $wann, $lat, $lng
+                    );
+                }
+            } finally {
+                // nimmFoto/nimmVideo verschieben die Datei; bleibt sie liegen, weg damit.
+                $st->verwirf($marke);
+            }
+            json_out(['ok' => true, 'art' => 'foto', 'foto' => $eintrag, 'weg' => 'stueckweise']);
+
         case 'schluessel.pruefen':
             $tagebuch = new Tagebuch($db, $repo);
             json_out(['ok' => true, 'pruefe' => $tagebuch->pruefeAlles()]);

@@ -18,6 +18,7 @@ require APP_ROOT . '/src/Aussen.php';
 require APP_ROOT . '/src/Tagebuch.php';
 require APP_ROOT . '/src/Gesundheit.php';
 require APP_ROOT . '/src/Route.php';
+require APP_ROOT . '/src/Stueckweise.php';
 
 /** @return array<string,mixed> */
 function app_config(): array

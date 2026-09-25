@@ -464,12 +464,100 @@
   }
 
   /* Erst lesen, dann verkleinern — in dieser Reihenfolge, sonst ist es weg.
-     Heraus kommen zwei Listen mit demselben Index. */
+     Heraus kommen drei Listen mit demselben Index: die fertigen Dateien, die
+     Herkunft aus dem Bild und bei Videos Standbild und Länge. */
   function bilderVorbereiten(roh, melde) {
     return Promise.all(roh.map(bildHerkunft)).then(function (orte) {
-      return verkleinereAlle(roh, melde).then(function (dateien) {
-        return { dateien: dateien, orte: orte };
+      // Videos eins nach dem anderen: mehrere gleichzeitig zu dekodieren
+      // bringt Safari auf dem iPhone genauso um wie bei den Bildern.
+      return roh.reduce(function (kette, datei, i) {
+        return kette.then(function (bisher) {
+          if (!istVideo(datei)) {
+            bisher.push(null);
+            return bisher;
+          }
+          if (melde) { melde(i + 1, roh.length, true); }
+          return videoDaten(datei).then(function (vd) {
+            bisher.push(vd);
+            return bisher;
+          });
+        });
+      }, Promise.resolve([])).then(function (videos) {
+        return verkleinereAlle(roh, melde).then(function (dateien) {
+          return { dateien: dateien, orte: orte, videos: videos };
+        });
       });
+    });
+  }
+
+  /* ================= Videos ============================================= */
+
+  /* Ein Video wird nicht verkleinert — dafür bräuchte es einen Umkodierer, und
+     den gibt es im Browser nicht so nebenbei. Was der Browser aber kann: es
+     abspielen. Also kann er auch ein Bild daraus abgreifen und die Länge
+     ablesen. Beides geht mit hoch; ohne Standbild stünde im Mosaik ein
+     schwarzer Kasten, und ohne Breite und Höhe fiele es aus dem Raster.
+
+     Misslingt das hier, ist das kein Grund, das Video nicht hochzuladen. */
+
+  var STAND_KANTE = 1280;
+
+  function istVideo(datei) {
+    return !!datei && /^video\//.test(datei.type || '');
+  }
+
+  function videoDaten(datei) {
+    return new Promise(function (ok) {
+      var fertig = false;
+      var url = URL.createObjectURL(datei);
+      var v = document.createElement('video');
+      v.preload = 'metadata';
+      v.muted = true;
+      v.playsInline = true;
+
+      var raus = function (ergebnis) {
+        if (fertig) return;
+        fertig = true;
+        URL.revokeObjectURL(url);
+        v.removeAttribute('src');
+        ok(ergebnis);
+      };
+
+      // Hängen bleiben darf das nicht — lieber ohne Standbild weiter.
+      var wecker = setTimeout(function () { raus({ standbild: null, dauer: null }); }, 15000);
+
+      v.addEventListener('loadedmetadata', function () {
+        var dauer = isFinite(v.duration) ? Math.round(v.duration) : null;
+        // Eine Sekunde hinein: das allererste Bild ist oft schwarz.
+        var stelle = (dauer && dauer > 2) ? 1 : 0;
+        v.addEventListener('seeked', function () {
+          var ergebnis = { standbild: null, dauer: dauer };
+          try {
+            var faktor = Math.min(1, STAND_KANTE / Math.max(v.videoWidth, v.videoHeight));
+            var leinwand = document.createElement('canvas');
+            leinwand.width = Math.max(1, Math.round(v.videoWidth * faktor));
+            leinwand.height = Math.max(1, Math.round(v.videoHeight * faktor));
+            leinwand.getContext('2d').drawImage(v, 0, 0, leinwand.width, leinwand.height);
+            ergebnis.standbild = leinwand.toDataURL('image/jpeg', 0.8);
+          } catch (e) { /* dann eben ohne */ }
+          clearTimeout(wecker);
+          raus(ergebnis);
+        }, { once: true });
+
+        try {
+          v.currentTime = stelle;
+        } catch (e) {
+          clearTimeout(wecker);
+          raus({ standbild: null, dauer: dauer });
+        }
+      }, { once: true });
+
+      v.addEventListener('error', function () {
+        clearTimeout(wecker);
+        raus({ standbild: null, dauer: null });
+      }, { once: true });
+
+      v.src = url;
     });
   }
 
@@ -574,6 +662,50 @@
     });
   }
 
+  /* Stückweise hochladen.
+
+     Ein Handyvideo sind dreihundert Megabyte. Die passen weder in
+     `post_max_size` noch durch ein portugiesisches Mobilnetz am Stück — und
+     wenn doch, bricht es bei achtzig Prozent ab und fängt wieder bei null an.
+     Also in Brocken von anderthalb Megabyte: jeder ist eine eigene Anfrage,
+     die für sich gelingt, und was schon liegt, bleibt liegen. */
+
+  var STUECK = 1.5 * 1024 * 1024;
+
+  function alsBase64Roh(teil) {
+    return alsBase64(teil).then(function (url) {
+      var komma = url.indexOf(',');
+      return komma >= 0 ? url.slice(komma + 1) : url;
+    });
+  }
+
+  function sendeStueckweise(felder, datei, dateiname, melde) {
+    return sendeJson({ action: 'datei.anfang' }).then(function (d) {
+      var marke = d.marke;
+      var gesamt = datei.size;
+      var pos = 0;
+
+      function weiter() {
+        if (pos >= gesamt) {
+          var schluss = { action: 'datei.fertig', marke: marke, name: dateiname };
+          Object.keys(felder).forEach(function (k) {
+            if (felder[k] !== null && felder[k] !== undefined) schluss[k] = felder[k];
+          });
+          return sendeJson(schluss);
+        }
+        var ende = Math.min(pos + STUECK, gesamt);
+        return alsBase64Roh(datei.slice(pos, ende)).then(function (roh) {
+          return sendeJson({ action: 'datei.stueck', marke: marke, daten: roh });
+        }).then(function () {
+          pos = ende;
+          if (melde) { melde(Math.round(pos / gesamt * 100)); }
+          return weiter();
+        });
+      }
+      return weiter();
+    });
+  }
+
   function sendeFotoAlsJson(felder, datei, dateiname) {
     return alsBase64(datei).then(function (daten) {
       return sendeJson({
@@ -640,8 +772,9 @@
           // was das Dateisystem zuletzt angefasst hat, und das kann das
           // Kopieren aus der Galerie gewesen sein.
           var ort = (p.orte || [])[i] || null;
+          var video = istVideo(klein);
           var felder = {
-            art: 'foto', stage: p.stage, entry: entryId || '',
+            art: video ? 'video' : 'foto', stage: p.stage, entry: entryId || '',
             client_id: p.id + '-f' + i,
             aufgenommen: (ort && ort.zeit)
               ? ort.zeit
@@ -649,7 +782,19 @@
             lat: (ort && ort.lat !== null && ort.lat !== undefined) ? String(ort.lat) : '',
             lng: (ort && ort.lng !== null && ort.lng !== undefined) ? String(ort.lng) : ''
           };
-          var name = klein.name || ('bild' + i + '.jpg');
+          var name = klein.name || ('bild' + i + (video ? '.mp4' : '.jpg'));
+
+          /* Videos gehen immer stückweise — am Stück passen sie weder in
+             `post_max_size` noch durch ein wackliges Netz. Standbild und
+             Länge hat das Gerät beim Auswählen schon abgegriffen. */
+          if (video) {
+            var vd = (p.videos || [])[i] || {};
+            if (vd.standbild) { felder.standbild = vd.standbild; }
+            if (vd.dauer !== null && vd.dauer !== undefined) { felder.dauer = String(vd.dauer); }
+            return sendeStueckweise(felder, klein, name, function (prozent) {
+              sag('Video geht raus … ' + prozent + ' %');
+            });
+          }
 
           return sendeDatei(felder, klein, name).catch(function (err) {
             // Der Server hat die Anfrage bekommen, aber keine Datei darin
@@ -920,10 +1065,24 @@
       kachel.className = 'bk vorschau';
       var bild = document.createElement('img');
       bild.alt = datei.name || 'Bild';
-      // Objekt-URL wieder freigeben, sonst haengen 30 Handyfotos im Speicher.
-      var url = URL.createObjectURL(datei);
-      bild.src = url;
-      bild.onload = function () { URL.revokeObjectURL(url); };
+
+      /* Ein Video hat kein Bild, das ein <img> anzeigen könnte — dafür liegt
+         das Standbild schon bereit, das beim Auswählen abgegriffen wurde.
+         Kam keins zustande, bleibt die Kachel leer und trägt nur die Marke. */
+      var vd = (wahlQuellen[i] || {}).video;
+      if (istVideo(datei)) {
+        kachel.classList.add('istvideo');
+        if (vd && vd.dauer) {
+          kachel.dataset.dauer = Math.floor(vd.dauer / 60) + ':'
+            + String(vd.dauer % 60).padStart(2, '0');
+        }
+        if (vd && vd.standbild) { bild.src = vd.standbild; }
+      } else {
+        // Objekt-URL wieder freigeben, sonst haengen 30 Handyfotos im Speicher.
+        var url = URL.createObjectURL(datei);
+        bild.src = url;
+        bild.onload = function () { URL.revokeObjectURL(url); };
+      }
       var weg = document.createElement('button');
       weg.type = 'button';
       weg.className = 'bk-weg';
@@ -957,13 +1116,19 @@
       // Verkleinerns noch als neu.
       var abIndex = wahlQuellen.length;
       neu.forEach(function (datei) {
-        wahlQuellen.push({ name: datei.name, size: datei.size, lastModified: datei.lastModified, ort: null });
+        wahlQuellen.push({ name: datei.name, size: datei.size, lastModified: datei.lastModified,
+                           ort: null, video: null });
       });
 
-      bilderVorbereiten(neu, function (i, von) {
-        sag(von === 1 ? 'Bild wird vorbereitet …' : 'Bilder werden vorbereitet … (' + i + ' von ' + von + ')');
+      bilderVorbereiten(neu, function (i, von, vid) {
+        sag(vid ? 'Video wird vorbereitet … (' + i + ' von ' + von + ')'
+                : (von === 1 ? 'Bild wird vorbereitet …'
+                             : 'Bilder werden vorbereitet … (' + i + ' von ' + von + ')'));
       }).then(function (fertig) {
         fertig.dateien.forEach(function (datei) { gewaehlteFotos.push(datei); });
+        fertig.videos.forEach(function (vd, i) {
+          if (wahlQuellen[abIndex + i]) wahlQuellen[abIndex + i].video = vd;
+        });
         // Die Herkunft gehoert zum Original, nicht zur verkleinerten Fassung —
         // deshalb liegt sie neben der Auswahl und wird beim Entfernen eines
         // Bildes mit weggeschnitten.
@@ -1069,6 +1234,7 @@
         audioEndung: fertigeAufnahme ? fertigeAufnahme.endung : null,
         fotos: gewaehlteFotos,
         orte: wahlQuellen.map(function (q) { return q.ort || null; }),
+        videos: wahlQuellen.map(function (q) { return q.video || null; }),
         erstellt: new Date().toISOString(),
         versuche: 0
       };
@@ -1188,11 +1354,11 @@
       sag(von === 1 ? 'Bild wird vorbereitet …' : 'Bilder werden vorbereitet … (' + i + ' von ' + von + ')');
     }).then(function (fertig) {
       eingabe.disabled = false;
-      schickeNachtrag(karte, fertig.dateien, fertig.orte);
+      schickeNachtrag(karte, fertig.dateien, fertig.orte, fertig.videos);
     });
   });
 
-  function schickeNachtrag(karte, dateien, orte) {
+  function schickeNachtrag(karte, dateien, orte, videos) {
     stelleEin({
       id: kennung(),
       entryId: Number(karte.dataset.id),
@@ -1202,6 +1368,7 @@
       audio: null,
       fotos: dateien,
       orte: orte || [],
+      videos: videos || [],
       erstellt: new Date().toISOString(),
       versuche: 0
     }, function () {

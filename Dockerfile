@@ -48,7 +48,7 @@ RUN mkdir -p var && chown -R www-data:www-data var
 # /var/www/data ist der Einhängepunkt des Foto-Volumes. Das Verzeichnis muss
 # schon im Image existieren und www-data gehören — Docker übernimmt Rechte und
 # Eigentümer beim ersten Anlegen des Volumes von hier.
-RUN mkdir -p /var/www/data/fotos /var/www/data/audio \
+RUN mkdir -p /var/www/data/fotos /var/www/data/audio /var/www/data/videos /var/www/data/haelften \
  && chown -R www-data:www-data /var/www/data
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \

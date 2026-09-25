@@ -114,20 +114,44 @@ function absaetze(string $text): string
  */
 function bild_kachel(array $f, bool $gross): string
 {
-    $id   = (int) $f['id'];
-    $text = (string) ($f['caption'] ?? '');
+    $id    = (int) $f['id'];
+    $text  = (string) ($f['caption'] ?? '');
+    $video = (($f['kind'] ?? 'foto') === 'video');
 
-    return '<figure class="bk' . ($gross ? ' gross' : '') . '" data-foto="' . $id . '">'
-        . '<a href="media.php?art=foto&amp;id=' . $id . '" target="_blank" rel="noopener">'
-        . '<img src="media.php?art=klein&amp;id=' . $id . '" alt="' . h($text) . '" loading="lazy">'
-        . '</a>'
-        . '<button type="button" class="bk-weg" title="Bild löschen" aria-label="Bild löschen">×</button>'
+    /* Ein Video spielt hier an Ort und Stelle. `preload="none"` ist wichtig:
+       sonst holt das Handy beim Aufklappen eines Tages gleich alle Videos
+       darin an — auf dem Camino ist das Netz knapp und die Daten sind es
+       auch. Geladen wird erst, wenn jemand auf Abspielen drückt. */
+    if ($video) {
+        $poster = $f['thumb'] ? ' poster="media.php?art=klein&amp;id=' . $id . '"' : '';
+        $dauer  = $f['dauer'] !== null
+            ? '<span class="bk-dauer">' . h(sekunden_kurz((int) $f['dauer'])) . '</span>' : '';
+        $inhalt = '<video controls playsinline preload="none"' . $poster
+                . ' src="media.php?art=foto&amp;id=' . $id . '"></video>' . $dauer;
+    } else {
+        $inhalt = '<a href="media.php?art=foto&amp;id=' . $id . '" target="_blank" rel="noopener">'
+                . '<img src="media.php?art=klein&amp;id=' . $id . '" alt="' . h($text) . '" loading="lazy">'
+                . '</a>';
+    }
+
+    return '<figure class="bk' . ($gross ? ' gross' : '') . ($video ? ' istvideo' : '')
+        . '" data-foto="' . $id . '">'
+        . $inhalt
+        . '<button type="button" class="bk-weg" title="' . ($video ? 'Video löschen' : 'Bild löschen')
+        . '" aria-label="' . ($video ? 'Video löschen' : 'Bild löschen') . '">×</button>'
         . '<figcaption>'
         . ($text !== '' ? '<span class="bk-schau">' . h($text) . '</span>' : '')
         . '<input type="text" class="bk-text" value="' . h($text) . '"'
         . ' placeholder="Bildunterschrift" maxlength="500">'
         . '</figcaption>'
         . '</figure>';
+}
+
+/** 95 Sekunden sind „1:35". */
+function sekunden_kurz(int $s): string
+{
+    $s = max(0, $s);
+    return intdiv($s, 60) . ':' . str_pad((string) ($s % 60), 2, '0', STR_PAD_LEFT);
 }
 
 /**

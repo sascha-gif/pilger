@@ -38,11 +38,12 @@ if ($art === 'audio') {
     }
     $klein = ($art === 'klein' && $foto['thumb']);
     $name  = $klein ? $foto['thumb'] : $foto['file'];
-    $pfad  = data_path('fotos') . '/' . basename((string) $name);
 
     /* Das Standbild eines Videos ist ein Bild und kein Video — sonst käme es
-       als `video/mp4` heraus und stünde im Mosaik als schwarzer Kasten. */
+       als `video/mp4` heraus und stünde im Mosaik als schwarzer Kasten. Es
+       liegt deshalb auch bei den Bildern und nicht bei den Videos. */
     $istVideo = !$klein && (($foto['kind'] ?? 'foto') === 'video');
+    $pfad = data_path($istVideo ? 'videos' : 'fotos') . '/' . basename((string) $name);
 }
 
 if (!is_readable($pfad)) {
