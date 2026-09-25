@@ -1364,6 +1364,40 @@ statt aller fünf — und die Datei ist am Ende byte-gleich mit dem Original.
 
 ---
 
+## Das Bett liegt nicht immer am Etappenziel
+
+Pontevedra ist für die **Nacht nach E8** gebucht — das Etappenziel des 26. ist
+aber Arcade, rund 15 km davor. Zum zweiten Mal auf dieser Reise passt die
+Buchung nicht zum Plan, und zum zweiten Mal ist die Lösung nicht, den Plan
+umzuwerfen.
+
+**Zwei Wege, und sie sind nicht gleichwertig.** Alles an einem Tag laufen sind
+37 km — das Doppelte des Vortags und zehn Kilometer mehr als die längste
+Etappe der ganzen Reise. Oder: laufen wie geplant bis Arcade, die 15 km zum
+Quartier fahren, am nächsten Morgen zurückfahren und sie zu Fuß gehen. Dann
+fehlt **kein Meter**, und der Rucksack bleibt im Zimmer liegen, wenn die
+Unterkunft um eine zweite Nacht verlängert wird.
+
+**Warum das mehr ist als Bequemlichkeit.** Ab Vigo sind es nach den Zahlen
+dieses Plans **103 km**, und für die Compostela müssen die **letzten 100
+gelaufen** sein. Das sind drei Kilometer Luft, mehr nicht. Ein Taxi *über die
+Strecke* frisst sie in einem Zug auf; eine Fahrt zum Quartier und morgens
+zurück an dieselbe Stelle kostet davon nichts. Der Unterschied zwischen beiden
+Fahrten ist die Urkunde am Ende — das gehört auf die Etappenkarte und nicht in
+eine Unterhaltung, die man in vier Tagen vergessen hat.
+
+Deshalb steht die Warnung jetzt farbig in `alt_note` von E8, zusammen mit der
+Empfehlung. Die Kilometer der Etappen bleiben **unangetastet**: gelaufen wird,
+was geplant war, nur geschlafen wird woanders.
+
+**Was aus dem Screenshot nicht hervorging**, steht auch nicht in der Datenbank:
+der **Name des Hauses** war nicht darauf, nur Adresse und Telefonnummer. In
+`lodgings` heißt es deshalb schlicht „Unterkunft in Pontevedra". Der Preis von
+103,50 € stammt aus der Zeile der Stornogebühr — die Buchung kostet bei
+Stornierung den Gesamtpreis, also ist das der Gesamtpreis.
+
+---
+
 ## Was bewusst nicht gebaut wurde
 
 - **Kein Speichern des Originalfotos.** Bilder werden auf 1600 px verkleinert.

@@ -172,6 +172,27 @@ function unterkuenfte(): array
             'quelle' => 'uebersicht',
         ],
         [
+            'seq' => 8, 'stage_seq' => 8,
+            'name' => 'Unterkunft in Pontevedra',
+            'art' => null,
+            'zimmer' => 'Doppel-/Zweibettzimmer',
+            'strasse' => 'Virgen del Camino 53–55', 'plz' => '36001',
+            'ort' => 'Pontevedra', 'land' => 'ES',
+            'telefon' => '+34 986 85 59 04',
+            'von' => '2026-09-26', 'bis' => '2026-09-27', 'naechte' => 1,
+            'preis' => 103.50, 'buchungsnr' => null,
+            'checkin' => 'ab 14:00', 'checkout' => '07:00–12:00',
+            'lage' => 'Nicht am Etappenziel: das Ziel des Tages ist Arcade, und Pontevedra liegt '
+                    . 'rund 15 km weiter. Gelaufen wird bis Arcade, die letzten 15 km zum Bett '
+                    . 'mit Zug, Bus oder Taxi — und am nächsten Morgen dieselbe Strecke zurück, '
+                    . 'um sie zu Fuß zu gehen.',
+            'hinweis' => 'Der Name des Hauses stand nicht auf der Bestätigung, nur Adresse und '
+                       . 'Telefonnummer; der Preis stammt aus der Zeile der Stornogebühr. '
+                       . 'Nicht stornierbar seit dem 25.09. um 19:44 — jede Änderung kostet den '
+                       . 'vollen Preis. Gebucht für zwei Erwachsene.',
+            'quelle' => 'bestaetigung',
+        ],
+        [
             'seq' => 12, 'stage_seq' => 12,
             'name' => 'Lemonade Stays',
             'art' => null,

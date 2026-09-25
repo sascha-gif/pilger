@@ -246,6 +246,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/037_redondela.php';
             migration_037($db);
         });
+
+        // Pontevedra gebucht — fuer die Nacht nach E8, nicht nach E9.
+        $apply('038_pontevedra', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/038_pontevedra.php';
+            migration_038($db);
+        });
     }
 
     /** @return array<int,string> */

@@ -325,27 +325,32 @@ function seed_database(Database $db): void
                 'seq' => 8, 'code' => 'E8 · 26.09.', 'date_label' => '26.09.2026',
                 'title' => 'Vigo → Arcade', 'title_suffix' => null,
                 'dist' => '22 km',
-                'target' => '<b>Budget-Ziel:</b> Pension vor der Brücke · <b>eigenes Zimmer</b> · ca. 55–75 €',
-                'note' => 'Arcade = Austern &amp; Meeresfrüchte — Proteinspeicher füllen.',
-                'alt_note' => '<b>Wenn in Arcade nichts frei ist:</b> In <b>Redondela</b> aufhören — rund '
-                    . '<b>13 km</b> hinter Vigo statt 22, und damit rund 9 km vor Arcade. Dort trifft '
-                    . 'der Küstenweg auf den Caminho Central, deshalb gibt es dort deutlich mehr '
-                    . 'Pilgerbetten als im Dorf Arcade. Der nächste Tag wird dann rund <b>24 km</b> '
-                    . 'statt 15. '
-                    . sprintf('<a href="%s" target="_blank" rel="noopener">Booking Redondela</a>',
-                        sprintf($bk, 'Redondela%2C%20Pontevedra%2C%20Spain', '2026-09-26', '2026-09-27'))
-                    . '<br><b>Und wenn gar nichts geht:</b> Vigo, Redondela, Arcade und Pontevedra liegen '
-                    . 'an <b>derselben Bahnlinie</b>. Schlaf dort, wo ein Bett frei ist, und fahr '
-                    . 'morgens an genau die Stelle zurück, an der du aufgehört hast — gelaufen wird '
-                    . 'dadurch kein Meter weniger. <small>Abfahrtszeiten am Bahnhof oder am Empfang '
-                    . 'erfragen; hier stehen keine, die wären erfunden.</small><br>'
-                    . '<small><b>Nicht alles steht auf den Portalen.</b> Viele galicische '
-                    . '<i>pensións</i> und <i>hostales</i> nehmen nur telefonisch an. Der Empfang '
-                    . 'deiner Unterkunft ruft für Pilger vor — danach zu fragen ist hier völlig '
-                    . 'üblich. Und ein <i>Albergue</i> ist nicht automatisch Schlafsaal: viele '
-                    . 'private haben eine <i>habitación individual</i>.</small>',
-                'booking_url' => sprintf($bk, 'Arcade%2C%20Pontevedra%2C%20Spain', '2026-09-26', '2026-09-27'),
-                'booking_label' => 'Booking Arcade',
+                'target' => '<b style="color:#2e7d32">Gebucht:</b> Unterkunft in Pontevedra · Doppel-/Zweibettzimmer · '
+                    . '<b>103,50 €</b> — <b style="color:#b26a00">aber 15 km hinter dem Etappenziel.</b>',
+                'note' => '<b>Virgen del Camino 53–55, 36001 Pontevedra</b> · '
+                    . '<a href="tel:+34986855904">+34 986 85 59 04</a><br>'
+                    . '<b>Check-in ab 14:00, Check-out 07:00–12:00.</b> Eine Nacht, 26. auf 27.09., '
+                    . 'für zwei Erwachsene gebucht. <b>Nicht stornierbar</b> — seit dem 25.09. um '
+                    . '19:44 kostet jede Stornierung, Änderung oder Nichtanreise den vollen Preis.<br>'
+                    . '<small>Der Name des Hauses stand nicht auf der Bestätigung, nur Adresse und '
+                    . 'Telefonnummer. Der Preis stammt aus der Zeile der Stornogebühr.</small>',
+                'alt_note' => '<b>Wie der Samstag aufgeht — zwei Wege, und sie sind nicht gleichwertig:</b><br>'
+                    . '<b>Empfohlen:</b> Laufen wie geplant, <b>22 km bis Arcade</b>. Dann die 15 km '
+                    . 'nach Pontevedra mit <b>Zug, Bus oder Taxi</b> — Vigo, Arcade und Pontevedra '
+                    . 'liegen an derselben Bahnlinie. Dort schlafen. Am Sonntagmorgen zurück nach '
+                    . 'Arcade und die 15 km zu Fuß. <b>Gelaufen wird dadurch kein Meter weniger.</b> '
+                    . 'Dafür die Unterkunft um <b>eine zweite Nacht</b> verlängern (27. auf 28. ist '
+                    . 'ohnehin offen) — dann entfällt auch das Auschecken um 12:00 und der Rucksack '
+                    . 'bleibt liegen, während du läufst.<br>'
+                    . '<b>Oder alles an einem Tag: 37 km.</b> Das ist das Doppelte von heute und zehn '
+                    . 'Kilometer mehr als die längste Etappe der ganzen Reise.<br>'
+                    . '<b style="color:#c2410c">Was du nicht tun solltest:</b> ein Taxi <i>über die '
+                    . 'Strecke</i> nehmen. Ab Vigo sind es nach den Zahlen hier <b>103 km</b>, und für '
+                    . 'die Compostela müssen die <b>letzten 100 gelaufen</b> sein. Das sind drei '
+                    . 'Kilometer Luft. Eine Fahrt zum Quartier und morgens zurück an dieselbe Stelle '
+                    . 'kostet davon nichts — eine Fahrt nach vorn kostet alles.',
+                'booking_url' => null,
+                'booking_label' => null,
                 'km_big' => '81', 'km_sub' => 'noch bis SCQ', 'variant' => 'normal',
                 'lat' => 42.340256, 'lng' => -8.60898,
                 'map_eyebrow' => 'Etappe 8 · 26.09.', 'map_meta' => '22 km · noch 81 km · Austern',
@@ -356,7 +361,10 @@ function seed_database(Database $db): void
                 'title' => 'Arcade → Pontevedra', 'title_suffix' => null,
                 'dist' => '15 km · kurze Etappe',
                 'target' => '<b>Budget-Ziel:</b> Hostal Altstadt (casco vello) · <b>eigenes Zimmer</b> · ca. 60–85 €',
-                'note' => null,
+                'note' => '<b>Die Nacht vom 27. auf den 28. ist noch offen.</b> Wenn du am Samstag bis '
+                    . 'Arcade läufst und zum Bett nach Pontevedra fährst, brauchst du dort eine '
+                    . 'zweite Nacht — am einfachsten dieselbe Unterkunft verlängern, dann bleibt der '
+                    . 'Rucksack liegen, während du die 15 km läufst.',
                 'alt_note' => null,
                 'booking_url' => sprintf($bk, 'Pontevedra%2C%20Spain', '2026-09-27', '2026-09-28'),
                 'booking_label' => 'Booking Pontevedra',
@@ -590,7 +598,7 @@ function seed_database(Database $db): void
             ['Oia (E5)', 'Hotel-Restaurante Glasgow ★★★, Viladesuso · Einzelzimmer · inkl. 9,09 € MwSt', 100.00, 'ok', 'gebucht'],
             ['Nigrán (E6)', 'HOTEL HOLIDAY playa América ★★★ · Einzelbelegung · inkl. 4,55 € MwSt', 50.00, 'ok', 'gebucht'],
             ['Vigo (E7)', 'Alda Estación Vigo · Calle Alfonso XIII 19 · inkl. 5,18 € MwSt', 57.00, 'ok', 'gebucht'],
-            ['Arcade (E8)', '~ Pension', null, 'open', 'offen'],
+            ['Pontevedra (Nacht nach E8)', 'Virgen del Camino 53–55 · Doppel-/Zweibettzimmer · nicht stornierbar · Name des Hauses unbekannt', 103.50, 'ok', 'gebucht'],
             ['Pontevedra (E9)', '~ Hostal casco vello', null, 'open', 'offen'],
             ['Caldas de Reis (E10)', '~ Pension/Balneario', null, 'open', 'offen'],
             ['Padrón (E11)', '~ Pension', null, 'open', 'offen'],

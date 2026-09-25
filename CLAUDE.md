@@ -149,17 +149,23 @@ danach läuft sie mit der Costa zusammen.
   Auf der Übersicht stand als Anreise der 25.09.; das wurde **telefonisch** auf
   die Nacht vom 24. geändert. Eine **Buchungsnummer gibt es nicht** — die
   Vorlage war die Übersicht, nicht die Bestätigung.
-- **Offen:** 4 Etappenorte — E8 Arcade, E9 Pontevedra, E10 Caldas de Reis,
-  E11 Padrón. Booking-Links im HTML, nach Preis sortiert.
-  **Oia und Santiago, die beiden kritischen, sind durch.**
-- **Falls in Arcade (E8) nichts frei ist:** in **Redondela** aufhören — rund
-  13 km hinter Vigo statt 22, dort trifft der Küstenweg auf den Caminho Central
-  und es gibt deutlich mehr Pilgerbetten als im Dorf Arcade. Der Folgetag wird
-  dann rund 24 km statt 15. Steht als Alternative auf der Etappenkarte; der
-  Plan wird erst umgestellt, wenn wirklich dort gebucht ist.
-  Vigo, Redondela, Arcade und Pontevedra liegen an **derselben Bahnlinie** —
-  wer am Ort nichts findet, schläft eine Station weiter und fährt morgens an
-  dieselbe Stelle zurück, ohne einen Meter zu überspringen.
+- **Gebucht:** Pontevedra für die **Nacht nach E8** (26.–27.09.), nicht nach E9.
+  Virgen del Camino 53–55, 36001 Pontevedra, Tel. +34 986 85 59 04,
+  Doppel-/Zweibettzimmer, **103,50 €**, Check-in ab 14:00, Check-out
+  07:00–12:00, **nicht stornierbar** seit 25.09. 19:44. Der **Name des Hauses
+  stand nicht auf der Bestätigung**, nur Adresse und Telefon; der Preis stammt
+  aus der Zeile der Stornogebühr.
+  **Das Bett liegt 15 km hinter dem Etappenziel.** Empfohlen: die geplanten
+  22 km bis Arcade laufen, die 15 km zum Quartier fahren, am Sonntagmorgen
+  zurückfahren und sie zu Fuß gehen — dann fehlt kein Meter. Dafür eine zweite
+  Nacht dort (27.–28. ist ohnehin offen); am besten dieselbe Unterkunft
+  verlängern, dann bleibt der Rucksack liegen.
+- **Offen:** 3 Etappenorte — die Nacht nach E9 (27.–28., Pontevedra),
+  E10 Caldas de Reis, E11 Padrón.
+- ⚠️ **Ab Vigo sind es 103 km, verlangt sind die letzten 100 zu Fuß.** Drei
+  Kilometer Luft. Ein Taxi **über die Strecke** frisst sie sofort auf — eine
+  Fahrt zum Quartier und morgens zurück an dieselbe Stelle kostet nichts davon.
+  Vigo, Redondela, Arcade und Pontevedra liegen an **derselben Bahnlinie**.
 - Budget-Ausrichtung: Pension/Hostal statt Hotel, ca. 50–110 €/Nacht
 - **Nur Unterkünfte mit eigenem Zimmer** — kein Bett im Schlafsaal. Steht in
   jedem Budget-Ziel. Die Booking-Links können das nicht erzwingen: den Filter
@@ -178,11 +184,11 @@ Gesamtbudget realistisch **1.400–1.900 €**.
 Bereits fix: Hinflug 258,00 € · Rückflug 235,00 € · Porto 186,83 € ·
 Vila do Conde 78,00 € · Esposende 74,00 € · Viana do Castelo 65,00 € ·
 Caminha 56,50 € · Nigrán 50,00 € · Oia 100,00 € · Vigo 57,00 € ·
-Santiago 76,95 € · Credencial 2,00 €.
+Pontevedra 103,50 € · Santiago 76,95 € · Credencial 2,00 €.
 Gekauft: Wandersocken FALKE TK2 2× 57,26 € · Wandershorts maamgic 2× 55,98 € ·
 Reiseapotheke & Hygiene 20,54 € (Compeed, Dr. Bronner's, Zahncreme, Deo) ·
 Papiertüten 5,49 € (Tagesportionen Medikamente) · USB-C-Ladegerät 9,99 €.
-Erfasst damit 1.388,54 €.
+Erfasst damit 1.492,04 €.
 
 ## Equipment-Kernpunkte
 
@@ -280,8 +286,8 @@ darauf auf, nicht auf der ausgebauten Fassung.
 
 ## Offene Punkte
 
-- 4 Unterkünfte buchen: Arcade, Pontevedra, Caldas de Reis, Padrón —
-  E1 bis E5, E7 und E12 sind durch, damit auch die beiden kritischen
+- 3 Nächte buchen: **Pontevedra 27.–28.** (am besten die bestehende Buchung um
+  eine Nacht verlängern), Caldas de Reis, Padrón
 - **Vigo: Bestätigungsmail prüfen.** Der Screenshot war die Buchungsübersicht
   mit „Letzter Schritt", nicht die Bestätigung — und ohne Buchungsnummer.
 - **Fährfahrplan Caminha → A Guarda/Spanien prüfen** — am Vorabend des 22.09.
