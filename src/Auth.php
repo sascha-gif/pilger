@@ -207,8 +207,9 @@ final class Auth
 
     private function putSetting(string $key, string $value): void
     {
-        $this->db->run('DELETE FROM settings WHERE skey = ?', [$key]);
-        $this->db->run('INSERT INTO settings (skey, svalue) VALUES (?, ?)', [$key, $value]);
+        // Ein Befehl, nicht zwei. Misslingt hier das Schreiben zwischen Löschen
+        // und Einfügen, stünde die Seite ohne Passwort da.
+        $this->db->setSetting($key, $value);
     }
 
     private function issueToken(): void

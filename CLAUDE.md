@@ -254,7 +254,6 @@ darauf auf, nicht auf der ausgebauten Fassung.
 
 ## Offene Punkte
 
-- **Passwort auf der Seite setzen** — beim nächsten Aufruf
 - 4 Unterkünfte buchen: Arcade, Pontevedra, Caldas de Reis, Padrón —
   E1 bis E5, E7 und E12 sind durch, damit auch die beiden kritischen
 - **Vigo: Bestätigungsmail prüfen.** Der Screenshot war die Buchungsübersicht
@@ -270,4 +269,6 @@ darauf auf, nicht auf der ausgebauten Fassung.
 - Compostela-Urkunde am **30.09.** holen, nicht am Abreisetag — Pilgerbüro
   Rúa das Carretas 33, 9:00–19:00. Pilgermesse 12:00 ebenfalls am 30.09.;
   am 01.10. sitzt du zu der Zeit im Flieger.
-- Tagebuch-Schlüssel hinterlegen, falls aus Sprachnotizen Text werden soll
+- Tagebuch-Schlüssel: **ob sie liegen, sagt die Seite selbst** — im Kasten
+  „Sprachnotizen in Text verwandeln" stehen oben zwei Zeilen mit ✓ oder ○.
+  Diese Liste hier ist dafür keine Quelle.

@@ -128,6 +128,49 @@ final class Database
         }
     }
 
+    /**
+     * Einen Wert in `settings` setzen — in **einem** Befehl.
+     *
+     * Vorher stand an drei Stellen DELETE und danach INSERT, ohne Klammer
+     * darum: beim Tagebuch-Schlüssel, beim Google-Token und beim Passwort der
+     * Seite. Geht das INSERT schief oder bricht der Aufruf dazwischen ab, ist
+     * der Wert weg — und nichts sagt es. Beim Passwort hieße das: die Seite
+     * stünde ohne Passwort da und fragte beim nächsten Aufruf nach einem neuen.
+     *
+     * `skey` ist Primärschlüssel, also kann beides ein Befehl sein. Ein
+     * Befehl kann nicht halb misslingen.
+     */
+    public function setSetting(string $key, ?string $value): void
+    {
+        if ($value === null || $value === '') {
+            $this->run('DELETE FROM settings WHERE skey = ?', [$key]);
+            return;
+        }
+        $sql = $this->driver() === 'mysql'
+            ? 'INSERT INTO settings (skey, svalue) VALUES (?, ?)
+               ON DUPLICATE KEY UPDATE svalue = VALUES(svalue)'
+            : 'INSERT INTO settings (skey, svalue) VALUES (?, ?)
+               ON CONFLICT(skey) DO UPDATE SET svalue = excluded.svalue';
+
+        try {
+            $this->run($sql, [$key, $value]);
+            return;
+        } catch (Throwable $e) {
+            /* Der MySQL-Zweig lässt sich aus der Entwicklungsumgebung heraus
+               nicht ausprobieren — dort gibt es keine MariaDB. Die Schreibweise
+               ist Standard und MariaDB kennt sie seit jeher, aber an diesem
+               Wert hängt unter anderem das Passwort der Seite. Fällt sie wider
+               Erwarten durch, tut es der alte Weg weiterhin; eingeklammert,
+               damit er nicht auf halber Strecke stehen bleibt. */
+            error_log('pilger: setSetting per Upsert fehlgeschlagen — ' . $e->getMessage());
+        }
+
+        $this->transaction(function (Database $db) use ($key, $value): void {
+            $db->run('DELETE FROM settings WHERE skey = ?', [$key]);
+            $db->run('INSERT INTO settings (skey, svalue) VALUES (?, ?)', [$key, $value]);
+        });
+    }
+
     public function transaction(callable $fn): void
     {
         $this->pdo->beginTransaction();

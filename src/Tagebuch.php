@@ -39,10 +39,7 @@ final class Tagebuch
 
     public function setzeEinstellung(string $key, ?string $wert): void
     {
-        $this->db->run('DELETE FROM settings WHERE skey = ?', [$key]);
-        if ($wert !== null && $wert !== '') {
-            $this->db->run('INSERT INTO settings (skey, svalue) VALUES (?, ?)', [$key, $wert]);
-        }
+        $this->db->setSetting($key, $wert);
     }
 
     /** Was kann die Anlage gerade? Für die Anzeige in der Oberfläche. */

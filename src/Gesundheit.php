@@ -70,10 +70,7 @@ final class Gesundheit
 
     private function setze(string $key, ?string $wert): void
     {
-        $this->db->run('DELETE FROM settings WHERE skey = ?', [$key]);
-        if ($wert !== null && $wert !== '') {
-            $this->db->run('INSERT INTO settings (skey, svalue) VALUES (?, ?)', [$key, $wert]);
-        }
+        $this->db->setSetting($key, $wert);
     }
 
     public function zugangSetzen(?string $clientId, ?string $secret): void
