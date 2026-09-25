@@ -405,6 +405,47 @@
     });
   });
 
+  /* ---------- Der Sprung auf heute -------------------------------------
+     Unterwegs wird die Seite im Gehen aufgemacht, oft mit klammen Fingern,
+     und dann zählt genau eine Sache: die Etappe von heute. Bis dorthin
+     waren es drei Handgriffe — Abschnitt aufklappen, Reiter wählen,
+     scrollen. Jetzt ist es einer.
+
+     Die Reihenfolge ist nicht beliebig: erst aufklappen, dann sichtbar
+     machen, und erst danach springen. Ein Ziel in einem zugeklappten
+     `details` hat keine Höhe, und der Sprung landet sonst irgendwo. */
+  var heuteZiel = document.getElementById('heute');
+  var heuteKnopf = document.querySelector('[data-heute]');
+
+  if (heuteZiel && heuteKnopf) {
+    heuteKnopf.addEventListener('click', function (e) {
+      e.preventDefault();
+
+      var block = heuteZiel.closest('details.block');
+      if (block && !block.open) { block.open = true; }
+
+      /* Liegt die Etappe im gerade nicht gezeigten Reiter, wird auf „alle"
+         umgestellt — aber nur dann. Wer „offen" eingestellt hat und dessen
+         heutiger Tag offen ist, soll seine Einstellung behalten. */
+      var inhalt = heuteZiel.closest('[data-tabgruppe]');
+      if (inhalt) {
+        var sicht = inhalt.dataset.show;
+        var fertig = heuteZiel.dataset.done === '1';
+        if ((sicht === 'offen' && fertig) || (sicht === 'erledigt' && !fertig)) {
+          zeigeTab('etappen', 'alle');
+          writeTab('etappen', 'alle');
+        }
+      }
+
+      requestAnimationFrame(function () {
+        heuteZiel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Kurz aufleuchten, damit klar ist, wo man gelandet ist.
+        heuteZiel.classList.add('blinkt');
+        setTimeout(function () { heuteZiel.classList.remove('blinkt'); }, 2200);
+      });
+    });
+  }
+
   function setzeZahl(id, wert) {
     var el = document.getElementById(id);
     if (el) el.textContent = wert;

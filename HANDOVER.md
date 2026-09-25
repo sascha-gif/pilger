@@ -1173,6 +1173,33 @@ stempelt immer, auch ohne dort zu schlafen und ohne etwas zu kaufen.
 
 ---
 
+## Der „Heute"-Knopf
+
+Vorn in der Kopfleiste, gelb, vor allen Kapitelnummern. Er springt auf die
+Etappe, in die der heutige Tag fällt. Gibt es keine — vor dem 17.09., nach dem
+01.10. —, steht er gar nicht erst da.
+
+Bis dahin waren es drei Handgriffe: den Abschnitt „Etappen" aufklappen, den
+richtigen Reiter wählen, scrollen. Unterwegs, im Gehen, mit klammen Fingern ist
+das zwei zu viel.
+
+**Die Reihenfolge im Klick ist nicht beliebig.** Erst wird das `details`
+aufgeklappt, dann der Reiter umgestellt, und erst im nächsten Frame gesprungen
+— ein Ziel in einem zugeklappten `details` hat keine Höhe, und
+`scrollIntoView` landet sonst irgendwo.
+
+Der Reiter wird **nur dann** auf „alle" gestellt, wenn die heutige Etappe im
+gerade gezeigten sonst unsichtbar wäre (Reiter „offen" und Tag abgehakt, oder
+umgekehrt). Wer „offen" eingestellt hat und dessen heutiger Tag offen ist,
+behält seine Einstellung.
+
+Nach dem Sprung leuchtet die Karte kurz auf. Die Etappenkarten sehen alle
+gleich aus; ohne das weiß man nicht, wo man gelandet ist. `scroll-margin-top`
+hält sie unter der klebenden Leiste hervor, und bei
+`prefers-reduced-motion` wird aus dem Pulsieren ein stehender Rahmen.
+
+---
+
 ## Was bewusst nicht gebaut wurde
 
 - **Kein Speichern des Originalfotos.** Bilder werden auf 1600 px verkleinert.
