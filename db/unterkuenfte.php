@@ -197,16 +197,18 @@ function unterkuenfte(): array
             'name' => 'Apartamento Loft II Select Real Caldas de Reis',
             'art' => 'Apartment',
             'zimmer' => null,
-            'strasse' => 'Rúa Real 49', 'plz' => '36650',
+            'strasse' => 'Rúa Real 49 Bajo', 'plz' => '36650',
             'ort' => 'Caldas de Reis', 'land' => 'ES',
             'telefon' => null,
             'von' => '2026-09-27', 'bis' => '2026-09-28', 'naechte' => 1,
-            'preis' => 65.96, 'buchungsnr' => null,
+            'preis' => 65.96, 'buchungsnr' => '6247972800',
             'checkin' => null, 'checkout' => null,
-            'lage' => 'Rúa Real ist die Hauptstraße der Altstadt, mitten im Ortskern — kein '
-                    . 'Umweg, und der Weg führt am nächsten Morgen direkt daran vorbei.',
-            'hinweis' => 'Apartment, also vermutlich kein Empfang: der Stempel muss von woanders '
-                       . 'kommen. Die Buchungsnummer wurde nicht festgehalten.',
+            'lage' => 'Fußgängerzone im Ortskern — so schreibt es der Gastgeber selbst: '
+                    . '„calle peatonal del centro del Pueblo". Kein Umweg, abends alles in '
+                    . 'Laufweite, und der Weg führt am nächsten Morgen direkt daran vorbei.',
+            'hinweis' => 'Am Haus steht „Select Real Apartments"; „Bajo" ist das Erdgeschoss. '
+                       . 'Apartment, also vermutlich kein Empfang: der Stempel muss von woanders '
+                       . 'kommen.',
             'quelle' => 'bestaetigung',
         ],
         [
@@ -225,7 +227,10 @@ function unterkuenfte(): array
                     . 'nicht vor der Tür: Essen und Stempel vorher erledigen.',
             'hinweis' => 'Apartment, also vermutlich kein Empfang und kein Stempel. Check-in-Zeit '
                        . 'mit dem Gastgeber abstimmen — nach 19 km kommt niemand zur Bürozeit an. '
-                       . 'Mit 9,4 die beste Bewertung der ganzen Reise.',
+                       . 'Mit 9,4 die beste Bewertung der ganzen Reise. '
+                       . 'Der Gastgeber warnt ausdrücklich vor Betrug: er verlangt keine '
+                       . 'zusätzliche Zahlung über die Buchung hinaus, und jede Kommunikation '
+                       . 'läuft über booking.com.',
             'quelle' => 'bestaetigung',
         ],
         [

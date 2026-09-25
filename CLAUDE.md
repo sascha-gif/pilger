@@ -167,15 +167,22 @@ danach läuft sie mit der Costa zusammen.
   Nacht dort (27.–28. ist ohnehin offen); am besten dieselbe Unterkunft
   verlängern, dann bleibt der Rucksack liegen.
 - **Gebucht:** Caldas de Reis (E9), Apartamento Loft II Select Real,
-  27.–28.09., **65,96 €** (inkl. 6,00 € MwSt). Rúa Real 49, 36650 — die
-  Hauptstraße der Altstadt, mitten im Ortskern, kein Umweg. **Apartment, also
-  vermutlich kein Empfang und kein Stempel.** Keine Buchungsnummer festgehalten.
+  27.–28.09., **65,96 €** (inkl. 6,00 € MwSt), Buchungsnr. 6247972800.
+  **Rúa Real 49 Bajo**, 36650 — am Haus steht „Select Real Apartments", „Bajo"
+  ist das Erdgeschoss. Der Gastgeber schreibt selbst *„calle peatonal del
+  centro del Pueblo"*: **Fußgängerzone im Ortskern**, kein Umweg.
+  **Apartment, also vermutlich kein Empfang und kein Stempel.**
 - **Gebucht:** Padrón (E10), Huna Apartamentos, 28.–29.09., **73,50 €**
   (inkl. 6,68 € MwSt und Übernachtungssteuer), Buchungsnr. 5642460191.
   Travesía Iría 131, 15917 — Postleitzahl und Straßenname deuten auf **Iria
   Flavia**, rund 1 km nördlich des Ortskerns, also in Laufrichtung; abends ist
   der Ort nicht vor der Tür. Bewertung 9,4, die beste der Reise. Apartment →
   **kein Stempel**, Check-in-Zeit mit dem Gastgeber abstimmen.
+  ⚠️ **Der Gastgeber warnt vor Betrug:** er verlangt **keine zusätzliche
+  Zahlung** über die Buchung hinaus, und jede Kommunikation läuft **über
+  booking.com**. Wer per Mail oder SMS nach Kartendaten fragt — auch wenn es
+  nach Booking aussieht —, ist nicht er. Das gilt sinngemäß für alle
+  Unterkünfte der Reise.
 - **Gebucht:** O Milladoiro (E11), B&B HOTEL Santiago Milladoiro ★★,
   Doppelzimmer, 29.–30.09., **90,13 €**, Buchungsnr. 2457423459923289565.
   Rúa das Palmeiras, 15895 — Gemeinde Ames, am Südrand von Santiago, rund 7 km

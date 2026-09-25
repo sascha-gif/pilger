@@ -264,6 +264,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/040_stempelorte_nachziehen.php';
             migration_040($db);
         });
+
+        // Was die Gastgeber in Caldas und Padron geschrieben haben.
+        $apply('041_gastgebernachrichten', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/041_gastgebernachrichten.php';
+            migration_041($db);
+        });
     }
 
     /** @return array<int,string> */
