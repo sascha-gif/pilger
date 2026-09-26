@@ -199,16 +199,18 @@ function unterkuenfte(): array
             'zimmer' => null,
             'strasse' => 'Rúa Real 49 Bajo', 'plz' => '36650',
             'ort' => 'Caldas de Reis', 'land' => 'ES',
-            'telefon' => null,
+            'telefon' => '+34 630 98 24 88',
             'von' => '2026-09-27', 'bis' => '2026-09-28', 'naechte' => 1,
             'preis' => 65.96, 'buchungsnr' => '6247972800',
-            'checkin' => null, 'checkout' => null,
+            'checkin' => 'ab 14:00', 'checkout' => null,
             'lage' => 'Fußgängerzone im Ortskern — so schreibt es der Gastgeber selbst: '
                     . '„calle peatonal del centro del Pueblo". Kein Umweg, abends alles in '
                     . 'Laufweite, und der Weg führt am nächsten Morgen direkt daran vorbei.',
             'hinweis' => 'Am Haus steht „Select Real Apartments"; „Bajo" ist das Erdgeschoss. '
-                       . 'Apartment, also vermutlich kein Empfang: der Stempel muss von woanders '
-                       . 'kommen.',
+                       . 'Kein Empfang, also kein Stempel — der muss von woanders kommen. '
+                       . 'Der Gastgeber brauchte Name, Geburtsdatum und Passnummer vorab: in '
+                       . 'Spanien muss jede Unterkunft ihre Gäste melden, und ohne Rezeption '
+                       . 'passiert das eben vor der Ankunft.',
             'quelle' => 'bestaetigung',
         ],
         [

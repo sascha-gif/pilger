@@ -171,7 +171,11 @@ danach läuft sie mit der Costa zusammen.
   **Rúa Real 49 Bajo**, 36650 — am Haus steht „Select Real Apartments", „Bajo"
   ist das Erdgeschoss. Der Gastgeber schreibt selbst *„calle peatonal del
   centro del Pueblo"*: **Fußgängerzone im Ortskern**, kein Umweg.
-  **Apartment, also vermutlich kein Empfang und kein Stempel.**
+  **Kein Empfang, also kein Stempel.** Check-in ab 14:00, Infotelefon
+  +34 630 98 24 88. ⚠️ **Vorab zu schicken: vollständiger Name, Geburtsdatum
+  und Passnummer** — in Spanien muss jede Unterkunft ihre Gäste melden (*parte
+  de viajeros*), und ohne Rezeption passiert das vor der Ankunft. **Antwort
+  gehört in den Booking-Nachrichtenverlauf**, nicht in eine Mail oder SMS.
 - **Gebucht:** Padrón (E10), Huna Apartamentos, 28.–29.09., **73,50 €**
   (inkl. 6,68 € MwSt und Übernachtungssteuer), Buchungsnr. 5642460191.
   Travesía Iría 131, 15917 — Postleitzahl und Straßenname deuten auf **Iria
@@ -183,6 +187,9 @@ danach läuft sie mit der Costa zusammen.
   booking.com**. Wer per Mail oder SMS nach Kartendaten fragt — auch wenn es
   nach Booking aussieht —, ist nicht er. Das gilt sinngemäß für alle
   Unterkünfte der Reise.
+  **Die Unterscheidung, die zählt:** nach Name, Geburtsdatum und Passnummer
+  darf ein spanischer Gastgeber fragen, das ist gesetzlich verlangt — und die
+  Antwort geht in den Booking-Verlauf. Nach **Kartendaten** fragt keiner.
 - **Gebucht:** O Milladoiro (E11), B&B HOTEL Santiago Milladoiro ★★,
   Doppelzimmer, 29.–30.09., **90,13 €**, Buchungsnr. 2457423459923289565.
   Rúa das Palmeiras, 15895 — Gemeinde Ames, am Südrand von Santiago, rund 7 km

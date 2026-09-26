@@ -270,6 +270,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/041_gastgebernachrichten.php';
             migration_041($db);
         });
+
+        // Caldas will Name, Geburtsdatum und Passnummer vorab.
+        $apply('042_caldas_checkin', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/042_caldas_checkin.php';
+            migration_042($db);
+        });
     }
 
     /** @return array<int,string> */
