@@ -276,6 +276,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/042_caldas_checkin.php';
             migration_042($db);
         });
+
+        // Einen Zug zum Flughafen gibt es nicht.
+        $apply('043_kein_zug', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/043_kein_zug.php';
+            migration_043($db);
+        });
     }
 
     /** @return array<int,string> */
