@@ -320,23 +320,32 @@ dem, was gesagt wurde.
 in `text_raw` — der wird nie überschrieben. Jeder erneute Ausbau setzt wieder
 darauf auf, nicht auf der ausgebauten Fassung.
 
+## Der Camino ist gelaufen
+
+**30.09.2026:** angekommen auf der Praza do Obradoiro, Compostela abgeholt,
+Pilgermesse besucht. 251 km zu Fuß von Porto, dreizehn Tage, jede Nacht in
+einem eigenen Zimmer. Gepäck für den Rückflug ist nachgebucht.
+
+Alles, was in der Liste darunter stand — Fährfahrplan, Buchungen, Gepäck,
+Urkunde —, ist damit erledigt oder vorbei. Was bleibt, ist das, was aus der
+Reise noch werden soll.
+
 ## Offene Punkte
 
-- **Vigo: Bestätigungsmail prüfen.** Der Screenshot war die Buchungsübersicht
-  mit „Letzter Schritt", nicht die Bestätigung — und ohne Buchungsnummer.
-- **Fährfahrplan Caminha → A Guarda/Spanien prüfen** — am Vorabend des 22.09.
-  Der Check-out in Caminha beginnt erst um 8:30; eine frühe Fähre passt da
-  nicht dazu.
-- **Rückflug-Gepäck klären.** Im Tarif steckt nur ein persönliches Gepäckstück
-  40 × 30 × 20 cm — da passt der Rucksack nicht hinein. Kabinengepäck
-  (55 × 40 × 20 cm, 10 kg) oder Aufgabegepäck bei **Vueling und TUI fly
-  einzeln** dazubuchen; am Gate kostet es 60–140 €. Dazu: Messer und
-  Flüssiges > 100 ml brauchen auf dem Rückweg ohnehin Aufgabegepäck.
-- Compostela-Urkunde am **30.09.** holen, nicht am Abreisetag — Pilgerbüro
-  Rúa das Carretas 33, 9:00–19:00. Pilgermesse 12:00 ebenfalls am 30.09.;
-  am 01.10. sitzt du zu der Zeit im Flieger. Mit den 7 km am 30. geht sich
-  beides aus; Rucksack vorher an der Rezeption des Lemonade Stays abgeben,
-  das Zimmer gibt es erst ab 15:00.
-- Tagebuch-Schlüssel: **ob sie liegen, sagt die Seite selbst** — im Kasten
-  „Sprachnotizen in Text verwandeln" stehen oben zwei Zeilen mit ✓ oder ○.
-  Diese Liste hier ist dafür keine Quelle.
+- **Tagebuch-Schlüssel hinterlegen.** Ohne sie bleiben die Sprachnotizen
+  Tonspuren: kein Text, kein Ausbau, und das Journal bleibt leer. Verloren ist
+  nichts — die Aufnahmen liegen alle da, und der Ausbau setzt immer auf dem
+  Original auf. Es lässt sich also hinterher in einem Rutsch nachholen.
+  Ob sie liegen, sagt die Seite selbst: im Kasten „Sprachnotizen in Text
+  verwandeln" stehen oben zwei Zeilen mit ✓ oder ○.
+- **Videos hochladen**, jetzt im WLAN statt im Mobilnetz. Sie gehen in Brocken
+  hoch und brechen nicht mehr ab; Grenze 400 MB je Datei.
+- **Das Journal für die Familie freigeben** — der Knopf steht unten im
+  Seitenfuß.
+- **Bilder von vor dem 24.09. haben keine Koordinaten.** Auf dem Server sind
+  sie nie angekommen; die Originale liegen aber noch auf dem Telefon. Wer sie
+  nachtragen will, bräuchte einen Weg, die Originale noch einmal einzulesen.
+- **Der Multipart-Fehler ist nie geklärt worden.** Bilder als Formular-Upload
+  kamen auf diesem Server mit „Es kam keine Datei an" zurück, während JSON
+  durchging. Umgangen ist es — alles geht jetzt stückweise —, verstanden nicht.
+  Die Diagnose in `upload.php` steht bereit, falls es je wieder auftaucht.
