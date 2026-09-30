@@ -343,6 +343,32 @@ Tagblöcke. Beim allerersten Eintrag gibt es noch keinen einzigen — und genau
 dann wird er gebraucht. Beim ersten Anlauf stand er drinnen, und der Test fiel
 prompt darauf herein.
 
+## Die Heimfahrt ist ein Tag, aber keine Etappe
+
+Die Auswahl „Zu welchem Tag?" im Tagebuch wurde aus den **Etappen** gebaut.
+Das trägt, solange gelaufen wird, und bricht am Ende gleich zweimal: für den
+Rückflug am 01.10. gab es keinen Tag, auf den ein Eintrag gepasst hätte — und
+zwei Tage nach der letzten Etappe war die Liste **leer**, weil in ihr nur
+offene Etappen und die von heute oder gestern standen. Mit leerer Liste ließ
+sich überhaupt kein Eintrag mehr anlegen; die Fotos und Videos, die zu Hause
+noch hochgehen, hätten kein Zuhause mehr gehabt.
+
+Die Liste zeigt darum jetzt **Tage statt Etappen**. Oben steht weiter, was
+gerade dran ist, darunter „Alle Tage der Reise" — jeder Tag vom 17.09. bis zum
+Rückflug, neuester zuerst. Wie weit die Reise reicht, steht in `settings`
+(`reise_ende`, `reise_ende_name`); den Rest liefern die Etappen selbst
+(`reise_tage()` in `src/helpers.php`).
+
+Ein Eintrag braucht dafür keine Etappe: `diary_entries.stage_id` darf leer
+bleiben, gebündelt wird ohnehin nach `day_iso`. Im Zeitstrahl und im Journal
+trägt so ein Tag den Namen aus `reise_ende_name` statt eines Etappentitels.
+
+Beim Aufräumen fiel zweierlei auf: die Fußzeile war **leer**, weil zwei
+Schleifen über die Reiseschritte `$s` als Laufvariable benutzten und damit die
+Einstellungen überschrieben (jetzt `$schritt`); und Nachträge an einen Eintrag
+ohne Etappe wären auf „Etappe 0" gelandet, weil `data-stage` ein `(int)null`
+ausgab.
+
 ## Jeder Tag im Tagebuch klappt für sich auf
 
 Zwölf Etappen mit Notizen und Fotos sind zugeklappt ein Inhaltsverzeichnis der

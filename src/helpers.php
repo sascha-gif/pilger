@@ -396,3 +396,50 @@ function etappen_tage(array $stage): array
     }
     return $tage;
 }
+
+/**
+ * Jeder Tag der Reise, mit dem, was an ihm war — für die Tagebuch-Auswahl.
+ *
+ * Die Auswahl hing bisher an den **Etappen**. Das ging, solange die Reise
+ * lief, und läuft am letzten Tag ins Leere: die Heimfahrt am 01.10. ist keine
+ * Etappe, also gab es für sie keinen Tag zum Draufschreiben. Und sobald die
+ * letzte Etappe abgehakt und zwei Tage alt ist, steht in der Liste gar nichts
+ * mehr — dann ließe sich überhaupt kein Eintrag mehr anlegen.
+ *
+ * Deshalb hier die Tage statt der Etappen. Die Etappen liefern die meisten
+ * davon (Porto zwei, alle anderen einen); was hinten dranhängt, steht in den
+ * Einstellungen `reise_ende` und `reise_ende_name` — die Heimfahrt.
+ *
+ * Ein Eintrag braucht ohnehin keine Etappe: `diary_entries.stage_id` darf leer
+ * bleiben, gebündelt wird im Zeitstrahl nach `day_iso`.
+ *
+ * @param  array<int,array<string,mixed>> $stages
+ * @return array<int,array{tag:string,stage:?int,name:string}> aufsteigend
+ */
+function reise_tage(array $stages, ?string $ende = null, ?string $endeName = null): array
+{
+    $tage = [];
+    foreach ($stages as $st) {
+        foreach (etappen_tage($st) as $t) {
+            // Der erste gewinnt: überlappen sich zwei Etappen an einem Tag,
+            // ist es der, der früher anfängt.
+            $tage[$t] ??= ['tag' => $t, 'stage' => (int) $st['id'], 'name' => trim((string) $st['title'])];
+        }
+    }
+
+    $ende = (string) $ende;
+    if ($ende !== '' && preg_match('/^\d{4}-\d{2}-\d{2}$/', $ende)) {
+        $letzter = $tage ? max(array_keys($tage)) : $ende;
+        $name    = trim((string) $endeName) ?: 'Heimreise';
+        for ($t = $letzter; $t < $ende; ) {
+            $t = date('Y-m-d', strtotime($t . ' +1 day'));
+            $tage[$t] ??= ['tag' => $t, 'stage' => null, 'name' => $name];
+            if (count($tage) > 40) {
+                break;   // Sicherung gegen ein verrutschtes Datum
+            }
+        }
+    }
+
+    ksort($tage);
+    return array_values($tage);
+}

@@ -288,6 +288,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/044_flughafenbus.php';
             migration_044($db);
         });
+
+        // Die Heimfahrt bekommt einen Tag im Tagebuch.
+        $apply('045_heimreise_tag', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/045_heimreise_tag.php';
+            migration_045($db);
+        });
     }
 
     /** @return array<int,string> */

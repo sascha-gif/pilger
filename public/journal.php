@@ -49,6 +49,15 @@ foreach ($stages as $st) {
     $stageNachId[(int) $st['id']] = $st;
 }
 
+/* Tage, die keine Etappe sind — die Heimfahrt —, haben trotzdem einen Namen.
+   Ohne ihn stünde das Kapitel nur mit dem Datum da. */
+$tagNamen = [];
+foreach (reise_tage($stages, $s['reise_ende'] ?? null, $s['reise_ende_name'] ?? null) as $t) {
+    if ($t['stage'] === null) {
+        $tagNamen[$t['tag']] = $t['name'];
+    }
+}
+
 /* ---- Nach Tagen bündeln, älteste zuerst -------------------------------- */
 /* Anders als im Tagebuch: dort steht der neueste Tag oben, weil man ihn gerade
    geschrieben hat. Ein Journal liest man von vorn. */
@@ -158,7 +167,11 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
   <?php $n = 0; foreach ($kapitel as $k): $n++; $z = strtotime($k['tag']); ?>
     <a href="#k<?= $n ?>" data-k="k<?= $n ?>">
       <b><?= $z ? (int) date('j', $z) : '?' ?>.</b>
-      <span><?= $k['stage'] ? h(trim(explode('·', (string) $k['stage']['code'])[0])) : '—' ?></span>
+      <?php /* `?? null`: ein Tag ohne Etappe — die Heimfahrt — hat den
+               Schlüssel gar nicht. */ ?>
+      <span><?= ($k['stage'] ?? null)
+          ? h(trim(explode('·', (string) $k['stage']['code'])[0]))
+          : h(explode(' ', (string) ($tagNamen[$k['tag']] ?? '—'))[0]) ?></span>
     </a>
   <?php endforeach; ?>
 </nav>
@@ -203,6 +216,8 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
         <h2><?= h((string) $st['title']) ?></h2>
         <p class="jetappe"><?= h(trim((string) $st['code'])) ?><?php
           if ($st['km_walk'] > 0): ?> · <?= h(num_attr($st['km_walk'])) ?> km geplant<?php endif; ?></p>
+      <?php elseif (isset($tagNamen[$k['tag']])): ?>
+        <h2><?= h($tagNamen[$k['tag']]) ?></h2>
       <?php endif; ?>
     </header>
 

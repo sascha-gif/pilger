@@ -321,6 +321,12 @@ des Eintrags. Ergänzt werden darf nur, was in diesen Daten steht oder auf den
 Bildern zu sehen ist — Gefühle, Begegnungen und Bewertungen ausschließlich aus
 dem, was gesagt wurde.
 
+**Die Heimfahrt hat einen eigenen Tag**, obwohl sie keine Etappe ist. Die
+Auswahl „Zu welchem Tag?" zeigt unter den aktuellen Tagen **jeden Tag der
+Reise** — sonst wäre sie am 01.10. ohne Ziel und nach der letzten Etappe ganz
+leer. Wie weit die Reise reicht, steht in `settings` (`reise_ende`,
+`reise_ende_name`).
+
 **Das Original bleibt immer erhalten.** Die Aufnahme sowieso, und der Rohtext
 in `text_raw` — der wird nie überschrieben. Jeder erneute Ausbau setzt wieder
 darauf auf, nicht auf der ausgebauten Fassung.

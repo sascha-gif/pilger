@@ -21,6 +21,11 @@ function seed_database(Database $db): void
             'footer_right' => 'FRA → OPO · SCQ → FRA',
             'map_center'   => '42.0,-8.72',
             'map_zoom'     => '8',
+            // Die Reise endet nicht mit der letzten Etappe: der Rückflug ist
+            // ein eigener Tag. Er ist keine Etappe, aber das Tagebuch braucht
+            // ihn trotzdem — sonst gäbe es für die Heimfahrt keinen Tag.
+            'reise_ende'      => '2026-10-01',
+            'reise_ende_name' => 'Heimreise — Santiago → Frankfurt',
         ];
         foreach ($settings as $k => $v) {
             $db->run('INSERT INTO settings (skey, svalue) VALUES (?, ?)', [$k, $v]);

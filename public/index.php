@@ -229,13 +229,15 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
 
     <h3 class="phase-head">Porto — ankommen und startklar werden</h3>
     <div class="day">
-      <?php foreach ($ankunft as $s): ?>
-        <div class="slot<?= $s['accent'] ? ' acc' : '' ?>">
-          <time><?= h($s['time_label']) ?></time>
+      <?php /* `$schritt`, nicht `$s`: `$s` sind die Einstellungen, und eine
+               Schleife darüber macht sie für den Rest der Seite kaputt. */ ?>
+      <?php foreach ($ankunft as $schritt): ?>
+        <div class="slot<?= $schritt['accent'] ? ' acc' : '' ?>">
+          <time><?= h($schritt['time_label']) ?></time>
           <div class="txt">
-            <span class="step-title"><?= h($s['title']) ?></span>
-            <?php if ($s['body']): ?><span class="step-body"><?= rich($s['body']) ?></span><?php endif; ?>
-            <?php if ($s['note']): ?><span class="step-note"><?= rich($s['note']) ?></span><?php endif; ?>
+            <span class="step-title"><?= h($schritt['title']) ?></span>
+            <?php if ($schritt['body']): ?><span class="step-body"><?= rich($schritt['body']) ?></span><?php endif; ?>
+            <?php if ($schritt['note']): ?><span class="step-note"><?= rich($schritt['note']) ?></span><?php endif; ?>
           </div>
         </div>
       <?php endforeach; ?>
@@ -243,13 +245,15 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
 
     <h3 class="phase-head">Santiago — ankommen und heimreisen</h3>
     <div class="day">
-      <?php foreach ($ziel as $s): ?>
-        <div class="slot<?= $s['accent'] ? ' acc' : '' ?>">
-          <time><?= h($s['time_label']) ?></time>
+      <?php /* `$schritt`, nicht `$s`: `$s` sind die Einstellungen, und eine
+               Schleife darüber macht sie für den Rest der Seite kaputt. */ ?>
+      <?php foreach ($ziel as $schritt): ?>
+        <div class="slot<?= $schritt['accent'] ? ' acc' : '' ?>">
+          <time><?= h($schritt['time_label']) ?></time>
           <div class="txt">
-            <span class="step-title"><?= h($s['title']) ?></span>
-            <?php if ($s['body']): ?><span class="step-body"><?= rich($s['body']) ?></span><?php endif; ?>
-            <?php if ($s['note']): ?><span class="step-note"><?= rich($s['note']) ?></span><?php endif; ?>
+            <span class="step-title"><?= h($schritt['title']) ?></span>
+            <?php if ($schritt['body']): ?><span class="step-body"><?= rich($schritt['body']) ?></span><?php endif; ?>
+            <?php if ($schritt['note']): ?><span class="step-note"><?= rich($schritt['note']) ?></span><?php endif; ?>
           </div>
         </div>
       <?php endforeach; ?>
@@ -669,12 +673,20 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
       foreach ($stages as $st) {
           $stageLabel[(int) $st['id']] = trim(($st['code'] ?? '') . ' · ' . $st['title']);
       }
+      // Und dasselbe für die Tage: Tag → Name. Für die Tage ohne Etappe ist
+      // das die einzige Überschrift, die der Zeitstrahl bekommen kann.
+      $reiseTage = reise_tage($stages, $s['reise_ende'] ?? null, $s['reise_ende_name'] ?? null);
+      $tagNamen  = [];
+      foreach ($reiseTage as $t) {
+          $tagNamen[$t['tag']] = $t['name'];
+      }
     ?>
 
     <div class="tb-neu">
       <?php
-        // Abgehakte Tage stehen nicht mehr zur Auswahl — die Liste soll mit der
-        // Reise kürzer werden, nicht länger.
+        // Oben stehen die Tage, die gerade dran sind — die Liste soll mit der
+        // Reise kürzer werden, nicht länger. Abgehakte rutschen nach unten in
+        // „Alle Tage der Reise", weg sind sie nie.
         //
         // Mit einer Ausnahme, und die ist wichtig: **heute und gestern bleiben
         // drin, auch wenn sie abgehakt sind.** Man kommt an, hakt den Tag ab
@@ -691,7 +703,25 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
             $stages,
             static fn ($st) => (int) $st['done'] && $frisch($st)
         ));
-        $vorauswahl    = $offeneTage ? (int) $offeneTage[0]['id'] : 0;
+
+        // Die beiden Gruppen oben sind der kurze Weg, solange die Reise läuft.
+        // Darunter steht jeder Tag — sonst wäre die Auswahl am Tag der
+        // Heimfahrt leer, und danach für immer.
+        $schonOben  = array_map(static fn ($st) => (int) $st['id'], array_merge($offeneTage, $erledigteTage));
+        $restTage   = array_values(array_filter(
+            $reiseTage,
+            static fn ($t) => $t['stage'] === null || !in_array($t['stage'], $schonOben, true)
+        ));
+
+        // Vorgewählt ist, was man am wahrscheinlichsten meint: die nächste
+        // offene Etappe, sonst der heutige Tag, sonst der letzte der Reise.
+        $vorwahlTag = '';
+        if (!$offeneTage && $reiseTage) {
+            $heutiger   = array_values(array_filter($reiseTage, static fn ($t) => $t['tag'] === $heute));
+            $vorwahlTag = $heutiger ? $heutiger[0]['tag'] : $reiseTage[count($reiseTage) - 1]['tag'];
+        }
+        $vorauswahl = $offeneTage ? (int) $offeneTage[0]['id'] : 0;
+        $gewaehlt   = false;   // nur einmal ankreuzen, egal in welcher Gruppe
       ?>
       <div class="tb-kopf">
         <label for="tbTag">Zu welchem Tag?</label>
@@ -699,7 +729,8 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
           <?php if ($offeneTage): ?>
             <optgroup label="Offen" data-gruppe="offen">
               <?php foreach ($offeneTage as $st): ?>
-                <option value="<?= (int) $st['id'] ?>" data-tag="<?= h((string) $st['date_iso']) ?>"<?= (int) $st['id'] === $vorauswahl ? ' selected' : '' ?>>
+                <?php $an = !$gewaehlt && (int) $st['id'] === $vorauswahl; $gewaehlt = $gewaehlt || $an; ?>
+                <option value="<?= (int) $st['id'] ?>" data-tag="<?= h((string) $st['date_iso']) ?>"<?= $an ? ' selected' : '' ?>>
                   <?= h($stageLabel[(int) $st['id']]) ?>
                 </option>
               <?php endforeach; ?>
@@ -708,8 +739,24 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
           <?php if ($erledigteTage): ?>
             <optgroup label="Gerade abgehakt" data-gruppe="erledigt">
               <?php foreach (array_reverse($erledigteTage) as $st): ?>
-                <option value="<?= (int) $st['id'] ?>" data-tag="<?= h((string) $st['date_iso']) ?>"<?= !$offeneTage && (int) $st['id'] === (int) $erledigteTage[count($erledigteTage) - 1]['id'] ? ' selected' : '' ?>>
+                <?php $an = !$gewaehlt && $vorwahlTag !== '' && (string) $st['date_iso'] === $vorwahlTag; $gewaehlt = $gewaehlt || $an; ?>
+                <option value="<?= (int) $st['id'] ?>" data-tag="<?= h((string) $st['date_iso']) ?>"<?= $an ? ' selected' : '' ?>>
                   <?= h($stageLabel[(int) $st['id']]) ?>
+                </option>
+              <?php endforeach; ?>
+            </optgroup>
+          <?php endif; ?>
+          <?php if ($restTage): ?>
+            <?php /* Jeder Tag der Reise, der nicht schon oben steht — neuester
+                     zuerst. Die Heimfahrt ist hier dabei, obwohl sie keine
+                     Etappe ist: geschrieben wird über sie trotzdem. */ ?>
+            <optgroup label="Alle Tage der Reise" data-gruppe="alle">
+              <?php foreach (array_reverse($restTage) as $t): ?>
+                <?php $an = !$gewaehlt && $t['tag'] === $vorwahlTag; $gewaehlt = $gewaehlt || $an; ?>
+                <?php /* `data-genau`: hier steht ein einzelner Tag, kein Etappenende —
+                         der gilt wörtlich, auch wenn er in der Zukunft liegt. */ ?>
+                <option value="<?= $t['stage'] !== null ? (int) $t['stage'] : '' ?>" data-tag="<?= h($t['tag']) ?>" data-genau="1"<?= $an ? ' selected' : '' ?>>
+                  <?= h(date('d.m.', strtotime($t['tag'])) . ' · ' . $t['name']) ?>
                 </option>
               <?php endforeach; ?>
             </optgroup>
@@ -795,7 +842,9 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
           // Grund. `?:` statt `??`: ein leeres Feld ist hier kein Wert.
           $datum  = (string) ($erste['day_iso'] ?: ($st['date_iso'] ?? ''));
           $zeit   = $datum ? strtotime($datum) : false;
-          $titel  = $st ? trim((string) $st['title']) : '';
+          // Ein Tag ohne Etappe — die Heimfahrt — hat trotzdem einen Namen.
+          $tagName = $datum !== '' ? ($tagNamen[$datum] ?? '') : '';
+          $titel  = $st ? trim((string) $st['title']) : $tagName;
           $code   = $st ? trim((string) $st['code']) : '';
 
           /* Zugeklappt muss der Kopf sagen, was drinsteckt — sonst klickt man
@@ -835,7 +884,7 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
                   ? floor((int) $e['audio_seconds'] / 60) . ':' . str_pad((string) ((int) $e['audio_seconds'] % 60), 2, '0', STR_PAD_LEFT)
                   : '';
             ?>
-            <article class="tbe" data-id="<?= (int) $e['id'] ?>" data-stage="<?= (int) $e['stage_id'] ?>">
+            <article class="tbe" data-id="<?= (int) $e['id'] ?>" data-stage="<?= $e['stage_id'] !== null ? (int) $e['stage_id'] : '' ?>">
               <header>
                 <?php if ($uhr): ?><span class="tbuhr"><?= h($uhr) ?></span><?php endif; ?>
                 <?php if ($e['kind'] === 'audio'): ?>

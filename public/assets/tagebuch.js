@@ -1238,7 +1238,13 @@
      „Gerade abgehakt". */
   function tagDesEintrags(option) {
     var heute = ortsDatum();
-    var ausEtappe = option && option.dataset ? (option.dataset.tag || '') : '';
+    var daten = (option && option.dataset) ? option.dataset : null;
+    var ausEtappe = daten ? (daten.tag || '') : '';
+    // Aus der Gruppe „Alle Tage der Reise" kommt ein einzelner, ausdruecklich
+    // gewaehlter Tag — kein Etappenende. Der gilt woertlich, auch wenn er noch
+    // in der Zukunft liegt: die Heimfahrt laesst sich so am Abend vorher
+    // schreiben, ohne auf gestern zu rutschen.
+    if (daten && daten.genau === '1' && ausEtappe) return ausEtappe;
     return (ausEtappe && ausEtappe < heute) ? ausEtappe : heute;
   }
 

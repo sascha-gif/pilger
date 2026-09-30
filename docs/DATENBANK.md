@@ -14,7 +14,7 @@ genau einmal.
 
 | Tabelle | Zeilen | Inhalt |
 |---|---:|---|
-| `settings` | 9 | Titel, Kopfzeilen, Fußzeile, Kartenmittelpunkt |
+| `settings` | 11 | Titel, Kopfzeilen, Fußzeile, Kartenmittelpunkt, Ende der Reise |
 | `hero_facts` | 4 | die vier Kennzahlen im Kopf (266 km, 12 Etappen, …) |
 | `profile_facts` | 6 | Abschnitt 01 Profil |
 | `nutrition_pills` | 3 | kcal / Protein / Fastenfenster |
