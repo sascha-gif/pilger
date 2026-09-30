@@ -68,9 +68,14 @@ Gewicht 93 kg (Start 12.01.) → Ziel ~88 kg bis Abflug
   **Palma 16:20 → FRA 18:50** (TUI fly X32433). **Zwei getrennte Tickets** —
   in Palma wird selbst umgestiegen, 1 h 55 Zeit, „Connection protection" ist
   mitgebucht (bei Verspätung Kiwi anrufen, nicht die Airline).
-  Zum Flughafen: **Stadtlinie 6A** ab Praza de Galicia, alle 20–30 Min,
-  ~35 Min, bar beim Fahrer (~1 €); Taxi als Rückfall ~23 €. Losgehen 09:20,
-  am Flughafen 10:30.
+  Zum Flughafen: **Linie 6A ab Hórreo (Estación Intermodal), Haltestelle 691** —
+  **nicht** ab Praza de Galicia, die liegt nur in der Gegenrichtung und dort nur
+  zum Aussteigen. Zwei Bauarten: *Lanzadera directa* (nur Hórreo ↔ Flughafen,
+  ~20–25 Min, morgens 7:35 / 8:35 / **9:30** / 10:25 / 11:20 / 12:10) und
+  *Servicio con paradas* (~40 Min, 7:45 / 8:15 / 8:45 / 9:15 / 9:45 / 10:15 /
+  10:45). Empfohlen: **9:30 direkt, 9:55 am Flughafen**; losgehen 09:00. Bar
+  beim Fahrer, Taxi als Rückfall ~23 €. Einen **Zug** zum Flughafen gibt es
+  nicht. *(Aushang, gültig ab 28.05.2026.)*
 - 18.09. Orga-Tag: Credencial an der Sé-Kathedrale Porto (~2 €, Reisepass mitnehmen),
   Terreiro da Sé, 4050-573 Porto, offen bis ~18:30, 1. Stempel
 
@@ -138,7 +143,7 @@ danach läuft sie mit der Costa zusammen.
 - **Gebucht:** Santiago (E12), Lemonade Stays, Standard-Einzelzimmer,
   30.09.–01.10., 76,95 € bezahlt, Buchungsnr. 6412320933. Rúa das Galeras 44,
   15705, Tel. +34 981 072 903 — rund 385 m von der Praza do Obradoiro.
-  Check-in ab 15:00, Check-out bis 11:00 (der Bus zum Flughafen geht 9:45).
+  Check-in ab 15:00, Check-out bis 11:00 (der Bus zum Flughafen geht 9:30).
   Nicht stornierbar, keine Änderungen.
 - **Gebucht:** Vigo (E7), Alda Estación Vigo, 25.–26.09., 57,00 €
   (inkl. 5,18 € MwSt). Calle Alfonso XIII 19, 36201 — 200 m vom Bahnhof

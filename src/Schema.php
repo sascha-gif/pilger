@@ -282,6 +282,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/043_kein_zug.php';
             migration_043($db);
         });
+
+        // Der Flughafenbus fährt nicht ab Praza de Galicia.
+        $apply('044_flughafenbus', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/044_flughafenbus.php';
+            migration_044($db);
+        });
     }
 
     /** @return array<int,string> */
