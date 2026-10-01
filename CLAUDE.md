@@ -230,14 +230,16 @@ Gekauft: Wandersocken FALKE TK2 2× 57,26 € · Wandershorts maamgic 2× 55,98 
 Reiseapotheke & Hygiene 20,54 € (Compeed, Dr. Bronner's, Zahncreme, Deo) ·
 Papiertüten 5,49 € (Tagesportionen Medikamente) · USB-C-Ladegerät 9,99 €.
 **Nach der Reise, aus den Kartenumsätzen 17.09.–01.10.:**
-Reiseversicherung ERGO 186,00 € · Pilgerbüro Santiago 7,00 € ·
-Verpflegung 301,65 € · Souvenirs 68,25 € · Nahverkehr 6,33 €.
-Erfasst damit **2.290,86 €** — über der Schätzung von 1.400–1.900 €.
+Pilgerbüro Santiago 7,00 € · Verpflegung 301,65 € · Souvenirs 68,25 € ·
+Nahverkehr 6,33 € · nicht zugeordnet, aber gezählt 37,50 €.
+Erfasst damit **2.142,36 €** — über der Schätzung von 1.400–1.900 €.
+Die **Reiseversicherung gehört nicht dazu** (so entschieden), die
+**N26-Buchungen** auch nicht.
 
 Die Zahlen decken die ganze Reise ab, sind aber **nicht vollständig**:
 **Bargeld taucht nirgends auf** — Fähre über den Minho, Bus zum Flughafen,
-Stempel-Kaffees, Trinkgeld. 88,08 € ließen sich nicht zuordnen.
-Welche Buchung wohin gezählt wurde, steht in HANDOVER.md.
+Stempel-Kaffees, Trinkgeld. Welche Buchung wohin gezählt wurde, steht in
+HANDOVER.md.
 
 ## Equipment-Kernpunkte
 

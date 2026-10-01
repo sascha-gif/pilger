@@ -306,6 +306,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/047_kosten_anfang.php';
             migration_047($db);
         });
+
+        // Reiseversicherung raus, der Rest kumuliert in die Kosten.
+        $apply('048_kosten_rest', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/048_kosten_rest.php';
+            migration_048($db);
+        });
     }
 
     /** @return array<int,string> */

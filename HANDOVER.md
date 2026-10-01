@@ -354,8 +354,12 @@ was wohin gewandert ist.
 
 | Betrag | Posten | Beleg |
 |---:|---|---|
-| 186,00 € | Reiseversicherung | ERGO, 21.09. |
 | 7,00 € | Pilgerbüro Santiago | Oficina del Peregrino, 30.09. |
+| 37,50 € | Vor Ort, nicht zugeordnet | gesammelt, siehe unten |
+
+Die **ERGO-Reiseversicherung** (186,00 € am 21.09.) stand kurz als eigene
+Zeile drin und ist auf Saschas Ansage wieder heraus. Der Beleg steht hier,
+falls sie je wieder gebraucht wird.
 
 **Verpflegung — 301,65 €**, davon eindeutig **279,22 €**.
 
@@ -394,16 +398,23 @@ und Viana do Castelo (65,00) nicht genau** — bei Viana lief der Vertrag über
 LINKALL HONGKONG, eine Umrechnung ist die naheliegende Erklärung. Die Zeilen
 behalten den gebuchten Betrag.
 
-**Nicht zugeordnet — zusammen 88,08 €**, weil aus dem Namen nicht zu erkennen:
-Lusigalia Tours 2 (25,00), N26 (36,35), Aldi Süd am Abreisetag (14,23), Hotel
-San Luis Co (9,50), NH Hotels (1,50), Hotel Lemonade (1,50). Die Felder in der
-Seite lassen sich von Hand nachtragen.
+**Nicht zugeordnet, aber gezählt — 37,50 €:** Lusigalia Tours 2 (25,00),
+Hotel San Luis Co (9,50), NH Hotels (1,50), Hotel Lemonade (1,50). Was es war,
+steht auf keinem Auszug; es waren aber Zahlungen unterwegs, an Tagen und Orten
+der Reise, und stehen deshalb gesammelt in einer eigenen Zeile. **N26 (36,35)
+bleibt draußen** — Bankkram, so die Ansage.
+
+**Noch offen:** Aldi Süd 14,23 € am Abreisetag, der Einkauf vom 16.09.
+(REWE 10,65 + Pizzeria Kiara 10,00) und die Klarna-Raten (144,65 + 21,91 +
+25,96 = 192,52). Bei Klarna ist der Verdacht, dass es die Raten für die
+Ausrüstung sind, die als Einzelposten längst in der Liste steht — dann wären
+sie doppelt. Rückfrage läuft.
 
 **Was weiterhin fehlt:** **alles Bargeld** — Fähre über den Minho, Bus zum
 Flughafen, Stempel-Kaffees, Trinkgeld. Die belegten Zeilen behalten deshalb
 den grauen Status: belegt, aber nicht vollständig.
 
-Erfasst sind damit **2.290,86 €**. Geschätzt waren 1.400–1.900 €.
+Erfasst sind damit **2.142,36 €**. Geschätzt waren 1.400–1.900 €.
 
 ## Die Heimfahrt ist ein Tag, aber keine Etappe
 
