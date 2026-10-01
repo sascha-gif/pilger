@@ -300,6 +300,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/046_echte_kosten.php';
             migration_046($db);
         });
+
+        // Die Auszüge vom 16.–21.09. schließen die Lücke am Anfang.
+        $apply('047_kosten_anfang', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/047_kosten_anfang.php';
+            migration_047($db);
+        });
     }
 
     /** @return array<int,string> */

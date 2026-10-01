@@ -345,9 +345,9 @@ prompt darauf herein.
 
 ## Was der Camino wirklich gekostet hat
 
-Vorlage sind die N26-Kartenumsätze vom **21.09. bis 01.10.** Sie sind die
-einzige Quelle für das, was unterwegs ausgegeben wurde — und sie sind
-lückenhaft. Damit die Zahlen in der Seite nachvollziehbar bleiben, steht hier,
+Vorlage sind die N26-Kartenumsätze vom **17.09. bis 01.10.**, also der ganzen
+Reise. Sie sind die einzige Quelle für das, was unterwegs ausgegeben wurde —
+und sie sehen nur, was mit Karte bezahlt wurde. Damit die Zahlen in der Seite nachvollziehbar bleiben, steht hier,
 was wohin gewandert ist.
 
 **Neu in der Kostenliste**
@@ -357,38 +357,53 @@ was wohin gewandert ist.
 | 186,00 € | Reiseversicherung | ERGO, 21.09. |
 | 7,00 € | Pilgerbüro Santiago | Oficina del Peregrino, 30.09. |
 
-**Verpflegung — 236,53 €**, davon eindeutig 216,05 €: Froiz (10,06 · 16,75 ·
-1,50 · 6,19 · 4,74), SPAR (11,73 · 2,44), Roshelle Pizza 15,00, Restaurante
-Lorena 17,30, Chiringuito 11,50, Alimentación Elena 3,75, Estambul Döner 4,50,
-Alcampo 7,63, Restaurante Chino 14,75, Aldi 8,77, Alimentación YSA (7,80 ·
-10,35), Eroski (13,22 · 10,58), Mercadona 15,89, Supermercado Panadería 3,60,
-Vucciria Pizza 18,00. Die restlichen **20,48 €** sind nach Name und Betrag
-zugeordnet und damit ein Urteil, kein Beleg: Est. Servicio Villades 5,20,
-Posto BP Marinhas 2,60, Tiago Cunha 1,50, Aquie Hórreo 6,68, Sabor a España
-4,50.
+**Verpflegung — 301,65 €**, davon eindeutig **279,22 €**.
+
+*Ab 21.09.* (216,05 €): Froiz (10,06 · 16,75 · 1,50 · 6,19 · 4,74), SPAR
+(11,73 · 2,44), Roshelle Pizza 15,00, Restaurante Lorena 17,30, Chiringuito
+11,50, Alimentación Elena 3,75, Estambul Döner 4,50, Alcampo 7,63, Restaurante
+Chino 14,75, Aldi 8,77, Alimentación YSA (7,80 · 10,35), Eroski (13,22 ·
+10,58), Mercadona 15,89, Supermercado Panadería 3,60, Vucciria Pizza 18,00.
+
+*17.–20.09.* (63,17 €): S Bento S Market 3,50 · Continente 3,22 · Primaprix
+1,40 (17.09.) · SM Supermarhet 2,80 · SPAR 4,47 · Potato Project 6,00 ·
+Recheio 3,89 (18.09.) · Lidl 11,38 · Auchan 3,96 · Aldi Matosinhos 7,94 ·
+Star Confeitaria 3,00 (19.09.) · Aldi Esposende 11,61 (20.09.).
+
+Die restlichen **22,43 €** sind nach Name und Betrag zugeordnet und damit ein
+Urteil, kein Beleg: Est. Servicio Villades 5,20, Posto BP Marinhas 2,60, Tiago
+Cunha 1,50, Aquie Hórreo 6,68, Sabor a España 4,50, Ana Rita Felix Ribeiro
+1,95.
+
+**Nahverkehr — 6,33 €:** eine Bolt-Fahrt am 19.09. Das ist alles, was von der
+Fortbewegung auf einem Auszug steht; Metro, Fähre und Flughafenbus waren bar.
 
 **Souvenirs / Sonstiges — 68,25 €:** Bordón 2 41,00, LM Santiago Boutique
 15,45, Quintana Souvenirs 11,80.
 
-**Nicht gezählt, weil nicht zur Reise gehörig:** Klarna 21,91 und 25,96,
-Netflix 13,99, N26-Kontogebühr 3,00, die fehlgeschlagene Amazon-Abbuchung über
-1.718,95.
+**Nicht gezählt, weil nicht zur Reise gehörig:** Klarna 144,65, 21,91 und
+25,96, Netflix 13,99, N26-Kontogebühr 3,00, die fehlgeschlagene
+Amazon-Abbuchung über 1.718,95 — und der Einkauf vom **16.09.** (REWE 10,65,
+Pizzeria Kiara 10,00): der Flug ging erst am 17.
 
-**Nicht doppelt gezählt:** Booking.com 100,00 (Oia) und 76,95 (Santiago) sowie
-Alda Estación Vigo 57,00 sind die Kartenbuchungen zu Zeilen, die längst in der
-Liste stehen.
+**Nicht doppelt gezählt:** fünf Booking-Abbuchungen (77,50 · 74,00 · 64,89 ·
+100,00 · 76,95) und Alda Estación Vigo 57,00 sind die Kartenbuchungen zu
+Zeilen, die längst in der Liste stehen. 74,00 ist Esposende auf den Cent,
+100,00 Oia, 76,95 Santiago. **77,50 und 64,89 treffen Vila do Conde (78,00)
+und Viana do Castelo (65,00) nicht genau** — bei Viana lief der Vertrag über
+LINKALL HONGKONG, eine Umrechnung ist die naheliegende Erklärung. Die Zeilen
+behalten den gebuchten Betrag.
 
-**Nicht zugeordnet — zusammen 73,85 €**, weil aus dem Namen nicht zu erkennen:
-Lusigalia Tours 2 (25,00), NH Hotels (1,50), Hotel San Luis Co (9,50), Hotel
-Lemonade (1,50), N26 (36,35). Die Felder in der Seite lassen sich von Hand
-nachtragen.
+**Nicht zugeordnet — zusammen 88,08 €**, weil aus dem Namen nicht zu erkennen:
+Lusigalia Tours 2 (25,00), N26 (36,35), Aldi Süd am Abreisetag (14,23), Hotel
+San Luis Co (9,50), NH Hotels (1,50), Hotel Lemonade (1,50). Die Felder in der
+Seite lassen sich von Hand nachtragen.
 
-**Was grundsätzlich fehlt:** der **17.–20.09.** (die Auszüge fangen später an)
-und **alles Bargeld** — Fähre über den Minho, Bus zum Flughafen,
-Stempel-Kaffees, Trinkgeld. Die Zeile „Nahverkehr" bleibt deshalb leer, und
-die belegten Zeilen behalten den grauen Status: belegt, aber nicht vollständig.
+**Was weiterhin fehlt:** **alles Bargeld** — Fähre über den Minho, Bus zum
+Flughafen, Stempel-Kaffees, Trinkgeld. Die belegten Zeilen behalten deshalb
+den grauen Status: belegt, aber nicht vollständig.
 
-Erfasst sind damit **2.219,41 €**. Geschätzt waren 1.400–1.900 €.
+Erfasst sind damit **2.290,86 €**. Geschätzt waren 1.400–1.900 €.
 
 ## Die Heimfahrt ist ein Tag, aber keine Etappe
 
