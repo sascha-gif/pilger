@@ -343,6 +343,53 @@ Tagblöcke. Beim allerersten Eintrag gibt es noch keinen einzigen — und genau
 dann wird er gebraucht. Beim ersten Anlauf stand er drinnen, und der Test fiel
 prompt darauf herein.
 
+## Was der Camino wirklich gekostet hat
+
+Vorlage sind die N26-Kartenumsätze vom **21.09. bis 01.10.** Sie sind die
+einzige Quelle für das, was unterwegs ausgegeben wurde — und sie sind
+lückenhaft. Damit die Zahlen in der Seite nachvollziehbar bleiben, steht hier,
+was wohin gewandert ist.
+
+**Neu in der Kostenliste**
+
+| Betrag | Posten | Beleg |
+|---:|---|---|
+| 186,00 € | Reiseversicherung | ERGO, 21.09. |
+| 7,00 € | Pilgerbüro Santiago | Oficina del Peregrino, 30.09. |
+
+**Verpflegung — 236,53 €**, davon eindeutig 216,05 €: Froiz (10,06 · 16,75 ·
+1,50 · 6,19 · 4,74), SPAR (11,73 · 2,44), Roshelle Pizza 15,00, Restaurante
+Lorena 17,30, Chiringuito 11,50, Alimentación Elena 3,75, Estambul Döner 4,50,
+Alcampo 7,63, Restaurante Chino 14,75, Aldi 8,77, Alimentación YSA (7,80 ·
+10,35), Eroski (13,22 · 10,58), Mercadona 15,89, Supermercado Panadería 3,60,
+Vucciria Pizza 18,00. Die restlichen **20,48 €** sind nach Name und Betrag
+zugeordnet und damit ein Urteil, kein Beleg: Est. Servicio Villades 5,20,
+Posto BP Marinhas 2,60, Tiago Cunha 1,50, Aquie Hórreo 6,68, Sabor a España
+4,50.
+
+**Souvenirs / Sonstiges — 68,25 €:** Bordón 2 41,00, LM Santiago Boutique
+15,45, Quintana Souvenirs 11,80.
+
+**Nicht gezählt, weil nicht zur Reise gehörig:** Klarna 21,91 und 25,96,
+Netflix 13,99, N26-Kontogebühr 3,00, die fehlgeschlagene Amazon-Abbuchung über
+1.718,95.
+
+**Nicht doppelt gezählt:** Booking.com 100,00 (Oia) und 76,95 (Santiago) sowie
+Alda Estación Vigo 57,00 sind die Kartenbuchungen zu Zeilen, die längst in der
+Liste stehen.
+
+**Nicht zugeordnet — zusammen 73,85 €**, weil aus dem Namen nicht zu erkennen:
+Lusigalia Tours 2 (25,00), NH Hotels (1,50), Hotel San Luis Co (9,50), Hotel
+Lemonade (1,50), N26 (36,35). Die Felder in der Seite lassen sich von Hand
+nachtragen.
+
+**Was grundsätzlich fehlt:** der **17.–20.09.** (die Auszüge fangen später an)
+und **alles Bargeld** — Fähre über den Minho, Bus zum Flughafen,
+Stempel-Kaffees, Trinkgeld. Die Zeile „Nahverkehr" bleibt deshalb leer, und
+die belegten Zeilen behalten den grauen Status: belegt, aber nicht vollständig.
+
+Erfasst sind damit **2.219,41 €**. Geschätzt waren 1.400–1.900 €.
+
 ## Die Heimfahrt ist ein Tag, aber keine Etappe
 
 Die Auswahl „Zu welchem Tag?" im Tagebuch wurde aus den **Etappen** gebaut.

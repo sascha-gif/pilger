@@ -267,7 +267,7 @@ function unterkuenfte(): array
             'checkin' => 'ab 15:00', 'checkout' => 'bis 11:00',
             'lage' => 'Rund 385 m von der Praza do Obradoiro — die letzte Nacht, am Ziel.',
             'hinweis' => 'Bezahlt, nicht stornierbar, keine Änderungen. Der Check-out um 11:00 '
-                       . 'passt zum Bus 6A um 9:45.',
+                       . 'passt zum Bus 6A um 9:30 ab Hórreo.',
             'quelle' => 'bestaetigung',
         ],
     ];

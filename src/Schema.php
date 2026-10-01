@@ -294,6 +294,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/045_heimreise_tag.php';
             migration_045($db);
         });
+
+        // Was der Camino wirklich gekostet hat — soweit die Karte es weiß.
+        $apply('046_echte_kosten', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/046_echte_kosten.php';
+            migration_046($db);
+        });
     }
 
     /** @return array<int,string> */

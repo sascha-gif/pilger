@@ -229,7 +229,15 @@ O Milladoiro 90,13 € · Santiago 76,95 € · Credencial 2,00 €.
 Gekauft: Wandersocken FALKE TK2 2× 57,26 € · Wandershorts maamgic 2× 55,98 € ·
 Reiseapotheke & Hygiene 20,54 € (Compeed, Dr. Bronner's, Zahncreme, Deo) ·
 Papiertüten 5,49 € (Tagesportionen Medikamente) · USB-C-Ladegerät 9,99 €.
-Erfasst damit **1.721,63 €** — alle Unterkünfte gebucht.
+**Nach der Reise, aus den Kartenumsätzen 21.09.–01.10.:**
+Reiseversicherung ERGO 186,00 € · Pilgerbüro Santiago 7,00 € ·
+Verpflegung 236,53 € · Souvenirs 68,25 €.
+Erfasst damit **2.219,41 €** — über der Schätzung von 1.400–1.900 €.
+
+Die Zahlen sind belegt, aber **nicht vollständig**: der **17.–20.09. fehlt**
+(die Auszüge fangen später an) und **Bargeld taucht nirgends auf** — Fähre,
+Bus, Stempel-Kaffees, Trinkgeld. 73,85 € ließen sich nicht zuordnen.
+Welche Buchung wohin gezählt wurde, steht in HANDOVER.md.
 
 ## Equipment-Kernpunkte
 
