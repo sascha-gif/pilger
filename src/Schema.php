@@ -312,6 +312,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/048_kosten_rest.php';
             migration_048($db);
         });
+
+        // Klarna und die Einkäufe vor dem Abflug gehören nicht dazu.
+        $apply('049_kosten_abgrenzung', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/049_kosten_abgrenzung.php';
+            migration_049($db);
+        });
     }
 
     /** @return array<int,string> */

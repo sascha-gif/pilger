@@ -233,8 +233,10 @@ Papiertüten 5,49 € (Tagesportionen Medikamente) · USB-C-Ladegerät 9,99 €.
 Pilgerbüro Santiago 7,00 € · Verpflegung 301,65 € · Souvenirs 68,25 € ·
 Nahverkehr 6,33 € · nicht zugeordnet, aber gezählt 37,50 €.
 Erfasst damit **2.142,36 €** — über der Schätzung von 1.400–1.900 €.
-Die **Reiseversicherung gehört nicht dazu** (so entschieden), die
-**N26-Buchungen** auch nicht.
+**Nicht dazu gehören** (so entschieden): die Reiseversicherung, die
+N26-Buchungen, Netflix, die Klarna-Raten (192,52 €) und alles, was vor dem
+Abflug in Deutschland über die Karte ging — Aldi Süd am 17.09. und der Einkauf
+vom 16.09. Die Reise fängt in Porto an.
 
 Die Zahlen decken die ganze Reise ab, sind aber **nicht vollständig**:
 **Bargeld taucht nirgends auf** — Fähre über den Minho, Bus zum Flughafen,

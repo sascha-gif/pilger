@@ -404,11 +404,12 @@ steht auf keinem Auszug; es waren aber Zahlungen unterwegs, an Tagen und Orten
 der Reise, und stehen deshalb gesammelt in einer eigenen Zeile. **N26 (36,35)
 bleibt draußen** — Bankkram, so die Ansage.
 
-**Noch offen:** Aldi Süd 14,23 € am Abreisetag, der Einkauf vom 16.09.
-(REWE 10,65 + Pizzeria Kiara 10,00) und die Klarna-Raten (144,65 + 21,91 +
-25,96 = 192,52). Bei Klarna ist der Verdacht, dass es die Raten für die
-Ausrüstung sind, die als Einzelposten längst in der Liste steht — dann wären
-sie doppelt. Rückfrage läuft.
+**Entschieden und draußen:** die **Klarna-Raten** (144,65 + 21,91 + 25,96 =
+192,52) sind privat und haben mit dem Camino nichts zu tun. **Aldi Süd 14,23 €**
+am 17.09. und der Einkauf vom **16.09.** (REWE 10,65 + Pizzeria Kiara 10,00)
+sind Alltag vor der Abreise — die Reise fängt in Porto an, nicht am
+Küchentisch. Beides war nie mitgezählt, steht aber jetzt als Entscheidung fest
+und auch im Text unter der Kostentabelle.
 
 **Was weiterhin fehlt:** **alles Bargeld** — Fähre über den Minho, Bus zum
 Flughafen, Stempel-Kaffees, Trinkgeld. Die belegten Zeilen behalten deshalb
