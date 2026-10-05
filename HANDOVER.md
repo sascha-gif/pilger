@@ -343,6 +343,29 @@ Tagblöcke. Beim allerersten Eintrag gibt es noch keinen einzigen — und genau
 dann wird er gebraucht. Beim ersten Anlauf stand er drinnen, und der Test fiel
 prompt darauf herein.
 
+## Zwei Zählweisen für „noch bis SCQ" — und nur eine gilt
+
+Auf der Etappenkarte E7 stand groß **88**, auf dem Kartenpunkt daneben
+**„noch 103 km"**. Dahinter stecken zwei Rechnungen:
+
+- **Entfernung bis Santiago entlang der Route**, beginnend bei **266**. So
+  rechnen Porto bis E6 und sämtliche Kartenpunkte.
+- **Was noch zu Fuß zu gehen ist**, beginnend bei **251**, weil die 15 km
+  Arcade → Pontevedra gefahren werden. So rechnete seit Migration 039 nur E7.
+
+Ab E8 liefern beide dasselbe (66, 44, 25, 7, 0) — der gefahrene Abschnitt
+liegt davor. Unterschiedlich sind sie nur bei E1 bis E7, und dort folgte alles
+der ersten Zählweise außer der einen Zahl bei E7. Korrigiert wurde deshalb
+diese eine: **Vigo liegt 103 km vor Santiago.**
+
+**Die Regel, falls wieder etwas verschoben wird:** `km_big` ist die Entfernung
+bis Santiago **von dort, wo abends das Bett steht**, entlang der Route;
+`map_meta` dieselbe Entfernung **vom Kartenpunkt aus**. Bei E8 fallen die
+beiden auseinander — der Punkt sitzt in Arcade (81 km), geschlafen wird in
+Pontevedra (66 km) —, und seitdem steht an beiden dran, worauf sie sich
+beziehen. Die Fortschrittsanzeige im Kopf rechnet davon unabhängig mit
+`SUM(km_walk)` = 251.
+
 ## Was der Camino wirklich gekostet hat
 
 Vorlage sind die N26-Kartenumsätze vom **17.09. bis 01.10.**, also der ganzen

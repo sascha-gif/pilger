@@ -318,6 +318,12 @@ final class Schema
             require_once APP_ROOT . '/db/migrations/049_kosten_abgrenzung.php';
             migration_049($db);
         });
+
+        // Vigo liegt 103 km vor Santiago, nicht 88.
+        $apply('050_restkilometer', static function (Database $db): void {
+            require_once APP_ROOT . '/db/migrations/050_restkilometer.php';
+            migration_050($db);
+        });
     }
 
     /** @return array<int,string> */

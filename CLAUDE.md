@@ -98,6 +98,12 @@ Gewicht 93 kg (Start 12.01.) → Ziel ~88 kg bis Abflug
 | E11 | 29.09. | Padrón → **O Milladoiro** | 18 | 7 |
 | E12 | 30.09. | O Milladoiro → Santiago (Praza do Obradoiro) | 7 | 0 |
 
+Die Spalte **„Rest bis SCQ"** ist die Entfernung bis Santiago **entlang der
+Route**, gemessen von dort, wo abends das Bett steht — deshalb fallen bei E8
+die 15 gefahrenen Kilometer mit heraus (81 ab Arcade, 66 ab Pontevedra).
+Gezählt wird ab 266, nicht ab 251; die Fortschrittsanzeige im Kopf rechnet
+davon unabhängig mit den 251 gelaufenen.
+
 Der letzte Tag ist mit Absicht kurz: sieben Kilometer, Ankunft gegen halb elf,
 danach Pilgerbüro und **Pilgermesse um 12:00**. Nach dem ursprünglichen Plan —
 25 km am 30. — wäre die Messe nicht zu schaffen gewesen.
