@@ -390,6 +390,21 @@ Aufnahme. Geprüft: ein 1-MB-Brocken kommt vollständig an (1 048 576 Bytes auf
 der Platte), eine Sprachnotiz von 10 MB geht durch, eine von 30 MB wird mit
 "Die Datei ist zu groß." abgewiesen statt mit einem Absturz.
 
+**Der Seitenfuß sagt die PHP-Fassung.** Hinter dem Passwort, nicht in den
+Kopfzeilen — `expose_php` bleibt aus. Dort steht jetzt neben dem Commit
+`PHP 8.3.36 gepatcht` in Grün, oder `VERALTET` in Rot. Der Grund ist banal
+und wichtig: **von außen lässt sich das nicht nachsehen.** Der Server nimmt
+keine Verbindungen an, also kann nur die Seite selbst Auskunft geben, worauf
+sie läuft.
+
+Die Entscheidung trifft `php_gepatcht()` in `src/helpers.php` — und zwar je
+Zweig, nicht mit einem einzelnen Vergleich. Das BSI nennt vier behebende
+Fassungen (8.5.12, 8.4.27, 8.3.36, 8.2.35), und ein schlichtes `>= 8.3.36`
+hielte **8.4.0 für gepatcht**, obwohl der 8.4-Zweig erst ab 8.4.27 sicher
+ist. Falsche Entwarnung ist schlimmer als falscher Alarm. Dieselbe Funktion
+benutzen auch die Zusicherung im Dockerfile und `ops/haertung-pruefen.php`,
+damit die Tabelle genau einmal im Repo steht.
+
 **`ops/haertung-pruefen.php` rechnet am laufenden Container nach.** Aufruf:
 `docker compose exec -T app php < ops/haertung-pruefen.php` — geht auch auf dem
 Server von Hand. Die CI ruft es bei jedem Push auf. Es prüft die PHP-Fassung,

@@ -791,6 +791,11 @@ footer a{color:var(--flecha)}
 footer .stand{font-family:"Spline Sans Mono",monospace;font-size:11px;color:#6f6a60}
 footer .stand a{color:#a49c8b;text-decoration:none;border-bottom:1px dotted #6f6a60}
 footer .stand a:hover{color:var(--flecha);border-bottom-color:var(--flecha)}
+/* Die PHP-Fassung im Seitenfuss. Gruen heisst gepatcht gegen
+   CVE-2026-109618/109619, rot heisst: da laeuft etwas Altes. */
+footer .phpstand{font-weight:600}
+footer .phpstand.gut{color:#2e7d32}
+footer .phpstand.schlecht{color:#c2410c}
 
 /* Laufende Woche: Zwischenstand, kein Ergebnis. */
 .ctbl td.gemessen.laeuft b{color:var(--stone)}

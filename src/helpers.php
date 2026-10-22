@@ -443,3 +443,34 @@ function reise_tage(array $stages, ?string $ende = null, ?string $endeName = nul
     ksort($tage);
     return array_values($tage);
 }
+
+/**
+ * Ist diese PHP-Fassung gegen CVE-2026-109618 und CVE-2026-109619 gepatcht?
+ *
+ * Nicht mit einem einzelnen `>=` zu beantworten. Das BSI nennt vier behebende
+ * Fassungen — 8.5.12, 8.4.27, 8.3.36 und 8.2.35 —, und die liegen in
+ * verschiedenen Zweigen. Ein schlichtes `>= 8.3.36` hielte **8.4.0 für
+ * gepatcht**, obwohl der 8.4-Zweig erst ab 8.4.27 sicher ist. Eine falsche
+ * Entwarnung ist schlimmer als ein falscher Alarm, also wird je Zweig
+ * verglichen.
+ *
+ * Alles unterhalb von 8.2 ist ohnehin aus dem Sicherheitssupport heraus und
+ * gilt hier als nicht gepatcht, auch wenn Distributionen Rückportierungen
+ * liefern — was von denen wirklich drinsteckt, sagt die Versionsnummer nicht.
+ */
+function php_gepatcht(string $fassung = PHP_VERSION): bool
+{
+    $noetig = ['8.2' => '8.2.35', '8.3' => '8.3.36', '8.4' => '8.4.27', '8.5' => '8.5.12'];
+
+    if (!preg_match('/^(\d+)\.(\d+)/', $fassung, $t)) {
+        return false;
+    }
+    $zweig = $t[1] . '.' . $t[2];
+
+    if (isset($noetig[$zweig])) {
+        return version_compare($fassung, $noetig[$zweig], '>=');
+    }
+
+    // Jüngerer Zweig als alle bekannten: die Lücke ist dort von Anfang an zu.
+    return version_compare($zweig, '8.5', '>');
+}

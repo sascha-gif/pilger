@@ -1206,6 +1206,23 @@ $shellPath = 'M50 6c2 0 3 2 4 6 1-3 3-4 5-3 1 1 1 4 0 8 2-2 4-2 5 0 1 2 0 5-2 8 
       else: ?>
         Stand unbekannt<?php
       endif; ?><?php if ($stempel): ?> · Dateien vom <?= h(date('d.m. H:i', $stempel)) ?><?php endif; ?>
+      <?php /* Die PHP-Fassung gehoert hierher, seit das BSI im Oktober 2026
+               vor CVE-2026-109618 und CVE-2026-109619 gewarnt hat. Ein
+               Commit-Kuerzel sagt, welcher Code laeuft — aber nicht, auf
+               welchem PHP. Und genau das war die Frage, die sich von aussen
+               nicht beantworten liess: der Server nimmt keine Verbindungen
+               an, also kann es nur die Seite selbst sagen.
+
+               Steht hinter dem Passwort, nicht in den Kopfzeilen — `expose_php`
+               ist aus, und das bleibt so. Wer das hier liest, ist angemeldet. */ ?>
+      <?php $gepatcht = php_gepatcht(); ?>
+      · PHP <?= h(PHP_VERSION) ?>
+      <span class="phpstand <?= $gepatcht ? 'gut' : 'schlecht' ?>"
+            title="<?= $gepatcht
+                ? 'Gepatcht gegen CVE-2026-109618 und CVE-2026-109619 (ab 8.3.36).'
+                : 'Aelter als 8.3.36 — anfaellig fuer CVE-2026-109618 und CVE-2026-109619.' ?>">
+        <?= $gepatcht ? 'gepatcht' : 'VERALTET' ?>
+      </span>
     </span>
   </div>
 </footer>

@@ -143,7 +143,8 @@ RUN set -eu; \
     if [ -n "$laut" ]; then echo "PHP meldet beim Start etwas: $laut" >&2; exit 1; fi; \
     php -r ' \
       $fehler = []; \
-      if (version_compare(PHP_VERSION, "8.3.36", "<")) { $fehler[] = "PHP " . PHP_VERSION . " ist aelter als 8.3.36 (CVE-2026-109618/109619)"; } \
+      require "src/helpers.php"; \
+      if (!php_gepatcht()) { $fehler[] = "PHP " . PHP_VERSION . " ist nicht gepatcht (CVE-2026-109618/109619)"; } \
       if (ini_get("memory_limit") !== "-1") { $fehler[] = "memory_limit ist " . ini_get("memory_limit"); } \
       if (ini_get("session.upload_progress.enabled")) { $fehler[] = "session.upload_progress ist an"; } \
       if (ini_get("post_max_size") !== "32M") { $fehler[] = "post_max_size ist " . ini_get("post_max_size"); } \

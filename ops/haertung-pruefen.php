@@ -19,6 +19,23 @@ declare(strict_types=1);
  * Gibt 0 zurück, wenn alles sitzt, sonst 1 und eine Liste dessen, was fehlt.
  */
 
+/* Erst die Wurzel der App finden, dann die Helfer laden: `php_gepatcht()`
+   steht dort, damit die Versionstabelle genau einmal im Repo existiert und
+   nicht hier noch einmal — zwei Tabellen laufen irgendwann auseinander.
+   `__DIR__` hilft nicht: das Skript kommt ueber stdin herein. */
+$versucht = array_values(array_filter([
+    (string) (getenv('APACHE_DOCUMENT_ROOT') ?: ''),
+    '/var/www/html/public',
+    (getcwd() ?: '.') . '/public',
+]));
+$docroot = '';
+foreach ($versucht as $k) {
+    if (is_dir($k)) { $docroot = $k; break; }
+}
+if ($docroot !== '' && is_file(dirname($docroot) . '/src/helpers.php')) {
+    require_once dirname($docroot) . '/src/helpers.php';
+}
+
 $fehler = [];
 $ok     = static fn (string $t) => print('  ok   ' . $t . PHP_EOL);
 $weg    = static function (string $t) use (&$fehler) {
@@ -29,10 +46,12 @@ $weg    = static function (string $t) use (&$fehler) {
 /* ================= 1. Die Fassung ==================================== */
 
 print(PHP_EOL . 'PHP-Fassung' . PHP_EOL);
-if (version_compare(PHP_VERSION, '8.3.36', '<')) {
-    $weg(sprintf('PHP %s liegt unter 8.3.36 — anfällig für CVE-2026-109618/109619', PHP_VERSION));
+if (!function_exists('php_gepatcht')) {
+    $weg('src/helpers.php nicht gefunden — Fassung nicht geprüft (versucht: ' . implode(', ', $versucht) . ')');
+} elseif (!php_gepatcht()) {
+    $weg(sprintf('PHP %s ist nicht gepatcht gegen CVE-2026-109618/109619', PHP_VERSION));
 } else {
-    $ok(sprintf('PHP %s — gepatcht (>= 8.3.36)', PHP_VERSION));
+    $ok(sprintf('PHP %s — gepatcht', PHP_VERSION));
 }
 
 /* ================= 2. Die Einstellungen ============================== */
@@ -79,19 +98,6 @@ if ($laut === [] && $code === 0) {
 
 print(PHP_EOL . 'Kann die Anwendung die Werte zurückdrehen?' . PHP_EOL);
 
-/* Den Document-Root suchen statt raten. `__DIR__` hilft hier nicht: das
-   Skript kommt ueber stdin in den Container (`php < ops/...`), und dann ist
-   `__FILE__` "Standard input code" und `__DIR__` leer. Die Umgebungsvariable
-   setzt das Dockerfile, die beiden anderen sind der Rueckfall. */
-$docroot = '';
-$versucht = array_values(array_filter([
-    (string) (getenv('APACHE_DOCUMENT_ROOT') ?: ''),
-    '/var/www/html/public',
-    (getcwd() ?: '.') . '/public',
-]));
-foreach ($versucht as $k) {
-    if (is_dir($k)) { $docroot = $k; break; }
-}
 $name    = 'haertungspruefung-' . bin2hex(random_bytes(8)) . '.php';
 $pfad    = $docroot . '/' . $name;
 
