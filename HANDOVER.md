@@ -343,6 +343,58 @@ Tagblöcke. Beim allerersten Eintrag gibt es noch keinen einzigen — und genau
 dann wird er gebraucht. Beim ersten Anlauf stand er drinnen, und der Test fiel
 prompt darauf herein.
 
+## PHP2Shell: die Warnung vom 21.10.2026 und was daraus folgte
+
+Das BSI stuft **CVE-2026-109618** und **CVE-2026-109619** (BITS-H
+2026-297981-1132, Kritikalität Orange) mit CVSS 9.2 ein: Codeausführung aus
+der Ferne, **ohne Anmeldung und ohne Nutzerinteraktion**, betroffen ist jede
+PHP-Fassung zurück bis 5. Dass die Seite hinter einem Passwort steht, hilft
+dagegen nicht — der Angriff greift, bevor überhaupt Anwendungscode läuft.
+
+**Der gefährlichste Fund war nicht die PHP-Fassung, sondern der Deploy.**
+`ops/pilger-update.sh` rief `docker compose up -d --build` auf. Ein Build holt
+kein Basis-Image nach, wenn eines im Zwischenspeicher liegt: das gepatchte
+`php:8.3.x` hätte auf der Registry gelegen, und der Server wäre weiter mit
+der alten Fassung gelaufen — ohne dass es irgendwo aufgefallen wäre. Dagegen
+jetzt zwei Riegel: `docker compose build --pull` im Deploy, und im Dockerfile
+steht statt des rollenden `php:8.3-apache` die **genaue Nummer
+`php:8.3.36-apache`**. Eine neue Nummer muss geholt werden, und im Git steht,
+was läuft.
+
+**Die Workarounds aus dem Advisory**, soweit sie für diesen Aufbau gelten:
+
+| Einstellung | Wert | wogegen |
+|---|---|---|
+| `memory_limit` | `-1` | 109618 — der Fehler an einem erreichbaren Limit führt in den verwundbaren Pfad |
+| `mem_limit` (Container) | `1g` | die Gegenseite dazu; **nicht** RLIMIT_AS/RLIMIT_DATA, die lösen denselben Fehler nur woanders aus |
+| `post_max_size` | `32M` (war 72M) | 109618 — kleinere Rümpfe, kleinere Angriffsfläche |
+| `upload_max_filesize` | `24M` (war 64M) | muss unter `post_max_size` liegen |
+| `session.upload_progress.enabled` | `0` | 109619 — der bestätigte Angriffspfad |
+| `LimitRequestBody` (Apache) | 33 MB | greift auch ohne verwertbaren `Content-Length`, etwa bei `chunked` |
+
+`memory_limit` und `session.upload_progress` stehen zusätzlich als
+`php_admin_value` in der Apache-Konfiguration, damit kein `ini_set()` sie
+zurückdrehen kann.
+
+**Was bewusst nicht drinsteht: `fatal_error_backtraces = 0`.** Das ist der
+Workaround für PHP 8.5; in 8.3 gibt es die Einstellung nicht. Eine unbekannte
+Einstellung löst pro Anfrage eine Diagnosemeldung vor der Initialisierung aus
+- und genau die zu entfernen verlangt das Advisory im dritten Punkt. Eintragen
+wäre hier keine Härtung gewesen, sondern das Gegenteil.
+
+**Dass die Grenzen so weit runter konnten, ist dem Stückweise-Upload zu
+verdanken.** Ein Brocken ist 1 MB, als Base64 keine anderthalb — die 32 MB
+sind für den Upload-Weg der App Luft. Am Stück kommt nur noch die Sprachnotiz
+über `upload.php`; bei den üblichen 128 kbit/s sind 24 MB eine Viertelstunde
+Aufnahme. Geprüft: ein 1-MB-Brocken kommt vollständig an (1 048 576 Bytes auf
+der Platte), eine Sprachnotiz von 10 MB geht durch, eine von 30 MB wird mit
+"Die Datei ist zu groß." abgewiesen statt mit einem Absturz.
+
+**Das Dockerfile rechnet beim Bauen nach**, damit nichts davon stillschweigend
+zurückfallen kann: PHP muss still starten (kein Wort auf stderr — der Nachweis,
+dass keine ungültige Einstellung drin ist), die Fassung muss mindestens 8.3.36
+sein, und die vier Werte müssen wirklich greifen. Sonst bricht der Build ab.
+
 ## Zwei Zählweisen für „noch bis SCQ" — und nur eine gilt
 
 Auf der Etappenkarte E7 stand groß **88**, auf dem Kartenpunkt daneben

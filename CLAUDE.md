@@ -20,6 +20,20 @@ Technik: `docs/DEPLOYMENT.md`, `docs/DATENBANK.md`, `docs/API.md`.
   Vorjahre" dranschreiben als eine Wettervorhersage erfinden, die es für
   September noch gar nicht gibt.
 
+## PHP-Fassung ist festgenagelt
+
+Das Image steht auf **`php:8.3.36-apache`** — der genauen Nummer, nicht dem
+rollenden Tag. Grund ist die BSI-Warnung vom 21.10.2026 zu CVE-2026-109618 und
+CVE-2026-109619 (PHP2Shell, CVSS 9.2, RCE ohne Anmeldung). Der Deploy zieht
+mit `docker compose build --pull`, sonst bliebe ein gepatchtes Basis-Image im
+Zwischenspeicher unbemerkt liegen.
+
+Die Härtung dazu steht im Dockerfile (`memory_limit = -1`, `post_max_size =
+32M`, `session.upload_progress` aus) und in der `docker-compose.yml`
+(`mem_limit: 1g`). **Wer an diesen Werten dreht, liest vorher den Abschnitt in
+HANDOVER.md** — jeder einzelne hängt an einer der beiden CVEs, und das
+Dockerfile bricht den Build ab, wenn einer nicht mehr greift.
+
 ## Zutritt
 
 Die Seite steht hinter einem Passwort — die ganze Seite, nicht nur das
