@@ -79,9 +79,19 @@ if ($laut === [] && $code === 0) {
 
 print(PHP_EOL . 'Kann die Anwendung die Werte zurückdrehen?' . PHP_EOL);
 
-/* Nicht fest verdrahtet: das Skript liegt in `ops/`, der Document-Root
-   daneben in `public/`. Im Container ist das /var/www/html/public. */
-$docroot = dirname(__DIR__) . '/public';
+/* Den Document-Root suchen statt raten. `__DIR__` hilft hier nicht: das
+   Skript kommt ueber stdin in den Container (`php < ops/...`), und dann ist
+   `__FILE__` "Standard input code" und `__DIR__` leer. Die Umgebungsvariable
+   setzt das Dockerfile, die beiden anderen sind der Rueckfall. */
+$docroot = '';
+$versucht = array_values(array_filter([
+    (string) (getenv('APACHE_DOCUMENT_ROOT') ?: ''),
+    '/var/www/html/public',
+    (getcwd() ?: '.') . '/public',
+]));
+foreach ($versucht as $k) {
+    if (is_dir($k)) { $docroot = $k; break; }
+}
 $name    = 'haertungspruefung-' . bin2hex(random_bytes(8)) . '.php';
 $pfad    = $docroot . '/' . $name;
 
@@ -94,8 +104,10 @@ echo 'memory_limit=', ini_get('memory_limit'), "\n";
 echo 'upload_progress=', ini_get('session.upload_progress.enabled') ? 'an' : 'aus', "\n";
 PROBE;
 
-if (@file_put_contents($pfad, $probe) === false) {
-    $weg('Probe-Datei liess sich nicht anlegen — Prüfung nicht durchgeführt');
+if ($docroot === '') {
+    $weg('Document-Root nicht gefunden (versucht: ' . implode(', ', $versucht) . ')');
+} elseif (@file_put_contents($pfad, $probe) === false) {
+    $weg('Probe-Datei liess sich nicht anlegen: ' . $pfad);
 } else {
     $antwort = (string) @file_get_contents('http://127.0.0.1/' . $name);
     @unlink($pfad);
