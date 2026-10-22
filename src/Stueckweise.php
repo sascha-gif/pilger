@@ -5,10 +5,15 @@ declare(strict_types=1);
  * Große Dateien in Stücken annehmen.
  *
  * Ein Handyvideo ist schnell dreihundert Megabyte. Im Container stehen
- * `post_max_size = 72M`, davor sitzt ein Reverse-Proxy mit eigenen Grenzen,
+ * `post_max_size = 32M`, davor sitzt ein Reverse-Proxy mit eigenen Grenzen,
  * und dazwischen liegt ein portugiesisches Mobilnetz. Am Stück hochzuladen
  * heißt hier: es geht nicht, und wenn doch, dann bricht es bei 80 % ab und
  * fängt wieder bei null an.
+ *
+ * Dass die Grenze überhaupt so niedrig stehen **kann**, ist ein Nebengewinn
+ * dieses Wegs: ein Brocken ist ein Megabyte, als Base64 keine anderthalb. Als
+ * das BSI im Oktober 2026 wegen CVE-2026-109618 zu einem kleinen
+ * `post_max_size` riet, war dafür nichts umzubauen.
  *
  * Deshalb kommen die Dateien in Brocken von ein paar Megabyte. Jeder Brocken
  * ist eine eigene Anfrage, die für sich gelingt oder scheitert; was schon

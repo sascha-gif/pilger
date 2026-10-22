@@ -34,6 +34,21 @@ services:
       PILGER_WRITE_PASSWORD: ${WRITE_PASSWORD:-}
       PILGER_DATA_DIR: /var/www/data
       PILGER_DEBUG: "false"
+    # Die Gegenseite zu `memory_limit = -1` im Dockerfile.
+    #
+    # Das BSI rät bei CVE-2026-109618, das Speicherlimit in PHP aufzuheben —
+    # der Fehler an einem erreichbaren Limit führt dort in den verwundbaren
+    # Codepfad — und den Speicher statt dessen am Container zu begrenzen.
+    # Ausdrücklich **nicht** über RLIMIT_AS oder RLIMIT_DATA: die lösen
+    # denselben anfälligen Fehler nur an anderer Stelle aus.
+    #
+    # Ein Gigabyte ist reichlich: GD hält ein 24-Megapixel-Foto unkomprimiert
+    # mit rund 100 MB, beim Drehen nach EXIF kurz zweimal. Es ist eine
+    # Obergrenze, keine Reservierung — belegt wird davon nur, was gebraucht
+    # wird. `memswap_limit` auf denselben Wert, sonst ließe sich die Grenze
+    # über Swap umgehen.
+    mem_limit: 1g
+    memswap_limit: 1g
     volumes:
       # Fotos und Sprachaufnahmen. Muss ein eigenes Volume sein: der Container
       # wird bei jedem Deploy neu gebaut, alles im Image ist danach weg.

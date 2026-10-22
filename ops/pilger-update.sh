@@ -46,11 +46,18 @@ git reset --hard --quiet origin/main
 export GIT_COMMIT="$(git rev-parse --short HEAD)"
 export BUILD_TIME="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
-if ! docker compose up -d --build --remove-orphans; then
+# --pull: das Basis-Image frisch holen. Ohne das nimmt Docker beim Bauen die
+# Fassung aus seinem Zwischenspeicher — ein gepatchtes php:8.3.x läge dann auf
+# der Registry, und der Deploy würde weiter die alte Fassung ausliefern, ohne
+# dass es irgendwo auffiele. Genau das war bei CVE-2026-109618/109619 die
+# Gefahr. Kostet nichts: gebaut wird ohnehin nur, wenn ein neuer Stand da ist.
+docker compose build --pull
+
+if ! docker compose up -d --remove-orphans; then
   echo "Start fehlgeschlagen — Container abräumen und neu aufbauen."
   # down ohne -v: die benannten Volumes und damit alle Daten bleiben erhalten.
   docker compose down --remove-orphans
-  docker compose up -d --build
+  docker compose up -d
 fi
 
 echo "Aktualisiert auf ${after:0:7}"

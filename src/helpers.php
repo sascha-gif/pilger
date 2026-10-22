@@ -320,7 +320,7 @@ function koordinate(mixed $wert, float $grenze): ?float
 }
 
 /**
- * `post_max_size = 72M` als Zahl. Die INI-Kurzschreibweise kennt K, M und G,
+ * `post_max_size = 32M` als Zahl. Die INI-Kurzschreibweise kennt K, M und G,
  * und `ini_get()` gibt sie unverändert zurück — vergleichen lässt sich damit
  * nichts.
  */
