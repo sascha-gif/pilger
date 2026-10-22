@@ -171,6 +171,15 @@ jobs:
           echo "In der Datenbank steht: $gespeichert"
           test "$gespeichert" = "249.90" || { echo "::error::Betrag kam nicht in der Datenbank an."; exit 1; }
 
+      - name: Haertung pruefen (BSI BITS-H 2026-297981-1132)
+        run: |
+          # Nicht glauben, dass die Einstellungen greifen - im laufenden
+          # Container nachrechnen. Das Skript prueft die PHP-Fassung, die
+          # Werte, ob die Anwendung sie per ini_set() zurueckdrehen kann,
+          # die Grenzen von Apache und was ausserhalb von public/ liegt.
+          # Jede Zeile darin haengt an CVE-2026-109618 oder CVE-2026-109619.
+          docker compose exec -T app php < ops/haertung-pruefen.php
+
       - name: Fotos überleben einen Neubau
         run: |
           # Das Volume ist der ganze Punkt: was hier liegt, muss einen

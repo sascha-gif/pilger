@@ -390,6 +390,20 @@ Aufnahme. Geprüft: ein 1-MB-Brocken kommt vollständig an (1 048 576 Bytes auf
 der Platte), eine Sprachnotiz von 10 MB geht durch, eine von 30 MB wird mit
 "Die Datei ist zu groß." abgewiesen statt mit einem Absturz.
 
+**`ops/haertung-pruefen.php` rechnet am laufenden Container nach.** Aufruf:
+`docker compose exec -T app php < ops/haertung-pruefen.php` — geht auch auf dem
+Server von Hand. Die CI ruft es bei jedem Push auf. Es prüft die PHP-Fassung,
+alle Werte, **ob die Anwendung sie per `ini_set()` zurückdrehen kann** (der
+Punkt, den man sonst glaubt statt prüft — dafür legt es kurz eine Probe-Datei
+in den Document-Root und holt sie über 127.0.0.1 wieder ab), ob Apache einen
+40-MB-Rumpf mit 413 abweist, ob `X-Powered-By` weg ist, ob die Tür zu ist und
+ob `src/`, `db/`, `config/`, die `.md`-Dateien und `.git/` über den Webserver
+unerreichbar sind.
+
+Dabei kam noch etwas heraus: **`expose_php` war an.** Jede Antwort trug
+`X-Powered-By: PHP/8.3.36` — die genaue Angabe, nach der ein Scanner sucht, der
+sich Ziele für diese CVEs zusammenstellt. Ist jetzt aus.
+
 **Das Dockerfile rechnet beim Bauen nach**, damit nichts davon stillschweigend
 zurückfallen kann: PHP muss still starten (kein Wort auf stderr — der Nachweis,
 dass keine ungültige Einstellung drin ist), die Fassung muss mindestens 8.3.36

@@ -50,6 +50,12 @@ RUN apt-get update \
 # von CVE-2026-109619. Es steht hier und nicht in einer `.user.ini`, weil es
 # greifen muss, **bevor** eine Anfrage verarbeitet wird.
 #
+# `expose_php = Off` nimmt den Kopfzeilen das `X-Powered-By: PHP/8.3.36`.
+# Solange es drinsteht, trägt jede einzelne Antwort die genaue Fassung nach
+# außen — die Angabe, nach der ein Scanner sucht, der sich Ziele für genau
+# diese beiden CVEs zusammenstellt. Es schützt vor nichts, aber es macht die
+# Seite unauffällig, und das kostet nichts.
+#
 # Was hier **nicht** steht: `fatal_error_backtraces = 0`. Das ist der
 # Workaround für PHP 8.5; in 8.3 gibt es die Einstellung nicht, und eine
 # unbekannte Einstellung löst pro Anfrage genau die Diagnosemeldung aus, die
@@ -62,6 +68,7 @@ RUN printf '%s\n' \
       'max_input_vars = 200' \
       'memory_limit = -1' \
       'session.upload_progress.enabled = 0' \
+      'expose_php = Off' \
       > /usr/local/etc/php/conf.d/pilger.ini \
  && rm -f /usr/local/etc/php/conf.d/uploads.ini
 
@@ -140,6 +147,7 @@ RUN set -eu; \
       if (ini_get("memory_limit") !== "-1") { $fehler[] = "memory_limit ist " . ini_get("memory_limit"); } \
       if (ini_get("session.upload_progress.enabled")) { $fehler[] = "session.upload_progress ist an"; } \
       if (ini_get("post_max_size") !== "32M") { $fehler[] = "post_max_size ist " . ini_get("post_max_size"); } \
+      if (ini_get("expose_php")) { $fehler[] = "expose_php ist an"; } \
       if ($fehler) { fwrite(STDERR, implode("; ", $fehler) . PHP_EOL); exit(1); } \
       echo "PHP ", PHP_VERSION, " — Haertung sitzt.", PHP_EOL;'
 
